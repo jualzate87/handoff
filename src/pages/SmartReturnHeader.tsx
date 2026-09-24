@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom'
 import type { RefObject } from 'react'
 import {
-  Lock, Person,
+  Person,
   ChevronDown, List, Edit, Checklist,
   Send, CloudUpload, Rocket, NewWindow,
 } from '@design-systems/icons'
@@ -70,7 +70,6 @@ export default function SmartReturnHeader({
       <div className={styles.row2}>
         <div className={styles.row2Left}>
           <div className={styles.clientName}>Tina<br />Yuan</div>
-          <Lock size="small" className={styles.lockIcon} />
           <button type="button" className={styles.clientProfileBtn}>
             <Person size="small" />
             <span className={styles.clientProfileLabel}>Client profile</span>

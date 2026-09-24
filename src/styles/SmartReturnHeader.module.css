@@ -40,11 +40,6 @@
   padding: 12px 0;
 }
 
-.lockIcon {
-  color: #6b6c72;
-  flex-shrink: 0;
-}
-
 /* Client profile button */
 .clientProfileBtn {
   display: flex;
