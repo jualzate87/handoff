@@ -27,7 +27,6 @@ type RailItem = {
   Icon: RailIcon
   label: ReactNode
   route?: string
-  showNewBadge?: boolean
 }
 
 const RAIL_ITEMS: RailItem[] = [
@@ -43,7 +42,6 @@ const RAIL_ITEMS: RailItem[] = [
     id: 'activity',
     Icon: ViewList,
     label: <>Activity<br />feed</>,
-    showNewBadge: true,
   },
 ]
 
@@ -111,11 +109,6 @@ export default function ReturnContextRail({
           </span>
           <span className={styles.label}>{item.label}</span>
         </div>
-        {item.showNewBadge ? (
-          <span className={styles.newBadge} aria-label="New">
-            NEW
-          </span>
-        ) : null}
       </Tag>
     )
   }
