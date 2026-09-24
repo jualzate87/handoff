@@ -46,6 +46,8 @@ const KNOWN_HASH_ROUTES = [
   '/books-adjustments',
   '/books-importing',
   '/books-found',
+  '/client-portal-handoff',
+  '/client-onboarding',
   '/data-review-popout',
   '/data-review',
   '/smart-return',
