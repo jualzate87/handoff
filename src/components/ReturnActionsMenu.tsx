@@ -1,15 +1,15 @@
 import { useEffect, useRef, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { ChevronDown } from '@design-systems/icons'
 import { Button } from '@ids-ts/button'
 import '@ids-ts/button/dist/main.css'
 import itaLogo from '../assets/ita-logo.svg'
+import TaxAdvisoryModal from './TaxAdvisoryModal'
 import styles from '../styles/ReturnActionsMenu.module.css'
 
 export default function ReturnActionsMenu() {
   const [open, setOpen] = useState(false)
+  const [advisoryOpen, setAdvisoryOpen] = useState(false)
   const rootRef = useRef<HTMLDivElement>(null)
-  const navigate = useNavigate()
 
   useEffect(() => {
     if (!open) return
@@ -36,7 +36,7 @@ export default function ReturnActionsMenu() {
               className={styles.menuItem}
               onClick={() => {
                 setOpen(false)
-                navigate('/tax-advisory')
+                setAdvisoryOpen(true)
               }}
             >
               <img src={itaLogo} alt="" className={styles.itemIcon} />
@@ -45,6 +45,8 @@ export default function ReturnActionsMenu() {
           </li>
         </ul>
       ) : null}
+
+      <TaxAdvisoryModal open={advisoryOpen} onClose={() => setAdvisoryOpen(false)} />
     </div>
   )
 }
