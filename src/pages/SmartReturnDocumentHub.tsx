@@ -73,7 +73,7 @@ export default function SmartReturnDocumentHub({ readOnly = false }: SmartReturn
           clearInterval(interval)
           timerRef.current = setTimeout(() => {
             completeDocumentImport()
-            navigate('/import-confirmation')
+            navigate('/books-found')
           }, 400)
           return 100
         }

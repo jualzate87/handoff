@@ -21,6 +21,9 @@ import CheckReturnPopoutPage from './pages/CheckReturnPopoutPage'
 import InputReturnPage from './pages/InputReturnPage'
 import ReturnInsightsPage from './pages/ReturnInsightsPage'
 import TaxAdvisoryInterstitialPage from './pages/TaxAdvisoryInterstitialPage'
+import BooksFoundPage from './pages/BooksFoundPage'
+import BooksAdjustmentsPage from './pages/BooksAdjustmentsPage'
+import BooksImportingPage from './pages/BooksImportingPage'
 import WorkspacePage from './pages/WorkspacePage'
 import HomePage from './pages/HomePage'
 import NotFoundPage from './pages/NotFoundPage'
@@ -74,6 +77,9 @@ export default function App() {
             <Route path="/import-hub" element={<Navigate to="/smart-return" replace />} />
             <Route path="/smart-return" element={<SmartReturnPage />} />
             <Route path="/import-confirmation" element={<ImportConfirmationPage />} />
+            <Route path="/books-found" element={<BooksFoundPage />} />
+            <Route path="/books-adjustments" element={<BooksAdjustmentsPage />} />
+            <Route path="/books-importing" element={<BooksImportingPage />} />
             <Route path="/input-return" element={<InputReturnPage />} />
             <Route path="/data-review" element={<DataReviewRoute />} />
             <Route path="/data-review-popout" element={<DataReviewPopout />} />

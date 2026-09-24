@@ -34,7 +34,7 @@ export default function ReadyToImportPage() {
                 <div className={styles.cardInner}>
                   {/* Client row */}
                   <div className={styles.clientRow}>
-                    <div className={styles.clientAvatar}>JW</div>
+                    <div className={styles.clientAvatar}>TY</div>
                     <div className={styles.clientInfo}>
                       <p className={styles.clientName}>{CLIENT_ADDRESS.name}</p>
                       <p className={styles.clientMeta}>Form 1040 · Tax Year 2025</p>
