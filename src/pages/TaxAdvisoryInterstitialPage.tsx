@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom'
-import { ChevronLeft, AiSparkles, ChartLine, Lightbulb } from '@design-systems/icons'
+import { ChevronLeft, NewWindow, AiSparkles, ChartLine, Lightbulb } from '@design-systems/icons'
 import { Button } from '@ids-ts/button'
 import '@ids-ts/button/dist/main.css'
 import { H4, H6, B2, B3, B4 } from '@ids-ts/typography'
@@ -26,6 +26,13 @@ const POINTS = [
     body: 'Turn the analysis into a client-ready plan you can walk through together.',
   },
 ]
+
+/** Alex's Tax Plan Studio walkthrough — a separate prototype, opened alongside this one. */
+const TAX_PLAN_STUDIO_URL = 'https://github.intuit.com/pages/abelmonte/taxplanstudio-walkthrough/'
+
+function openTaxPlanStudio() {
+  window.open(TAX_PLAN_STUDIO_URL, '_blank', 'noopener')
+}
 
 export default function TaxAdvisoryInterstitialPage() {
   const navigate = useNavigate()
@@ -56,8 +63,9 @@ export default function TaxAdvisoryInterstitialPage() {
                 <ChevronLeft size="small" aria-hidden />
                 Back to the return
               </Button>
-              <Button priority="primary" onClick={() => navigate('/check-return')}>
+              <Button priority="primary" onClick={openTaxPlanStudio}>
                 Create tax plan
+                <NewWindow size="small" aria-hidden />
               </Button>
             </div>
 
