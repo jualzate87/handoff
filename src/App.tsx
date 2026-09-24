@@ -20,6 +20,7 @@ import AgentReviewPage from './pages/AgentReviewPage'
 import CheckReturnPopoutPage from './pages/CheckReturnPopoutPage'
 import InputReturnPage from './pages/InputReturnPage'
 import ReturnInsightsPage from './pages/ReturnInsightsPage'
+import TaxAdvisoryInterstitialPage from './pages/TaxAdvisoryInterstitialPage'
 import WorkspacePage from './pages/WorkspacePage'
 import HomePage from './pages/HomePage'
 import NotFoundPage from './pages/NotFoundPage'
@@ -81,6 +82,7 @@ export default function App() {
             <Route path="/ai-review" element={<AgentReviewPage />} />
             <Route path="/check-return" element={<CheckReturnPage />} />
             <Route path="/check-return/insights" element={<ReturnInsightsPage />} />
+            <Route path="/tax-advisory" element={<TaxAdvisoryInterstitialPage />} />
 
             <Route element={<AppLayout />}>
               <Route path="/home" element={<HomePage />} />

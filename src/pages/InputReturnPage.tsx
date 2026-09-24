@@ -97,7 +97,16 @@ export default function InputReturnPage() {
     if (current !== resolved) {
       applyInputDocKey(navItem.topTab, resolved, docSetters)
     }
-  }, [docParam, activeItemId, activeSubTab, activeDivPayer, activeIntPayer, setActiveSubTab, setActiveDivPayer, setActiveIntPayer])
+  }, [
+    docParam,
+    activeItemId,
+    activeSubTab,
+    activeDivPayer,
+    activeIntPayer,
+    setActiveSubTab,
+    setActiveDivPayer,
+    setActiveIntPayer,
+  ])
 
   useEffect(() => {
     if (fieldParam && fieldParam !== selectedField) {
@@ -116,7 +125,12 @@ export default function InputReturnPage() {
       }
     }
     const next = new URLSearchParams(searchParams)
-    writeInputReturnParams(next, id, navItem.topTab, navItem.topTab ? getDefaultDocKey(navItem.topTab) : null)
+    writeInputReturnParams(
+      next,
+      id,
+      navItem.topTab,
+      navItem.topTab ? getDefaultDocKey(navItem.topTab) : null,
+    )
     if (isScheduleAInterestNavItem(navItem)) {
       next.delete(INPUT_DOC_PARAM)
     }
@@ -134,42 +148,42 @@ export default function InputReturnPage() {
 
   const handleContextRailItem = (id: ReturnContextRailItemId) => {
     if (id === 'comments') {
-      setCommentsOpen(open => !open)
+      setCommentsOpen((open) => !open)
     }
   }
 
   return (
     <div className={styles.page} data-theme="intuit">
       <IASShell>
-          <SmartReturnHeader
-            activeTab="inputreturn"
-            showReviewReturn
-            onReviewReturn={() => openReviewReturnPopout('1040')}
-          />
+        <SmartReturnHeader
+          activeTab="inputreturn"
+          showReviewReturn
+          onReviewReturn={() => openReviewReturnPopout('1040')}
+        />
 
-          <div className={styles.contentArea}>
-            <InputMenuNav
-              activeItemId={activeItemId}
-              onSelect={handleSelectItem}
-              searchQuery={searchQuery}
-              onSearchChange={setSearchQuery}
-              collapsed={navCollapsed}
-              onCollapsedChange={setNavCollapsed}
-            />
-            <InputFormPanel
-              activeItemId={activeItemId}
-              showMissingEinDiagnostic={diagnostic === 'missing-ein'}
-              onDocChange={handleDocChange}
-            />
-            <ReturnContextRail
-              activeItem={commentsOpen ? 'comments' : undefined}
-              onItemClick={handleContextRailItem}
-            />
-            <ReturnCommentsPanel
-              isOpen={commentsOpen}
-              onToggle={() => setCommentsOpen(open => !open)}
-            />
-          </div>
+        <div className={styles.contentArea}>
+          <InputMenuNav
+            activeItemId={activeItemId}
+            onSelect={handleSelectItem}
+            searchQuery={searchQuery}
+            onSearchChange={setSearchQuery}
+            collapsed={navCollapsed}
+            onCollapsedChange={setNavCollapsed}
+          />
+          <InputFormPanel
+            activeItemId={activeItemId}
+            showMissingEinDiagnostic={diagnostic === 'missing-ein'}
+            onDocChange={handleDocChange}
+          />
+          <ReturnContextRail
+            activeItem={commentsOpen ? 'comments' : undefined}
+            onItemClick={handleContextRailItem}
+          />
+          <ReturnCommentsPanel
+            isOpen={commentsOpen}
+            onToggle={() => setCommentsOpen((open) => !open)}
+          />
+        </div>
       </IASShell>
     </div>
   )

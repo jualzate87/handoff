@@ -5,9 +5,7 @@ import SmartReturnHeader from './SmartReturnHeader'
 import ReturnContextRail from '../components/ReturnContextRail'
 import CheckReturnNav, { type ContentView } from './check-return/CheckReturnNav'
 import CheckReturnMainContent from './check-return/CheckReturnMainContent'
-import {
-  checkReturnFormToOutputId,
-} from './check-return/outputFormNav'
+import { checkReturnFormToOutputId } from './check-return/outputFormNav'
 import type { OutputFormId } from './data-review/outputForms'
 import { computeLiveReturn } from '../data/liveReturn'
 import { useSyncedReviewState } from '../hooks/useSyncedReviewState'
@@ -118,7 +116,7 @@ export default function CheckReturnAgentPage() {
 
   const handleContextRailItem = (id: ReturnContextRailItemId) => {
     if (id === 'activity') {
-      setReviewLogOpen(open => !open)
+      setReviewLogOpen((open) => !open)
     }
   }
 
@@ -135,46 +133,46 @@ export default function CheckReturnAgentPage() {
   return (
     <div className={styles.page} data-theme="intuit">
       <IASShell>
-          <SmartReturnHeader
-            activeTab="checkreturns"
-            showViewSourceDocuments
-            onViewSourceDocuments={() => openSourceDocumentReviewPopout()}
+        <SmartReturnHeader
+          activeTab="checkreturns"
+          showViewSourceDocuments
+          onViewSourceDocuments={() => openSourceDocumentReviewPopout()}
+        />
+        <div className={`${styles.contentArea} ${agentLayout.pageShell}`}>
+          <CheckReturnNav
+            showAiReviewNav
+            contentView={contentView}
+            selectedForm={selectedForm}
+            aiDiagnosticCount={diagnosticOverview.total}
+            selectedAiDiagnosticSubId={selectedAiDiagnosticSubId}
+            onSelectFederal={handleSelectFederal}
+            onSelectCalifornia={handleSelectCalifornia}
+            onSelectForm={handleSelectForm}
+            onSelectAiDiagnostics={handleSelectAiDiagnosticsOverview}
+            onSelectAiDiagnosticSub={handleSelectAiDiagnosticSub}
           />
-          <div className={`${styles.contentArea} ${agentLayout.pageShell}`}>
-            <CheckReturnNav
-              showAiReviewNav
-              contentView={contentView}
-              selectedForm={selectedForm}
-              aiDiagnosticCount={diagnosticOverview.total}
-              selectedAiDiagnosticSubId={selectedAiDiagnosticSubId}
-              onSelectFederal={handleSelectFederal}
-              onSelectCalifornia={handleSelectCalifornia}
-              onSelectForm={handleSelectForm}
-              onSelectAiDiagnostics={handleSelectAiDiagnosticsOverview}
-              onSelectAiDiagnosticSub={handleSelectAiDiagnosticSub}
-            />
 
-            <CheckReturnMainContent
-              contentView={contentView}
-              selectedForm={selectedForm}
-              outputFormId={outputFormId}
-              aiDiagnosticsView={aiDiagnosticsView}
-              selectedDiagnosticKey={selectedDiagnosticKey}
-              onAiDiagnosticsViewChange={handleAiDiagnosticsViewChange}
-              diagnosticHighlightKey={selectedDiagnosticKey}
-              diagnosticsMode="agent"
-            />
-            <ReturnContextRail
-              className={styles.contextRail}
-              activeItem={reviewLogOpen ? 'activity' : undefined}
-              onItemClick={handleContextRailItem}
-            />
-            <ActivityPanel
-              isOpen={reviewLogOpen}
-              onToggle={() => setReviewLogOpen(open => !open)}
-              onNavigate={handleActivityNavigate}
-            />
-          </div>
+          <CheckReturnMainContent
+            contentView={contentView}
+            selectedForm={selectedForm}
+            outputFormId={outputFormId}
+            aiDiagnosticsView={aiDiagnosticsView}
+            selectedDiagnosticKey={selectedDiagnosticKey}
+            onAiDiagnosticsViewChange={handleAiDiagnosticsViewChange}
+            diagnosticHighlightKey={selectedDiagnosticKey}
+            diagnosticsMode="agent"
+          />
+          <ReturnContextRail
+            className={styles.contextRail}
+            activeItem={reviewLogOpen ? 'activity' : undefined}
+            onItemClick={handleContextRailItem}
+          />
+          <ActivityPanel
+            isOpen={reviewLogOpen}
+            onToggle={() => setReviewLogOpen((open) => !open)}
+            onNavigate={handleActivityNavigate}
+          />
+        </div>
       </IASShell>
     </div>
   )

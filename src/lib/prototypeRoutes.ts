@@ -43,6 +43,7 @@ const KNOWN_HASH_ROUTES = [
   '/check-return',
   '/import-confirmation',
   '/input-return',
+  '/tax-advisory',
   '/data-review-popout',
   '/data-review',
   '/smart-return',

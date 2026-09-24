@@ -5,9 +5,7 @@ import SmartReturnHeader from './SmartReturnHeader'
 import ReturnContextRail from '../components/ReturnContextRail'
 import CheckReturnNav, { type ContentView } from './check-return/CheckReturnNav'
 import CheckReturnMainContent from './check-return/CheckReturnMainContent'
-import {
-  checkReturnFormToOutputId,
-} from './check-return/outputFormNav'
+import { checkReturnFormToOutputId } from './check-return/outputFormNav'
 import type { OutputFormId } from './data-review/outputForms'
 import { computeLiveReturn } from '../data/liveReturn'
 import { useSyncedReviewState } from '../hooks/useSyncedReviewState'
@@ -20,9 +18,7 @@ import {
 import type { AiDiagnosticsView } from './check-return/AiDiagnosticsPanel'
 import ActivityPanel from './check-return/ActivityPanel'
 import ReturnCommentsPanel from '../components/ReturnCommentsPanel'
-import ReviewerHandoffPrompt, {
-  type ReviewerPromptVariant,
-} from './handoff/ReviewerHandoffPrompt'
+import ReviewerHandoffPrompt, { type ReviewerPromptVariant } from './handoff/ReviewerHandoffPrompt'
 import { JOINED_AS_EVENT, REVIEWER_WELCOME_KEY } from '../lib/returnWorkflow'
 import { navigateToActivityTarget } from './check-return/activityNavigation'
 import type { ActivityDeepLink } from './check-return/activityTypes'
@@ -32,7 +28,13 @@ import styles from '../styles/CheckReturnPage.module.css'
 
 function resolveInitialOutputForm(searchParams: URLSearchParams): OutputFormId {
   const formParam = searchParams.get('form')
-  if (formParam === '1040' || formParam === 'sch1' || formParam === 'schC' || formParam === 'schD' || formParam === 'schA') {
+  if (
+    formParam === '1040' ||
+    formParam === 'sch1' ||
+    formParam === 'schC' ||
+    formParam === 'schD' ||
+    formParam === 'schA'
+  ) {
     return formParam as OutputFormId
   }
   return '1040'
@@ -175,11 +177,11 @@ export default function CheckReturnPage({ embeddedUnderlay = false }: CheckRetur
 
   const handleContextRailItem = (id: ReturnContextRailItemId) => {
     if (id === 'activity') {
-      setReviewLogOpen(open => !open)
+      setReviewLogOpen((open) => !open)
       setCommentsOpen(false)
     }
     if (id === 'comments') {
-      setCommentsOpen(open => !open)
+      setCommentsOpen((open) => !open)
       setReviewLogOpen(false)
     }
   }
@@ -202,65 +204,63 @@ export default function CheckReturnPage({ embeddedUnderlay = false }: CheckRetur
   return (
     <div className={styles.page} data-theme="intuit">
       <IASShell>
-          <SmartReturnHeader
-            activeTab="checkreturns"
-            showViewSourceDocuments
-            aiReviewButtonRef={embeddedUnderlay ? undefined : aiReviewButtonRef}
-            onViewSourceDocuments={() => openSourceDocumentReviewPopout()}
-            onAiReview={
-              embeddedUnderlay
-                ? undefined
-                : () => navigate('/ai-review', { state: { layoutMode: 'fullscreen' } })
-            }
+        <SmartReturnHeader
+          activeTab="checkreturns"
+          showViewSourceDocuments
+          aiReviewButtonRef={embeddedUnderlay ? undefined : aiReviewButtonRef}
+          onViewSourceDocuments={() => openSourceDocumentReviewPopout()}
+          onAiReview={
+            embeddedUnderlay
+              ? undefined
+              : () => navigate('/ai-review', { state: { layoutMode: 'fullscreen' } })
+          }
+        />
+        {!embeddedUnderlay && showReviewerWelcome ? (
+          <ReviewerHandoffPrompt
+            variant={reviewerPromptVariant}
+            anchorRef={aiReviewButtonRef}
+            onDismiss={dismissReviewerWelcome}
           />
-          {!embeddedUnderlay && showReviewerWelcome ? (
-            <ReviewerHandoffPrompt
-              variant={reviewerPromptVariant}
-              anchorRef={aiReviewButtonRef}
-              onDismiss={dismissReviewerWelcome}
-            />
-          ) : null}
-          <div className={styles.contentArea}>
-            <CheckReturnNav
-              startCollapsed={embeddedUnderlay}
-              contentView={contentView}
-              selectedForm={selectedForm}
-              aiDiagnosticCount={diagnosticOverview.total}
-              selectedAiDiagnosticSubId={selectedAiDiagnosticSubId}
-              onSelectFederal={handleSelectFederal}
-              onSelectCalifornia={handleSelectCalifornia}
-              onSelectForm={handleSelectForm}
-              onSelectAiDiagnostics={handleSelectAiDiagnosticsOverview}
-              onSelectAiDiagnosticSub={handleSelectAiDiagnosticSub}
-              showAiReviewNav={showEmbeddedAiDiagnostics}
-            />
+        ) : null}
+        <div className={styles.contentArea}>
+          <CheckReturnNav
+            startCollapsed={embeddedUnderlay}
+            contentView={contentView}
+            selectedForm={selectedForm}
+            aiDiagnosticCount={diagnosticOverview.total}
+            selectedAiDiagnosticSubId={selectedAiDiagnosticSubId}
+            onSelectFederal={handleSelectFederal}
+            onSelectCalifornia={handleSelectCalifornia}
+            onSelectForm={handleSelectForm}
+            onSelectAiDiagnostics={handleSelectAiDiagnosticsOverview}
+            onSelectAiDiagnosticSub={handleSelectAiDiagnosticSub}
+            showAiReviewNav={showEmbeddedAiDiagnostics}
+          />
 
-            <CheckReturnMainContent
-              contentView={contentView}
-              selectedForm={selectedForm}
-              outputFormId={outputFormId}
-              aiDiagnosticsView={aiDiagnosticsView}
-              selectedDiagnosticKey={selectedDiagnosticKey}
-              onAiDiagnosticsViewChange={handleAiDiagnosticsViewChange}
-              diagnosticHighlightKey={selectedDiagnosticKey}
-            />
-            <ReturnContextRail
-              className={styles.contextRail}
-              activeItem={
-                reviewLogOpen ? 'activity' : commentsOpen ? 'comments' : undefined
-              }
-              onItemClick={handleContextRailItem}
-            />
-            <ActivityPanel
-              isOpen={reviewLogOpen}
-              onToggle={() => setReviewLogOpen(open => !open)}
-              onNavigate={handleActivityNavigate}
-            />
-            <ReturnCommentsPanel
-              isOpen={commentsOpen}
-              onToggle={() => setCommentsOpen(open => !open)}
-            />
-          </div>
+          <CheckReturnMainContent
+            contentView={contentView}
+            selectedForm={selectedForm}
+            outputFormId={outputFormId}
+            aiDiagnosticsView={aiDiagnosticsView}
+            selectedDiagnosticKey={selectedDiagnosticKey}
+            onAiDiagnosticsViewChange={handleAiDiagnosticsViewChange}
+            diagnosticHighlightKey={selectedDiagnosticKey}
+          />
+          <ReturnContextRail
+            className={styles.contextRail}
+            activeItem={reviewLogOpen ? 'activity' : commentsOpen ? 'comments' : undefined}
+            onItemClick={handleContextRailItem}
+          />
+          <ActivityPanel
+            isOpen={reviewLogOpen}
+            onToggle={() => setReviewLogOpen((open) => !open)}
+            onNavigate={handleActivityNavigate}
+          />
+          <ReturnCommentsPanel
+            isOpen={commentsOpen}
+            onToggle={() => setCommentsOpen((open) => !open)}
+          />
+        </div>
       </IASShell>
     </div>
   )

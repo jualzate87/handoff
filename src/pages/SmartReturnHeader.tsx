@@ -2,13 +2,14 @@ import { useNavigate } from 'react-router-dom'
 import type { RefObject } from 'react'
 import {
   Person,
-  ChevronDown, List, Edit, Checklist,
+  List, Edit, Checklist,
   Send, CloudUpload, Rocket, NewWindow,
 } from '@design-systems/icons'
 import { Button } from '@ids-ts/button'
 import '@ids-ts/button/dist/main.css'
 import intuitIntelligenceLogo from '../assets/icons/intuit-intelligence-logo-small.svg'
 import HeaderSelectMenu from '../components/HeaderSelectMenu'
+import ReturnActionsMenu from '../components/ReturnActionsMenu'
 import { useReturnWorkflow } from '../contexts/ReturnWorkflowContext'
 import { RETURN_STATUSES, TEAM_MEMBERS } from '../lib/returnWorkflow'
 import { INTELLIGENCE_SUBHEADER_CTA } from './agent-review/agentIntelligenceCopy'
@@ -124,9 +125,7 @@ export default function SmartReturnHeader({
             options={RETURN_STATUSES.map(item => ({ id: item.id, label: item.label }))}
             onChange={id => requestStatusChange(id as typeof status.id)}
           />
-          <Button priority="primary">
-            Return actions <ChevronDown size="small" />
-          </Button>
+          <ReturnActionsMenu />
         </div>
       </div>
 

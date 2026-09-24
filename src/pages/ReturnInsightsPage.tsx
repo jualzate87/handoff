@@ -6,7 +6,7 @@ import ReturnContextRail from '../components/ReturnContextRail'
 import styles from '../styles/ReturnInsightsPage.module.css'
 
 // Figma asset - Return Insights visualization image (valid 7 days)
-const insightsImage = "https://www.figma.com/api/mcp/asset/644c8882-32db-4e16-aa4c-27d5b74b9275"
+const insightsImage = 'https://www.figma.com/api/mcp/asset/644c8882-32db-4e16-aa4c-27d5b74b9275'
 
 const CHECK_NAV_ITEMS = [
   { label: 'Tax Summary', active: false, link: '/check-return' },
@@ -39,11 +39,11 @@ export default function ReturnInsightsPage() {
   return (
     <div className={styles.page} data-theme="intuit">
       <IASShell>
-          <SmartReturnHeader activeTab="checkreturns" />
-          <div className={styles.contentArea}>
+        <SmartReturnHeader activeTab="checkreturns" />
+        <div className={styles.contentArea}>
           {/* Left check navigation */}
           <div className={styles.leftNav}>
-            {CHECK_NAV_ITEMS.map(item => (
+            {CHECK_NAV_ITEMS.map((item) => (
               <button
                 key={item.label}
                 className={`${styles.navItem} ${item.active ? styles.navItemActive : ''}`}
@@ -63,7 +63,7 @@ export default function ReturnInsightsPage() {
             />
           </div>
           <ReturnContextRail className={styles.contextRail} />
-          </div>
+        </div>
       </IASShell>
     </div>
   )

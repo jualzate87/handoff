@@ -48,61 +48,61 @@ export default function ImportConfirmationPage() {
   return (
     <div className={styles.page} data-theme="intuit">
       <IASShell>
-          <SmartReturnHeader activeTab="smartreturn" />
-          <div className={styles.main}>
-        <nav className={styles.breadcrumb} aria-label="Breadcrumb">
-          <Button
-            priority="borderless"
-            size="small"
-            className={styles.breadcrumbBtn}
-            onClick={handleBackToSmartReturn}
-          >
-            <ChevronLeft size="small" aria-hidden />
-            Back to SmartReturn
-          </Button>
-        </nav>
+        <SmartReturnHeader activeTab="smartreturn" />
+        <div className={styles.main}>
+          <nav className={styles.breadcrumb} aria-label="Breadcrumb">
+            <Button
+              priority="borderless"
+              size="small"
+              className={styles.breadcrumbBtn}
+              onClick={handleBackToSmartReturn}
+            >
+              <ChevronLeft size="small" aria-hidden />
+              Back to SmartReturn
+            </Button>
+          </nav>
 
-        <div className={styles.card} role="status" aria-live="polite">
-          <CircleCheckFill size="xlarge" className={styles.checkIcon} aria-hidden />
-          <H5 as="h1" weight="demi" className={styles.cardTitle}>
-            The return is ready for review
-          </H5>
-          <B2 className={styles.cardBody}>
-            Your review starts in a <strong>new tab</strong>, showing output forms first
-          </B2>
+          <div className={styles.card} role="status" aria-live="polite">
+            <CircleCheckFill size="xlarge" className={styles.checkIcon} aria-hidden />
+            <H5 as="h1" weight="demi" className={styles.cardTitle}>
+              The return is ready for review
+            </H5>
+            <B2 className={styles.cardBody}>
+              Your review starts in a <strong>new tab</strong>, showing output forms first
+            </B2>
 
-          <ProgressBar
-            className={styles.progressBar}
-            value={100}
-            max={100}
-            persistent
-            automationId="import-complete-progress"
-            aria-label="Import complete"
-          />
+            <ProgressBar
+              className={styles.progressBar}
+              value={100}
+              max={100}
+              persistent
+              automationId="import-complete-progress"
+              aria-label="Import complete"
+            />
 
-          <Button
-            priority="primary"
-            onClick={handleReviewReturn}
-            automationId="review-return-confirmation-cta"
-          >
-            Review the return
-            <ChevronRight size="small" aria-hidden />
-          </Button>
+            <Button
+              priority="primary"
+              onClick={handleReviewReturn}
+              automationId="review-return-confirmation-cta"
+            >
+              Review the return
+              <ChevronRight size="small" aria-hidden />
+            </Button>
 
-          <B3 className={styles.feedback}>
-            How was your import?{' '}
-            <Link href="#" onClick={e => e.preventDefault()}>
-              Share your feedback
-            </Link>
-          </B3>
-        </div>
-
-        <div className={styles.bottomBar}>
-          <Button priority="borderless" onClick={handleBackToSmartReturn}>
-            Back
-          </Button>
-        </div>
+            <B3 className={styles.feedback}>
+              How was your import?{' '}
+              <Link href="#" onClick={(e) => e.preventDefault()}>
+                Share your feedback
+              </Link>
+            </B3>
           </div>
+
+          <div className={styles.bottomBar}>
+            <Button priority="borderless" onClick={handleBackToSmartReturn}>
+              Back
+            </Button>
+          </div>
+        </div>
       </IASShell>
     </div>
   )

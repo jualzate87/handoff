@@ -4,10 +4,7 @@ import SmartReturnHeader from './SmartReturnHeader'
 import SmartReturnDocumentHub from './SmartReturnDocumentHub'
 import IASShell from './data-review/IASShell'
 import styles from '../styles/SmartReturnPage.module.css'
-import {
-  openReviewReturnPopout,
-  setStoredDemoRole,
-} from '../lib/prototypeRoutes'
+import { openReviewReturnPopout, setStoredDemoRole } from '../lib/prototypeRoutes'
 
 export default function SmartReturnPage() {
   const [searchParams] = useSearchParams()
