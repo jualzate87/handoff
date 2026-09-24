@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom'
 import type { RefObject } from 'react'
 import {
-  CircleQuestion, Notification, Settings, Lock, Person,
+  Lock, Person,
   ChevronDown, List, Edit, Checklist,
   Send, CloudUpload, Rocket, NewWindow,
 } from '@design-systems/icons'
@@ -66,33 +66,6 @@ export default function SmartReturnHeader({
 
   return (
     <div className={styles.header}>
-      {/* ── Row 1: Product header 48px ── */}
-      <div className={styles.row1}>
-        <span className={styles.businessName}>Beasley & Howe Financials</span>
-        <div className={styles.row1Right}>
-          <button type="button" className={styles.navBtn}>
-            <CircleQuestion size="small" />
-            <span className={styles.navBtnLabel}>Help</span>
-          </button>
-          <button type="button" className={styles.navBtn}>
-            <Notification size="small" />
-            <span className={styles.navBtnLabel}>Notifications</span>
-          </button>
-          <button type="button" className={styles.navBtn}>
-            <Settings size="small" />
-            <span className={styles.navBtnLabel}>Settings</span>
-          </button>
-          <div className={styles.row1Divider} />
-          <div
-            className={styles.oiaaAvatar}
-            style={{ background: currentUser.avatarColor }}
-            title={currentUser.name}
-          >
-            {currentUser.initial}
-          </div>
-        </div>
-      </div>
-
       {/* ── Row 2: Client sub-header 63px ── */}
       <div className={styles.row2}>
         <div className={styles.row2Left}>

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import LeftNavPTO from './data-review/LeftNavPTO'
+import IASShell from './data-review/IASShell'
 import SmartReturnHeader from './SmartReturnHeader'
 import ReturnContextRail from '../components/ReturnContextRail'
 import CheckReturnNav, { type ContentView } from './check-return/CheckReturnNav'
@@ -28,7 +28,6 @@ import { navigateToActivityTarget } from './check-return/activityNavigation'
 import type { ActivityDeepLink } from './check-return/activityTypes'
 import { openSourceDocumentReviewPopout } from '../lib/prototypeRoutes'
 import type { ReturnContextRailItemId } from '../components/ReturnContextRail'
-import layout from '../styles/CoreScreenLayout.module.css'
 import styles from '../styles/CheckReturnPage.module.css'
 
 function resolveInitialOutputForm(searchParams: URLSearchParams): OutputFormId {
@@ -201,10 +200,8 @@ export default function CheckReturnPage({ embeddedUnderlay = false }: CheckRetur
   }
 
   return (
-    <div className={`${layout.page} ${styles.page}`} data-theme="intuit">
-      <div className={layout.body}>
-        <LeftNavPTO />
-        <div className={layout.rightSide}>
+    <div className={styles.page} data-theme="intuit">
+      <IASShell>
           <SmartReturnHeader
             activeTab="checkreturns"
             showViewSourceDocuments
@@ -264,8 +261,7 @@ export default function CheckReturnPage({ embeddedUnderlay = false }: CheckRetur
               onToggle={() => setCommentsOpen(open => !open)}
             />
           </div>
-        </div>
-      </div>
+      </IASShell>
     </div>
   )
 }

@@ -1,9 +1,8 @@
 import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import LeftNavPTO from './data-review/LeftNavPTO'
+import IASShell from './data-review/IASShell'
 import SmartReturnHeader from './SmartReturnHeader'
 import ReturnContextRail from '../components/ReturnContextRail'
-import layout from '../styles/CoreScreenLayout.module.css'
 import styles from '../styles/ReturnInsightsPage.module.css'
 
 // Figma asset - Return Insights visualization image (valid 7 days)
@@ -38,10 +37,8 @@ export default function ReturnInsightsPage() {
   }, [])
 
   return (
-    <div className={`${layout.page} ${styles.page}`} data-theme="intuit">
-      <div className={layout.body}>
-        <LeftNavPTO />
-        <div className={layout.rightSide}>
+    <div className={styles.page} data-theme="intuit">
+      <IASShell>
           <SmartReturnHeader activeTab="checkreturns" />
           <div className={styles.contentArea}>
           {/* Left check navigation */}
@@ -67,8 +64,7 @@ export default function ReturnInsightsPage() {
           </div>
           <ReturnContextRail className={styles.contextRail} />
           </div>
-        </div>
-      </div>
+      </IASShell>
     </div>
   )
 }

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Navigate } from 'react-router-dom'
-import LeftNavPTO from './data-review/LeftNavPTO'
+import IASShell from './data-review/IASShell'
 import SmartReturnHeader from './SmartReturnHeader'
 import ReturnContextRail from '../components/ReturnContextRail'
 import CheckReturnNav, { type ContentView } from './check-return/CheckReturnNav'
@@ -23,7 +23,6 @@ import { navigateToActivityTarget } from './check-return/activityNavigation'
 import type { ActivityDeepLink } from './check-return/activityTypes'
 import { isAgentModeEnabled, openSourceDocumentReviewPopout } from '../lib/prototypeRoutes'
 import type { ReturnContextRailItemId } from '../components/ReturnContextRail'
-import layout from '../styles/CoreScreenLayout.module.css'
 import styles from '../styles/CheckReturnPage.module.css'
 import agentLayout from '../styles/check-return/AgentDiagnosticsPanel.module.css'
 
@@ -134,10 +133,8 @@ export default function CheckReturnAgentPage() {
   }
 
   return (
-    <div className={`${layout.page} ${styles.page}`} data-theme="intuit">
-      <div className={layout.body}>
-        <LeftNavPTO />
-        <div className={layout.rightSide}>
+    <div className={styles.page} data-theme="intuit">
+      <IASShell>
           <SmartReturnHeader
             activeTab="checkreturns"
             showViewSourceDocuments
@@ -178,8 +175,7 @@ export default function CheckReturnAgentPage() {
               onNavigate={handleActivityNavigate}
             />
           </div>
-        </div>
-      </div>
+      </IASShell>
     </div>
   )
 }

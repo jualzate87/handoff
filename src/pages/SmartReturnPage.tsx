@@ -2,8 +2,7 @@ import { useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import SmartReturnHeader from './SmartReturnHeader'
 import SmartReturnDocumentHub from './SmartReturnDocumentHub'
-import LeftNavPTO from './data-review/LeftNavPTO'
-import layout from '../styles/CoreScreenLayout.module.css'
+import IASShell from './data-review/IASShell'
 import styles from '../styles/SmartReturnPage.module.css'
 import {
   openReviewReturnPopout,
@@ -47,19 +46,16 @@ export default function SmartReturnPage() {
   const isReviewer = reviewRole === 'reviewer'
 
   return (
-    <div className={`${layout.page} ${styles.page}`} data-theme="intuit">
-      <div className={layout.body}>
-        <LeftNavPTO />
-        <div className={layout.rightSide}>
-          <SmartReturnHeader
-            activeTab="smartreturn"
-            showReviewReturn={isReviewer}
-            onReviewReturn={handleReviewReturn}
-          />
+    <div className={styles.page} data-theme="intuit">
+      <IASShell>
+        <SmartReturnHeader
+          activeTab="smartreturn"
+          showReviewReturn={isReviewer}
+          onReviewReturn={handleReviewReturn}
+        />
 
-          <SmartReturnDocumentHub readOnly={isReviewer} />
-        </div>
-      </div>
+        <SmartReturnDocumentHub readOnly={isReviewer} />
+      </IASShell>
     </div>
   )
 }

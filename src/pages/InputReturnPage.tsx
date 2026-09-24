@@ -4,7 +4,7 @@ import SmartReturnHeader from './SmartReturnHeader'
 import ReturnCommentsPanel from '../components/ReturnCommentsPanel'
 import ReturnContextRail from '../components/ReturnContextRail'
 import type { ReturnContextRailItemId } from '../components/ReturnContextRail'
-import LeftNavPTO from './data-review/LeftNavPTO'
+import IASShell from './data-review/IASShell'
 import InputMenuNav from './input-return/InputMenuNav'
 import { useNavigate } from 'react-router-dom'
 import { openReviewReturnPopout } from '../lib/prototypeRoutes'
@@ -25,7 +25,6 @@ import {
   writeInputReturnParams,
 } from '../data/inputDocTabs'
 import { useSyncedReviewState } from '../hooks/useSyncedReviewState'
-import layout from '../styles/CoreScreenLayout.module.css'
 import styles from '../styles/InputReturnPage.module.css'
 
 export default function InputReturnPage() {
@@ -140,10 +139,8 @@ export default function InputReturnPage() {
   }
 
   return (
-    <div className={`${layout.page} ${styles.page}`} data-theme="intuit">
-      <div className={layout.body}>
-        <LeftNavPTO />
-        <div className={layout.rightSide}>
+    <div className={styles.page} data-theme="intuit">
+      <IASShell>
           <SmartReturnHeader
             activeTab="inputreturn"
             showReviewReturn
@@ -173,8 +170,7 @@ export default function InputReturnPage() {
               onToggle={() => setCommentsOpen(open => !open)}
             />
           </div>
-        </div>
-      </div>
+      </IASShell>
     </div>
   )
 }

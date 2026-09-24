@@ -1,0 +1,117 @@
+/* IAS shell top bar — company switcher, centered search, right action cluster.
+   Sits on the white content panel, above the return header. */
+
+.topBar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  height: 56px;
+  flex-shrink: 0;
+  padding: 0 16px;
+  background: var(--color-container-background-primary, #ffffff);
+  border-bottom: 1px solid var(--ias-surface-border);
+}
+
+.companySwitcher {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  padding: 4px 6px;
+  border-radius: var(--radius-medium, 6px);
+  cursor: pointer;
+  color: var(--color-text-primary);
+  font-family: inherit;
+  flex-shrink: 0;
+}
+
+.companySwitcher:hover {
+  background: var(--color-action-passive-hover, #f4f5f8);
+}
+
+.companyName {
+  font-size: 16px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.searchWrap {
+  flex: 1 1 auto;
+  display: flex;
+  justify-content: center;
+  min-width: 0;
+  padding: 0 16px;
+}
+
+.search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  max-width: 480px;
+  height: 36px;
+  padding: 0 12px;
+  border-radius: 8px;
+  background: var(--color-container-background-tertiary, #eff2f4);
+  color: var(--color-text-secondary, #6b6c72);
+  cursor: text;
+  overflow: hidden;
+}
+
+.searchIcon {
+  flex-shrink: 0;
+}
+
+.searchPlaceholder {
+  font-size: 14px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.iconButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: none;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  color: var(--color-text-primary);
+}
+
+.iconButton:hover {
+  background: var(--color-action-passive-hover, #f4f5f8);
+}
+
+.avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  margin: 0 4px;
+  border-radius: 50%;
+  background: var(--ias-avatar-bg);
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.propeller {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+  display: block;
+}

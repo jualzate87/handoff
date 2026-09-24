@@ -1,10 +1,9 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { CircleCheckFill, Document, Flag, Comment, InboxActivity } from '@design-systems/icons'
-import LeftNavPTO from './data-review/LeftNavPTO'
+import IASShell from './data-review/IASShell'
 import SmartReturnHeader from './SmartReturnHeader'
 import { CLIENT_ADDRESS, CLIENT_FIRST_NAME } from '../data/clientAddress'
-import layout from '../styles/CoreScreenLayout.module.css'
 import styles from '../styles/ReadyToImportPage.module.css'
 
 const DOCUMENTS = [
@@ -25,10 +24,8 @@ export default function ReadyToImportPage() {
   }, [loading, navigate])
 
   return (
-    <div className={`${layout.page} ${styles.page}`} data-theme="intuit">
-      <div className={layout.body}>
-        <LeftNavPTO />
-        <div className={layout.rightSide}>
+    <div className={styles.page} data-theme="intuit">
+      <IASShell>
           <SmartReturnHeader activeTab="smartreturn" />
           <div className={styles.mainRow}>
             <div className={styles.main}>
@@ -115,8 +112,7 @@ export default function ReadyToImportPage() {
           </button>
             </div>
           </div>
-        </div>
-      </div>
+      </IASShell>
     </div>
   )
 }

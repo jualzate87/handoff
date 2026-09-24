@@ -10,8 +10,7 @@ import '@ids-ts/progress-bar/dist/main.css'
 import { H5, B2, B3 } from '@ids-ts/typography'
 import '@ids-ts/typography/dist/main.css'
 import SmartReturnHeader from './SmartReturnHeader'
-import LeftNavPTO from './data-review/LeftNavPTO'
-import layout from '../styles/CoreScreenLayout.module.css'
+import IASShell from './data-review/IASShell'
 import styles from '../styles/ImportConfirmationPage.module.css'
 import { completeDocumentImport } from '../hooks/useSyncedReviewState'
 import { openReviewReturnPopout } from '../lib/prototypeRoutes'
@@ -47,10 +46,8 @@ export default function ImportConfirmationPage() {
   }
 
   return (
-    <div className={`${layout.page} ${styles.page}`} data-theme="intuit">
-      <div className={layout.body}>
-        <LeftNavPTO />
-        <div className={layout.rightSide}>
+    <div className={styles.page} data-theme="intuit">
+      <IASShell>
           <SmartReturnHeader activeTab="smartreturn" />
           <div className={styles.main}>
         <nav className={styles.breadcrumb} aria-label="Breadcrumb">
@@ -106,8 +103,7 @@ export default function ImportConfirmationPage() {
           </Button>
         </div>
           </div>
-        </div>
-      </div>
+      </IASShell>
     </div>
   )
 }
