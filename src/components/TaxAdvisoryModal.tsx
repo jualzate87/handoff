@@ -2,32 +2,14 @@ import { Modal, ModalHeader, ModalContent, ModalActions } from '@ids-ts/modal-di
 import '@ids-ts/modal-dialog/dist/main.css'
 import { Button } from '@ids-ts/button'
 import '@ids-ts/button/dist/main.css'
-import { NewWindow, AiSparkles, ChartLine, Lightbulb } from '@design-systems/icons'
-import { H4, H6, B2, B3, B4 } from '@ids-ts/typography'
+import { NewWindow } from '@design-systems/icons'
+import { H4, B2, B4 } from '@ids-ts/typography'
 import '@ids-ts/typography/dist/main.css'
 import itaLogo from '../assets/ita-logo.svg'
 import styles from '../styles/TaxAdvisoryModal.module.css'
 
 /** Alex's Tax Plan Studio walkthrough — a separate prototype, opened alongside this one. */
 const TAX_PLAN_STUDIO_URL = 'https://github.intuit.com/pages/abelmonte/taxplanstudio-walkthrough/'
-
-const POINTS = [
-  {
-    Icon: AiSparkles,
-    title: 'Strategies from the return',
-    body: "Tina's filed numbers carry straight over — no re-entry to start planning.",
-  },
-  {
-    Icon: ChartLine,
-    title: 'Savings you can quantify',
-    body: 'Model each strategy side by side and see the projected tax impact.',
-  },
-  {
-    Icon: Lightbulb,
-    title: 'A plan worth presenting',
-    body: 'Turn the analysis into a client-ready plan you can walk through together.',
-  },
-]
 
 interface TaxAdvisoryModalProps {
   open: boolean
@@ -41,7 +23,7 @@ export default function TaxAdvisoryModal({ open, onClose }: TaxAdvisoryModalProp
   }
 
   return (
-    <Modal open={open} onClose={onClose} size="large" dismissible>
+    <Modal open={open} onClose={onClose} size="medium" dismissible>
       <ModalHeader alignment="center" transparentBackground onClose={onClose} />
       <ModalContent alignment="center">
         <div className={styles.body}>
@@ -59,18 +41,6 @@ export default function TaxAdvisoryModal({ open, onClose }: TaxAdvisoryModalProp
             The return is accurate and reviewed. Intuit Tax Advisor picks up from here — turning
             what you just verified into planning strategies for Tina.
           </B2>
-
-          <div className={styles.points}>
-            {POINTS.map(({ Icon, title, body }) => (
-              <div key={title} className={styles.point}>
-                <Icon size="medium" className={styles.pointIcon} aria-hidden />
-                <H6 as="h3" weight="demi" className={styles.pointTitle}>
-                  {title}
-                </H6>
-                <B3 className={styles.pointBody}>{body}</B3>
-              </div>
-            ))}
-          </div>
         </div>
       </ModalContent>
       <ModalActions alignment="right">
