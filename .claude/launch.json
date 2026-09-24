@@ -2,10 +2,10 @@
   "version": "0.0.1",
   "configurations": [
     {
-      "name": "SmartReview-ProtoC",
+      "name": "PTG-Innovate-demo",
       "runtimeExecutable": "node_modules/.bin/vite",
-      "runtimeArgs": ["--port", "5175"],
-      "port": 5175
+      "runtimeArgs": ["--port", "5178"],
+      "port": 5178
     }
   ]
 }

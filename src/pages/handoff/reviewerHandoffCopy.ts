@@ -10,8 +10,8 @@ export function handoffSenderFirstName(): string {
   return sender.name.split(' ')[0]
 }
 
-/** Client name matches Check return header (Jordan Wells). */
-export const REVIEWER_HANDOFF_CLIENT = 'Jordan Wells'
+/** Client name matches Check return header (Tina Yuan). */
+export const REVIEWER_HANDOFF_CLIENT = 'Tina Yuan'
 
 /** Proactive toast — headline-only (Figma 34623:110601). */
 export function reviewerAiProactiveHeadline(

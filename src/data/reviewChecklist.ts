@@ -16,7 +16,7 @@ import {
   PACKET_VERIFY_DOC_KEYS,
 } from './verifiedDocKeys'
 
-/** Source documents expected on a typical Jordan Wells 1040 return (verify-doc keys). */
+/** Source documents expected on a typical Tina Yuan 1040 return (verify-doc keys). */
 export const EXPECTED_SOURCE_DOCS = PACKET_VERIFY_DOC_KEYS
 
 export type ManualChecklistId =

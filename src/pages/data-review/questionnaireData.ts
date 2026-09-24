@@ -1,5 +1,5 @@
 /**
- * Seeded Jordan Wells Tax Organizer / Questionnaire responses.
+ * Seeded Tina Yuan Tax Organizer / Questionnaire responses.
  * Diagnostics cite these via responseId + View client response CTAs.
  */
 import { CLIENT_ADDRESS } from '../../data/clientAddress'
@@ -117,7 +117,7 @@ export const QUESTIONNAIRE_RESPONSES: QuestionnaireResponse[] = [
         status: 'applied',
         returnValue: '$0',
         statusNote:
-          'Jordan confirmed she made no quarterly estimated payments and expected withholding to cover the year.',
+          'Tina confirmed she made no quarterly estimated payments and expected withholding to cover the year.',
         summaryOnly: true,
       },
       {

@@ -564,7 +564,7 @@ export default function AiDiagnosticsPanel({
           <h1 className={styles.pageTitle}>Return review by Intuit Intelligence</h1>
         </div>
         <p className={styles.introText}>
-          I&apos;ve reviewed Jordan&apos;s 2025 return and found {overview.total} item
+          I&apos;ve reviewed Tina&apos;s 2025 return and found {overview.total} item
           {overview.total === 1 ? '' : 's'} that need attention.
         </p>
       </div>

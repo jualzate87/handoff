@@ -46,7 +46,7 @@ export const REVIEW_LOG_DAYS: readonly ReviewLogDay[] = [
       {
         id: 't-1',
         entryType: 'return-sign-off',
-        actor: 'Jordan Lee',
+        actor: 'Jing',
         time: '4:48 PM',
         title: 'Signed off federal return',
         detail: 'Federal return marked ready for filing.',
@@ -57,7 +57,7 @@ export const REVIEW_LOG_DAYS: readonly ReviewLogDay[] = [
       {
         id: 't-2',
         entryType: 'form-line-checked',
-        actor: 'Jordan Lee',
+        actor: 'Jing',
         time: '4:41 PM',
         title: 'Checked Form 1040, line 25d',
         detail: 'Confirmed federal income tax withheld.',
@@ -68,7 +68,7 @@ export const REVIEW_LOG_DAYS: readonly ReviewLogDay[] = [
       {
         id: 't-3',
         entryType: 'form-line-checked',
-        actor: 'Jordan Lee',
+        actor: 'Jing',
         time: '4:36 PM',
         title: 'Checked Form 1040, line 4b',
         detail: 'Confirmed taxable pension amount.',
@@ -79,7 +79,7 @@ export const REVIEW_LOG_DAYS: readonly ReviewLogDay[] = [
       {
         id: 't-4',
         entryType: 'compliance-diagnostic-fixed',
-        actor: 'Jordan Lee',
+        actor: 'Jing',
         time: '4:22 PM',
         title: 'Resolved Underpayment risk',
         detail: 'Marked compliance diagnostic as resolved.',
@@ -90,7 +90,7 @@ export const REVIEW_LOG_DAYS: readonly ReviewLogDay[] = [
       {
         id: 't-5',
         entryType: 'document-verified',
-        actor: 'Jordan Lee',
+        actor: 'Jing',
         time: '4:05 PM',
         title: 'Verified 1099-R, Meridian Retirement Trust',
         detail: 'Marked document as verified.',
@@ -101,7 +101,7 @@ export const REVIEW_LOG_DAYS: readonly ReviewLogDay[] = [
       {
         id: 't-6',
         entryType: 'document-verified',
-        actor: 'Jordan Lee',
+        actor: 'Jing',
         time: '3:58 PM',
         title: 'Verified W-2, Tech Circle Inc',
         detail: 'Marked document as verified.',
@@ -118,7 +118,7 @@ export const REVIEW_LOG_DAYS: readonly ReviewLogDay[] = [
       {
         id: 'y-1',
         entryType: 'import-diagnostic-fixed',
-        actor: 'Sara Chen',
+        actor: 'Amanda',
         time: '5:32 PM',
         title: 'Resolved Qualified dividend classification',
         detail: 'Marked import mismatch as resolved.',
@@ -129,7 +129,7 @@ export const REVIEW_LOG_DAYS: readonly ReviewLogDay[] = [
       {
         id: 'y-2',
         entryType: 'field-edited',
-        actor: 'Sara Chen',
+        actor: 'Amanda',
         time: '5:30 PM',
         title: 'Updated 1099-DIV Box 1b, qualified dividends',
         detail: 'Corrected value to match source document.',
@@ -147,7 +147,7 @@ export const REVIEW_LOG_DAYS: readonly ReviewLogDay[] = [
       {
         id: 'y-3',
         entryType: 'compliance-diagnostic-fixed',
-        actor: 'Sara Chen',
+        actor: 'Amanda',
         time: '4:57 PM',
         title: 'Resolved Nonemployee compensation missing from Schedule C',
         detail: 'Marked compliance diagnostic as resolved.',
@@ -158,7 +158,7 @@ export const REVIEW_LOG_DAYS: readonly ReviewLogDay[] = [
       {
         id: 'y-4',
         entryType: 'field-edited',
-        actor: 'Sara Chen',
+        actor: 'Amanda',
         time: '4:54 PM',
         title: 'Added 1099-NEC Box 1, nonemployee compensation',
         detail: 'Added missing income to the return.',
@@ -176,7 +176,7 @@ export const REVIEW_LOG_DAYS: readonly ReviewLogDay[] = [
       {
         id: 'y-5',
         entryType: 'compliance-diagnostic-fixed',
-        actor: 'Sara Chen',
+        actor: 'Amanda',
         time: '4:31 PM',
         title: 'Resolved Blank Box 12 amounts',
         detail: 'Marked compliance diagnostic as resolved.',
@@ -187,7 +187,7 @@ export const REVIEW_LOG_DAYS: readonly ReviewLogDay[] = [
       {
         id: 'y-6',
         entryType: 'field-edited',
-        actor: 'Sara Chen',
+        actor: 'Amanda',
         time: '4:28 PM',
         title: 'Updated W-2 Box 12 amounts (codes C, AA, DD)',
         detail: 'Entered missing Box 12 amounts.',
@@ -205,7 +205,7 @@ export const REVIEW_LOG_DAYS: readonly ReviewLogDay[] = [
       {
         id: 'y-7',
         entryType: 'form-line-checked',
-        actor: 'Sara Chen',
+        actor: 'Amanda',
         time: '3:44 PM',
         title: 'Checked Schedule 1, line 3',
         detail: 'Confirmed business income on line 3.',
@@ -216,7 +216,7 @@ export const REVIEW_LOG_DAYS: readonly ReviewLogDay[] = [
       {
         id: 'y-8',
         entryType: 'form-line-checked',
-        actor: 'Sara Chen',
+        actor: 'Amanda',
         time: '3:40 PM',
         title: 'Checked Schedule B, interest and dividends',
         detail: 'Confirmed interest and dividend payers.',
@@ -227,7 +227,7 @@ export const REVIEW_LOG_DAYS: readonly ReviewLogDay[] = [
       {
         id: 'y-9',
         entryType: 'form-line-checked',
-        actor: 'Sara Chen',
+        actor: 'Amanda',
         time: '3:31 PM',
         title: 'Checked Form 1040, lines 3a and 3b',
         detail: 'Confirmed dividend amounts.',
@@ -244,7 +244,7 @@ export const REVIEW_LOG_DAYS: readonly ReviewLogDay[] = [
       {
         id: 'm-1',
         entryType: 'import-diagnostic-fixed',
-        actor: 'Sara Chen',
+        actor: 'Amanda',
         time: '2:15 PM',
         title: 'Resolved Import mismatches (6 fields)',
         detail: 'Marked all import mismatches as resolved.',
@@ -255,7 +255,7 @@ export const REVIEW_LOG_DAYS: readonly ReviewLogDay[] = [
       {
         id: 'm-2',
         entryType: 'field-edited',
-        actor: 'Sara Chen',
+        actor: 'Amanda',
         time: '2:11 PM',
         title: 'Updated 1099-R Box 4, federal withholding',
         detail: 'Corrected value to match source document.',
@@ -273,7 +273,7 @@ export const REVIEW_LOG_DAYS: readonly ReviewLogDay[] = [
       {
         id: 'm-3',
         entryType: 'field-edited',
-        actor: 'Sara Chen',
+        actor: 'Amanda',
         time: '2:06 PM',
         title: 'Updated 1099-R Box 2a, taxable amount',
         detail: 'Corrected value to match source document.',
@@ -291,7 +291,7 @@ export const REVIEW_LOG_DAYS: readonly ReviewLogDay[] = [
       {
         id: 'm-4',
         entryType: 'field-edited',
-        actor: 'Sara Chen',
+        actor: 'Amanda',
         time: '1:58 PM',
         title: 'Updated W-2 Box 1, wages',
         detail: 'Corrected value to match source document.',
@@ -309,7 +309,7 @@ export const REVIEW_LOG_DAYS: readonly ReviewLogDay[] = [
       {
         id: 'm-5',
         entryType: 'field-edited',
-        actor: 'Sara Chen',
+        actor: 'Amanda',
         time: '1:52 PM',
         title: 'Updated 1099-DIV Box 4, federal withholding',
         detail: 'Corrected value to match source document.',
@@ -327,7 +327,7 @@ export const REVIEW_LOG_DAYS: readonly ReviewLogDay[] = [
       {
         id: 'm-6',
         entryType: 'document-verified',
-        actor: 'Sara Chen',
+        actor: 'Amanda',
         time: '1:24 PM',
         title: 'Verified 1099-NEC, Summit Advisory Partners',
         detail: 'Marked document as verified.',
@@ -338,7 +338,7 @@ export const REVIEW_LOG_DAYS: readonly ReviewLogDay[] = [
       {
         id: 'm-7',
         entryType: 'document-verified',
-        actor: 'Sara Chen',
+        actor: 'Amanda',
         time: '1:20 PM',
         title: 'Verified 1099-R, Meridian Retirement Trust',
         detail: 'Marked document as verified.',
@@ -349,7 +349,7 @@ export const REVIEW_LOG_DAYS: readonly ReviewLogDay[] = [
       {
         id: 'm-8',
         entryType: 'document-verified',
-        actor: 'Sara Chen',
+        actor: 'Amanda',
         time: '1:12 PM',
         title: 'Verified 1099-INT (3 payers)',
         detail: 'Marked documents as verified.',
@@ -360,7 +360,7 @@ export const REVIEW_LOG_DAYS: readonly ReviewLogDay[] = [
       {
         id: 'm-9',
         entryType: 'document-verified',
-        actor: 'Sara Chen',
+        actor: 'Amanda',
         time: '1:03 PM',
         title: 'Verified 1099-DIV (3 payers)',
         detail: 'Marked documents as verified.',
@@ -371,7 +371,7 @@ export const REVIEW_LOG_DAYS: readonly ReviewLogDay[] = [
       {
         id: 'm-10',
         entryType: 'document-verified',
-        actor: 'Sara Chen',
+        actor: 'Amanda',
         time: '12:47 PM',
         title: 'Verified W-2, Tech Circle Inc',
         detail: 'Marked document as verified.',

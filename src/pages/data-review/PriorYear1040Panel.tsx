@@ -108,8 +108,8 @@ export default function PriorYear1040Panel() {
           onMouseDown={onMouseDown}
         >
           <div style={{ position: 'relative', width: `${zoom}%`, lineHeight: 0, flexShrink: 0 }}>
-            <img src={img1040PriorPage1} alt="Form 1040 (2024) page 1 - Jordan Wells" className={docStyles.documentImage} draggable={false} />
-            <img src={img1040PriorPage2} alt="Form 1040 (2024) page 2 - Jordan Wells" className={docStyles.documentImage} draggable={false} />
+            <img src={img1040PriorPage1} alt="Form 1040 (2024) page 1 - Tina Yuan" className={docStyles.documentImage} draggable={false} />
+            <img src={img1040PriorPage2} alt="Form 1040 (2024) page 2 - Tina Yuan" className={docStyles.documentImage} draggable={false} />
           </div>
         </div>
         <div className={docStyles.toolbar}>

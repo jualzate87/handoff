@@ -87,7 +87,7 @@ export const AI_DIAGNOSTIC_CATEGORIES: readonly AiDiagnosticCategory[] = [
     badgePriority: DIAGNOSTIC_BADGE_BY_CATEGORY_ID.optimization.badgePriority,
     metricLabel: 'Optimization',
     description:
-      'Jordan confirmed mortgage interest in the questionnaire, but Form 1098 is missing from the import packet. Itemizing could lower tax versus the standard deduction.',
+      'Tina confirmed mortgage interest in the questionnaire, but Form 1098 is missing from the import packet. Itemizing could lower tax versus the standard deduction.',
     issueKeys: ['optItemize', 'schCExpenses', 'sepIra'],
   },
 ] as const

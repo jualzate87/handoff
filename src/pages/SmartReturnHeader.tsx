@@ -68,7 +68,7 @@ export default function SmartReturnHeader({
     <div className={styles.header}>
       {/* ── Row 1: Product header 48px ── */}
       <div className={styles.row1}>
-        <span className={styles.businessName}>Honey Tax Accounting</span>
+        <span className={styles.businessName}>Beasley & Howe Financials</span>
         <div className={styles.row1Right}>
           <button type="button" className={styles.navBtn}>
             <CircleQuestion size="small" />
@@ -96,7 +96,7 @@ export default function SmartReturnHeader({
       {/* ── Row 2: Client sub-header 63px ── */}
       <div className={styles.row2}>
         <div className={styles.row2Left}>
-          <div className={styles.clientName}>Jordan<br />Wells</div>
+          <div className={styles.clientName}>Tina<br />Yuan</div>
           <Lock size="small" className={styles.lockIcon} />
           <button type="button" className={styles.clientProfileBtn}>
             <Person size="small" />

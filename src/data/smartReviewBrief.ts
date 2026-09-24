@@ -39,7 +39,7 @@ export type StrategicChecklistItem = {
   jumpLabel?: string
   required: boolean
   completionType?: MilestoneCompletionType
-  /** Who completed - e.g. "Jordan · Jul 29" */
+  /** Who completed - e.g. "Tina · Jul 29" */
   attribution?: string
   /** Full name + time for hover tooltip */
   attributionTooltip?: string

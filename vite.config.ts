@@ -60,7 +60,7 @@ export default defineConfig(({ mode }) => {
       },
     ],
     server: {
-      port: 5176,
+      port: 5178,
       strictPort: true,
     },
     css: {

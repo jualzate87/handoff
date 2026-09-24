@@ -24,7 +24,7 @@ const emptyChecklist: ReviewChecklistState = {
 
 describe('buildSmartReviewBrief unified checklist', () => {
   it('shows unified view with phased checklist and executive brief for reviewer Pass 2', () => {
-    const snapshot = buildHandoffSnapshot('signoff-review', 2, 'Jordan Lee', {
+    const snapshot = buildHandoffSnapshot('signoff-review', 2, 'Jing', {
       reviewedFields: new Map([['ssn-techCircle', meta()]]),
       verifiedDocs: new Set(['techCircle']),
       verifiedDocsMeta: new Map([['techCircle', meta()]]),
@@ -59,7 +59,7 @@ describe('buildSmartReviewBrief unified checklist', () => {
       reviewedFields: new Map([['ssn-techCircle', meta()]]),
       completedMilestones: {},
       outstandingOpenCount: 1,
-      currentActorName: 'Jordan Lee',
+      currentActorName: 'Jing',
       reviewPass: 2,
       singlePersonMode: false,
     })
@@ -78,7 +78,7 @@ describe('buildSmartReviewBrief unified checklist', () => {
 
     expect(brief.viewMode).toBe('unified')
     expect(brief.header.title).toBe('Review log')
-    expect(brief.executiveBrief?.heading).toBe("Here's what you need to know, Jordan")
+    expect(brief.executiveBrief?.heading).toBe("Here's what you need to know, Tina")
     expect(brief.executiveBrief?.intro).toBe('Sara completed the first pass:')
     expect(brief.executiveBrief?.completed.items).toHaveLength(4)
     expect(brief.executiveBrief?.completed.items.some(i =>
@@ -180,7 +180,7 @@ describe('buildSmartReviewBrief unified checklist', () => {
   })
 
   it('counts open reviewer checklist items for toolbar badge', () => {
-    const snapshot = buildHandoffSnapshot('signoff-review', 2, 'Jordan Lee', {
+    const snapshot = buildHandoffSnapshot('signoff-review', 2, 'Jing', {
       reviewedFields: new Map(),
       verifiedDocs: new Set(),
       editedFields: new Map(),
@@ -205,7 +205,7 @@ describe('buildSmartReviewBrief unified checklist', () => {
       reviewedFields: new Map(),
       completedMilestones: {},
       outstandingOpenCount: 0,
-      currentActorName: 'Jordan Lee',
+      currentActorName: 'Jing',
       reviewPass: 2,
       singlePersonMode: false,
     })

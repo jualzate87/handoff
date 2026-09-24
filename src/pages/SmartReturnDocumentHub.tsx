@@ -154,7 +154,7 @@ export default function SmartReturnDocumentHub({ readOnly = false }: SmartReturn
             <div className={styles.contentArea}>
               <div className={styles.pageHeading}>
                 <h1 className={styles.pageTitle}>
-                  {readOnly ? "Jordan's documents are ready" : "Let's get Jordan's documents"}
+                  {readOnly ? "Tina's documents are ready" : "Let's get Tina's documents"}
                 </h1>
                 <p className={styles.pageSubtitle}>
                   {readOnly

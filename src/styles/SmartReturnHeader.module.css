@@ -21,7 +21,7 @@
   flex-shrink: 0;
 }
 
-/* Product / brand name - Honey Tax Accounting (ALL CAPS via text-transform) */
+/* Product / brand name - Beasley & Howe Financials (ALL CAPS via text-transform) */
 .businessName {
   font-family: var(--font-family-heading);
   font-size: var(--font-size-component-medium);

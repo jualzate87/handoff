@@ -1,6 +1,6 @@
 /**
  * Static category-card content for Check Return activity panel (Review segment).
- * Narrative aligns with reviewLogData.ts: Sara Chen preparer, Jordan Lee reviewer.
+ * Narrative aligns with reviewLogData.ts: Amanda preparer, Jing reviewer.
  */
 
 import { actorInitials } from './reviewLogData'
@@ -32,8 +32,8 @@ export type ReviewProgressBrief = {
   syncedAt: string
 }
 
-const SC = actorInitials('Sara Chen')
-const JL = actorInitials('Jordan Lee')
+const SC = actorInitials('Amanda')
+const JL = actorInitials('Jing')
 
 function entry(
   id: string,

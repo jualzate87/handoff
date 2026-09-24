@@ -81,25 +81,25 @@ describe('deriveMilestoneState', () => {
 })
 
 describe('formatMilestoneAttribution', () => {
-  it('uses SC for Sara Chen', () => {
+  it('uses the preparer name as-is', () => {
     const label = formatMilestoneAttribution(
       { by: 'preparer', at: 'Jul 29 · 2:30 PM', name: PREPARER_NAME },
     )
-    expect(label).toBe('SC · Jul 29')
+    expect(label).toBe(`${PREPARER_NAME} · Jul 29`)
   })
 
-  it('uses Jordan for Jordan Lee', () => {
+  it('uses the reviewer name as-is', () => {
     const label = formatMilestoneAttribution(
       { by: 'reviewer', at: 'Jul 29 · 2:30 PM', name: REVIEWER_NAME },
     )
-    expect(label).toBe('Jordan · Jul 29')
+    expect(label).toBe(`${REVIEWER_NAME} · Jul 29`)
   })
 
   it('returns full name tooltip', () => {
     const tooltip = formatMilestoneAttributionTooltip(
       { by: 'preparer', at: 'Jul 29 · 2:30 PM', name: PREPARER_NAME },
     )
-    expect(tooltip).toBe('Sara Chen · Jul 29 · 2:30 PM')
+    expect(tooltip).toBe(`${PREPARER_NAME} · Jul 29 · 2:30 PM`)
   })
 
   it('handles non-string at values from legacy persisted state', () => {

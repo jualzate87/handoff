@@ -39,8 +39,8 @@ export const DATE_FILTER_OPTIONS = [
 
 export const AUTHOR_FILTER_OPTIONS = [
   { value: 'any', label: 'Any author' },
-  { value: 'Sara Chen', label: 'Sara Chen' },
-  { value: 'Jordan Lee', label: 'Jordan Lee' },
+  { value: 'Amanda', label: 'Amanda' },
+  { value: 'Jing', label: 'Jing' },
 ] as const
 
 export const ACTIVITY_TYPE_FILTER_OPTIONS = [

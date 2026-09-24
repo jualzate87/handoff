@@ -946,8 +946,8 @@ export default function AgentDiagnosticsPanel() {
       isWelcome: true,
       text:
         diagnosisIssueCount > 0
-          ? `I've analyzed Jordan's 2025 return and found ${diagnosisIssueCount} issue${diagnosisIssueCount === 1 ? '' : 's'} to resolve by comparing source documents, questionnaire answers, and inputs on the return. Review each diagnostic below, then tell me how you'd like to proceed.`
-          : `I've analyzed Jordan's 2025 return. No diagnostics need a fix right now — review the verified checks and your checklist below before sign-off.`,
+          ? `I've analyzed Tina's 2025 return and found ${diagnosisIssueCount} issue${diagnosisIssueCount === 1 ? '' : 's'} to resolve by comparing source documents, questionnaire answers, and inputs on the return. Review each diagnostic below, then tell me how you'd like to proceed.`
+          : `I've analyzed Tina's 2025 return. No diagnostics need a fix right now — review the verified checks and your checklist below before sign-off.`,
     })
   }, [appendThread, diagnosisIssueCount])
 

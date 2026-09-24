@@ -240,7 +240,7 @@ export function buildNeedsUserReviewCard(_ctx: DiagnosticSyncContext): AgentRevi
     badgeCapitalization: 'caps',
     showBadgeIcon: false,
     summary:
-      'I could not confirm these from the packet alone. Work through the checklist with Jordan before sign-off — none of these will auto-fix.',
+      'I could not confirm these from the packet alone. Work through the checklist with Tina before sign-off — none of these will auto-fix.',
     rootCause:
       'Why these are open: missing documents, client-estimated amounts, or rules that need professional judgment beyond what OCR and the questionnaire captured.',
     tableHeaders: ['Item', 'Status', 'Why I flagged it', 'Action'],
@@ -248,7 +248,7 @@ export function buildNeedsUserReviewCard(_ctx: DiagnosticSyncContext): AgentRevi
       {
         id: 'r-1098',
         label: 'Form 1098 mortgage interest',
-        cols: ['Document missing', 'Jordan confirmed ~$28,400 interest but no 1098 is in the import packet.', ''],
+        cols: ['Document missing', 'Tina confirmed ~$28,400 interest but no 1098 is in the import packet.', ''],
         viewLink: {
           label: resolveTableActionLinkLabelFromLink({ tab: 'questionnaire' }),
           tab: 'questionnaire',
@@ -300,7 +300,7 @@ export function buildNeedsUserReviewCard(_ctx: DiagnosticSyncContext): AgentRevi
       },
     ],
     suggestedActions: [
-      'Request the Form 1098 from Jordan before finalizing Schedule A.',
+      'Request the Form 1098 from Tina before finalizing Schedule A.',
       'Collect expense receipts before claiming Schedule C deductions.',
       'Confirm charitable acknowledgments are on file for any gift over $250.',
     ],

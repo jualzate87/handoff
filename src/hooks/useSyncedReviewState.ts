@@ -232,8 +232,8 @@ export function sanitizeSyncedState(state: SyncedState): SyncedState {
   }
   return reconcileVerifiedDocFlags(enforceMutualExclusion(loaded))
 }
-export const PREPARER_NAME = 'Sara Chen'
-export const REVIEWER_NAME = 'Jordan Lee'
+export const PREPARER_NAME = 'Amanda'
+export const REVIEWER_NAME = 'Jing'
 /** Storage key for review state - exported for tests and diagnostics */
 export { STORAGE_KEY }
 
@@ -326,10 +326,9 @@ export function actorInitials(name: string): string {
     .slice(0, 2)
 }
 
-/** Short milestone / checklist attribution - Sara Chen → SC, Jordan Lee → Jordan */
+/** Short milestone / checklist attribution */
 export function milestoneActorLabel(name: string): string {
-  if (name === PREPARER_NAME) return 'SC'
-  if (name === REVIEWER_NAME) return 'Jordan'
+  if (name === PREPARER_NAME || name === REVIEWER_NAME) return name
   const initials = actorInitials(name)
   if (initials.length >= 2) return initials
   return name.split(/\s+/)[0] || name
@@ -357,7 +356,7 @@ export function formatDualCheckTooltip(
 }
 
 function isReviewerActorName(name: string): boolean {
-  return name === REVIEWER_NAME || name === 'Jake Morrison' || name === 'Jordan Lee'
+  return name === REVIEWER_NAME
 }
 
 function isReviewerActor(): boolean {

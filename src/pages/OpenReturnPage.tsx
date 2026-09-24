@@ -321,7 +321,7 @@ export default function OpenReturnPage() {
             </div>
           )}
 
-          {/* ── STEP 2: Let's get Jordan's documents ── */}
+          {/* ── STEP 2: Let's get {CLIENT_FIRST_NAME}'s documents ── */}
           {step === 2 && (
             <div className={styles.contentArea}>
               <div className={styles.pageHeading}>

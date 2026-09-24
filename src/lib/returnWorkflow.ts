@@ -17,8 +17,8 @@ export type ReturnStatus = {
 }
 
 export const TEAM_MEMBERS: TeamMember[] = [
-  { id: 'sarah', name: 'Sarah Chen', initial: 'S', role: 'preparer', avatarColor: '#236cff' },
-  { id: 'jake', name: 'Jake Morrison', initial: 'J', role: 'reviewer', avatarColor: '#7c00f6' },
+  { id: 'sarah', name: 'Amanda', initial: 'S', role: 'preparer', avatarColor: '#236cff' },
+  { id: 'jake', name: 'Jing', initial: 'J', role: 'reviewer', avatarColor: '#7c00f6' },
   { id: 'alex', name: 'Alex Rivera', initial: 'A', role: 'manager', avatarColor: '#00856d' },
 ]
 

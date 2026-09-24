@@ -14,7 +14,7 @@ import {
 } from '../data-review/phase2FlagSync'
 
 /** Client on the return under review (not the signed-in preparer). */
-const CLIENT_NAME = 'Jordan Wells'
+const CLIENT_NAME = 'Tina Yuan'
 const TAX_YEAR = '2025'
 const FORM_1040 = 'Form 1040'
 
@@ -78,8 +78,8 @@ export const STARTER_PROMPTS = [
   STARTER_PROMPT_CATCH_UP,
 ] as const
 
-/** Preparer first name — Jordan Lee reviewing Jordan Wells's return. */
-export const WELCOME_GREETING_NAME = REVIEWER_NAME.split(' ')[0] ?? 'Jordan'
+/** Preparer first name — Jing reviewing Tina Yuan's return. */
+export const WELCOME_GREETING_NAME = REVIEWER_NAME.split(' ')[0] ?? 'Tina'
 export const WELCOME_GREETING_PROMPT = 'How can I help?'
 
 /* ── CTAs & chips ── */
@@ -369,7 +369,7 @@ export const CATCH_UP_REASONING_TITLE = 'Building handoff summary'
 export const CATCH_UP_REASONING_STEPS = [
   {
     title: 'Reviewing prior preparer notes',
-    body: 'Reading Sarah Chen\'s notes, resolved flags, and what she flagged for the next reviewer.',
+    body: 'Reading Amanda\'s notes, resolved flags, and what she flagged for the next reviewer.',
   },
   {
     title: 'Checking documents and calculations',
@@ -381,10 +381,10 @@ export const CATCH_UP_REASONING_STEPS = [
   },
 ] as const
 
-export const CATCH_UP_PRIOR_PREPARER = 'Sarah Chen'
+export const CATCH_UP_PRIOR_PREPARER = 'Amanda'
 
 /** Figma catch-up summary title uses this client name (Return Summary frame). */
-export const CATCH_UP_CLIENT_NAME = 'Jordan Wells'
+export const CATCH_UP_CLIENT_NAME = 'Tina Yuan'
 
 export function catchUpReturnSummaryTitle(clientName: string = CATCH_UP_CLIENT_NAME): string {
   return `Return Summary — ${clientName}`
@@ -490,7 +490,7 @@ export const CATCH_UP_REVIEWER_FOCUS_INTRO =
   "Sarah's note calls out the items below. Confirm each one before you sign off."
 
 export const CATCH_UP_RETURN_STATUS_ITEMS = [
-  'AI review: Complete — all items resolved by Sarah Chen',
+  'AI review: Complete — all items resolved by Amanda',
   'Data entry: Complete — all documents imported and reconciled',
   'Calculations: Confirmed — federal and state tie out',
   'Open items: None',
@@ -521,7 +521,7 @@ export const CATCH_UP_REVIEWER_CHECKLIST: CatchUpChecklistItem[] = [
   },
 ]
 
-export const CATCH_UP_PRIOR_REVIEWER = 'Jake Morrison'
+export const CATCH_UP_PRIOR_REVIEWER = 'Jing'
 
 /** Everything the catch-up summary renders — one narrative per handoff direction. */
 export type CatchUpContent = {

@@ -323,7 +323,7 @@ export function getFieldOrigin(
             'Tax Organizer (uploaded organizer PDF) confirms mortgage interest was paid; standard deduction applies until Form 1098 is imported.',
         },
         note:
-          'Jordan qualifies for the standard deduction because her itemizable expenses (mortgage interest, state and local taxes, charitable gifts) don’t exceed the standard deduction amount for her filing status.',
+          'Tina qualifies for the standard deduction because her itemizable expenses (mortgage interest, state and local taxes, charitable gifts) don’t exceed the standard deduction amount for her filing status.',
       }
 
     case 'deductionSum':
