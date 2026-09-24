@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en" data-theme="intuit">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/pages/jalzate/ptg-innovate-demo/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SmartReturn — Data Review</title>
+    <script type="module" crossorigin src="/pages/jalzate/ptg-innovate-demo/assets/index-BiTYM6HS.js"></script>
+    <link rel="stylesheet" crossorigin href="/pages/jalzate/ptg-innovate-demo/assets/index-BEjtI5mY.css">
+  </head>
+  <body>
+    <div id="root"></div>
+    <div id="boot-fallback" hidden style="padding: 2rem; max-width: 40rem; margin: 0 auto; font-family: Avenir, Helvetica, Arial, sans-serif; line-height: 1.5;">
+      <h1 style="font-size: 1.25rem;">Prototype did not load</h1>
+      <p>
+        This usually means GitHub Pages is serving the <strong>main</strong> branch (source code)
+        instead of the built <strong>gh-pages</strong> branch, or the deploy used the wrong base path.
+      </p>
+      <p>
+        Redeploy from the project folder: <code>bash deploy.sh</code>, then in repo Settings → Pages,
+        set source to <strong>gh-pages</strong> / root.
+      </p>
+      <p id="boot-fallback-detail" style="color: #5d686f; font-size: 14px;"></p>
+      <p>Live URL: <a href="https://jualzate87.github.io/AI3/">jualzate87.github.io/AI3</a></p>
+    </div>
+    <script>
+      // Repair GitHub Pages path-only URLs (e.g. /AI3/data-review) → #/data-review
+      (function () {
+        var hash = window.location.hash.replace(/^#/, '')
+        if (hash.length > 0 && hash.indexOf('%2F') === -1 && hash.indexOf('%2f') === -1) return
+        var path = window.location.pathname
+        var routes = ['check-return/insights', 'check-return/agent', 'check-return-popout', 'check-return', 'input-return', 'import-confirmation', 'data-review-popout', 'data-review', 'smart-return']
+        for (var i = 0; i < routes.length; i++) {
+          var route = routes[i]
+          var suffix = '/' + route
+          if (path.endsWith(suffix) || path.endsWith(suffix + '/')) {
+            var base = path.slice(0, path.length - suffix.length)
+            if (!base.endsWith('/')) base += '/'
+            var search = window.location.search || ''
+            window.location.replace(window.location.origin + base + '#/' + route + search)
+            return
+          }
+        }
+      })()
+    </script>
+    <script>
+      // Boot watchdog: hide fallback once React mounts; surface load errors if it never does.
+      (function () {
+        var root = document.getElementById('root')
+        var fallback = document.getElementById('boot-fallback')
+        if (!root || !fallback) return
+
+        function hideFallback() {
+          fallback.hidden = true
+        }
+
+        function showFallback(message) {
+          if (message) {
+            var detail = document.getElementById('boot-fallback-detail')
+            if (detail) detail.textContent = message
+          }
+          fallback.hidden = false
+        }
+
+        if (root.childElementCount > 0) hideFallback()
+
+        if (typeof MutationObserver !== 'undefined') {
+          new MutationObserver(function () {
+            if (root.childElementCount > 0) hideFallback()
+          }).observe(root, { childList: true })
+        }
+
+        window.addEventListener('error', function (event) {
+          showFallback(event.message || 'The app failed to start.')
+        })
+        window.addEventListener('unhandledrejection', function (event) {
+          var reason = event.reason
+          var message =
+            reason && reason.message ? reason.message : 'The app failed to start.'
+          showFallback(message)
+        })
+
+        window.setTimeout(function () {
+          if (root.childElementCount === 0) showFallback()
+        }, 12000)
+      })()
+    </script>
+  </body>
+</html>
