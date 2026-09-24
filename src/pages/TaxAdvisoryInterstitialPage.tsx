@@ -6,7 +6,7 @@ import { H4, H6, B2, B3, B4 } from '@ids-ts/typography'
 import '@ids-ts/typography/dist/main.css'
 import IASShell from './data-review/IASShell'
 import SmartReturnHeader from './SmartReturnHeader'
-import itaLogo from '../assets/ita-logo.png'
+import itaLogo from '../assets/ita-logo.svg'
 import styles from '../styles/TaxAdvisoryInterstitialPage.module.css'
 
 const POINTS = [

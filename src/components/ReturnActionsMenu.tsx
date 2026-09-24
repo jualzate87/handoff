@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { ChevronDown } from '@design-systems/icons'
 import { Button } from '@ids-ts/button'
 import '@ids-ts/button/dist/main.css'
-import itaLogo from '../assets/ita-logo.png'
+import itaLogo from '../assets/ita-logo.svg'
 import styles from '../styles/ReturnActionsMenu.module.css'
 
 export default function ReturnActionsMenu() {
