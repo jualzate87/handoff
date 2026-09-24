@@ -1,0 +1,196 @@
+/* Document preview — fills parent container, scrollable with zoom */
+.container {
+  background: var(--color-container-background-primary, #ffffff);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  box-sizing: border-box;
+  border-bottom: 1px solid #adbac2;
+}
+
+.manualDocMessage {
+  flex-shrink: 0;
+  padding: var(--space-container-padding-small, 12px) var(--space-container-padding-medium, 16px) 0;
+}
+
+.manualDocBody {
+  margin: 0;
+}
+
+/* Scrollable image area — plain block layout, not flex. A flex row with
+   justify-content:center clips a child wider than the container instead of
+   making it scrollable (centering wins over overflow), which broke panning
+   at higher zoom levels. The zoomed content's width:N% is computed against
+   .imageArea's own content box (the stable 100% reference); .imageAreaInner
+   only handles vertical centering and never constrains width, so it can grow
+   past 100% and the browser's native scrollbars take over correctly. */
+.imageArea {
+  flex: 1;
+  overflow: auto;
+  padding: 20px 10px;
+  min-height: 0;
+  background: #ffffff;
+  position: relative;
+}
+
+.imageAreaInner {
+  /* Width must stay 100% of .imageArea so zoom % is relative to the viewport,
+     not the image’s intrinsic size (max-content made 85% look massively cropped).
+     Height grows with stacked pages so .imageArea scrolls vertically. */
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.zoomWrap {
+  position: relative;
+  line-height: 0;
+  margin: 0 auto;
+  flex-shrink: 0;
+}
+
+.pageStack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-stack-medium, 20px);
+  width: 100%;
+}
+
+.documentImage {
+  border: 1px solid var(--color-container-border-primary);
+  display: block;
+  /* intrinsic size — zoom is controlled by wrapper width, image fills wrapper */
+  width: 100%;
+  height: auto;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+}
+
+/* Zoom toolbar — same pattern as LeftPanel1040 */
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-component-gap-small, 8px);
+  height: 45px;
+  padding: 4px 10px;
+  background: #e2e9ed;
+  flex-shrink: 0;
+}
+
+.toolbarBadge {
+  flex: 0 1 auto;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+}
+
+.toolbarControls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  flex: 1;
+}
+
+.zoomLevel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #21262a;
+  border-radius: 4px;
+  padding: 0 8px;
+  height: 24px;
+  font-family: var(--font-family-component) !important;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 16px;
+  color: #21262a;
+  white-space: nowrap;
+  min-width: 44px;
+}
+
+.toolbarBtn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #21262a;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  width: 24px;
+  height: 24px;
+}
+
+.toolbarBtn:hover {
+  opacity: 0.7;
+}
+
+.toolbarBtn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.toolbarBtnActive {
+  background: var(--color-container-background-tertiary);
+  border-radius: var(--radius-action, 4px);
+  box-shadow: inset 0 0 0 1px var(--color-container-border-primary);
+  opacity: 1;
+}
+
+.toolbarBtnActive:hover {
+  opacity: 1;
+}
+
+/* Loupe — fixed so it tracks the pointer over the scrollable preview */
+.loupe {
+  position: fixed;
+  z-index: 40;
+  border-radius: 50%;
+  border: 2px solid var(--color-text-primary, #21262a);
+  box-shadow:
+    0 0 0 2px var(--color-container-background-primary, #ffffff),
+    0 4px 16px rgba(0, 0, 0, 0.28);
+  background-color: var(--color-container-background-primary, #ffffff);
+  background-repeat: no-repeat;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.attachEmpty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-component-gap-medium, 12px);
+  min-height: 280px;
+  padding: var(--space-container-padding-large, 24px);
+  border: 1px dashed var(--color-divider-secondary);
+  border-radius: var(--radius-medium, 8px);
+  background: var(--color-container-background-accent);
+  text-align: center;
+}
+
+.attachEmptyTitle {
+  margin: 0;
+  font-family: var(--font-family-component);
+  font-size: var(--font-size-component-medium, 16px);
+  font-weight: var(--font-weight-component-bold, 600);
+  color: var(--color-text-primary);
+}
+
+.attachEmptyHint {
+  margin: 0;
+  max-width: 28rem;
+  font-family: var(--font-family-body);
+  font-size: var(--font-size-body-3, 14px);
+  line-height: 1.45;
+  color: var(--color-text-secondary);
+}
+
+.attachEmptyActions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-component-gap-small, 8px);
+  margin-top: var(--space-component-gap-small, 8px);
+}

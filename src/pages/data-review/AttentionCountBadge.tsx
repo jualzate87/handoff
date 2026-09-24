@@ -1,0 +1,50 @@
+import { Badge } from '@ids-ts/badge'
+import '@ids-ts/badge/dist/main.css'
+import Tooltip from './Tooltip'
+import styles from '../../styles/data-review/AttentionCountBadge.module.css'
+
+export function formatAttentionCount(count: number): string {
+  return count > 99 ? '99+' : String(count)
+}
+
+type AttentionCountBadgeProps = {
+  count: number
+  className?: string
+  /** Hover/focus explanation of what the count means. */
+  tooltip?: string
+  /** When set, the badge is decorative; parent control should expose count in aria-label. */
+  'aria-hidden'?: boolean
+  'aria-label'?: string
+}
+
+/** Warning numeric badge for unresolved import flags, confirm work, and toolbar counts. */
+export default function AttentionCountBadge({
+  count,
+  className,
+  tooltip,
+  'aria-hidden': ariaHidden,
+  'aria-label': ariaLabel,
+}: AttentionCountBadgeProps) {
+  if (count <= 0) return null
+
+  const badge = (
+    <span
+      className={[styles.wrap, className].filter(Boolean).join(' ')}
+      aria-hidden={ariaHidden}
+      aria-label={ariaLabel}
+    >
+      {/* Rectangular warning badge — IDS only applies attention background for rect/dot, not round */}
+      <Badge status="warning" capitalization="sentence">
+        {formatAttentionCount(count)}
+      </Badge>
+    </span>
+  )
+
+  if (!tooltip) return badge
+
+  return (
+    <Tooltip text={tooltip} placement="top">
+      {badge}
+    </Tooltip>
+  )
+}

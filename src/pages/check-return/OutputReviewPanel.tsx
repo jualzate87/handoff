@@ -1,0 +1,155 @@
+import { useCallback, useMemo } from 'react'
+import { CircleCheck } from '@design-systems/icons'
+import { computeLiveReturn } from '../../data/liveReturn'
+import type { FieldOriginSource } from '../../data/fieldOrigins'
+import { useSyncedReviewState, getReviewActor, REVIEWER_NAME } from '../../hooks/useSyncedReviewState'
+import {
+  openSourceDocumentById,
+} from '../../lib/sourceDocPopoutNavigation'
+import { navigateToInputFromFieldOrigin } from '../../lib/inputReturnNavigation'
+import LeftPanel1040 from '../data-review/LeftPanel1040'
+import type { OutputFormId } from '../data-review/outputForms'
+import { field1040ToDetail } from '../data-review/phase1FieldSync'
+import { resolveOutputFieldFromIssueField } from '../data-review/phase2FlagSync'
+import { outputFormDisplayTitle } from './outputFormNav'
+import { verificationLevelLegendLabel } from '../data-review/verificationRoles'
+import styles from '../../styles/check-return/OutputReviewPanel.module.css'
+
+import type { Phase2IssueKey } from '../data-review/phase2FlagSync'
+
+interface OutputReviewPanelProps {
+  outputFormId: OutputFormId
+  activeDiagnosticKey?: Phase2IssueKey | null
+}
+
+export default function OutputReviewPanel({
+  outputFormId,
+  activeDiagnosticKey = null,
+}: OutputReviewPanelProps) {
+  const {
+    selectedField,
+    setSelectedField,
+    amounts,
+    reviewedFields,
+    summaryCheckedFields,
+    summaryCheckedMeta,
+    reviewerConfirmedFields,
+    reviewerConfirmedMeta,
+    managerConfirmedFields,
+    managerConfirmedMeta,
+    reviewerConfirmStaleFields,
+    toggleSummaryChecked,
+    toggleSummaryPreparerCheck,
+    toggleSummaryReviewerConfirm,
+    toggleSummaryManagerConfirm,
+    summaryFlaggedFields,
+    summaryFlaggedMeta,
+    toggleSummaryFlagged,
+    summaryFlagNotes,
+    summaryFlagActivity,
+    setSummaryFlagNote,
+    editedFields,
+    reviewerSignedOffForms,
+    reviewerSignedOffFormsMeta,
+    toggleReviewerFormSignOff,
+  } = useSyncedReviewState()
+
+  const liveTotals = useMemo(() => computeLiveReturn(amounts), [amounts])
+  const reviewRole = getReviewActor() === REVIEWER_NAME ? 'reviewer' : 'preparer'
+  const highlightField1040 = resolveOutputFieldFromIssueField(selectedField)
+
+  const handle1040FieldClick = useCallback(
+    (field1040: string | null) => {
+      if (!field1040) {
+        setSelectedField(null)
+        return
+      }
+      const mapped = field1040ToDetail(field1040)
+      setSelectedField(mapped?.field ?? field1040)
+    },
+    [setSelectedField],
+  )
+
+  const handleNavigateToSourceDoc = useCallback(
+    (docId: string) => {
+      openSourceDocumentById(docId, selectedField, setSelectedField, 'document')
+    },
+    [selectedField, setSelectedField],
+  )
+
+  const handleViewSourceInput = useCallback(
+    (source: FieldOriginSource) => {
+      navigateToInputFromFieldOrigin(source, setSelectedField)
+    },
+    [setSelectedField],
+  )
+
+  const title = outputFormDisplayTitle(outputFormId)
+
+  return (
+    <div className={styles.panel}>
+      <header className={styles.pageHeader}>
+        <h1 className={styles.pageTitle}>{title}</h1>
+        <p className={styles.pageHelper}>
+          Choose highlighted items to jump to the input field, or use the info icon to see
+          source documents and calculations.
+        </p>
+        <div className={styles.legend} aria-label="Verification legend">
+          <span className={styles.legendItem}>
+            <CircleCheck size="small" className={styles.legendIconPrep} aria-hidden />
+            {verificationLevelLegendLabel(1, summaryCheckedMeta)}
+          </span>
+          <span className={styles.legendItem}>
+            <CircleCheck size="small" className={styles.legendIconRev} aria-hidden />
+            {verificationLevelLegendLabel(2, reviewerConfirmedMeta)}
+          </span>
+          <span className={styles.legendItem}>
+            <CircleCheck size="small" className={styles.legendIconL3} aria-hidden />
+            {verificationLevelLegendLabel(3, managerConfirmedMeta)}
+          </span>
+        </div>
+      </header>
+
+      <div className={styles.formHost}>
+        <LeftPanel1040
+          embeddedInCheckReturn
+          showFormSelector={false}
+          selectedField={selectedField}
+          highlightField={highlightField1040}
+          onFieldClick={handle1040FieldClick}
+          total1a={liveTotals.wages}
+          wages={{ techCircle: amounts.wages }}
+          reviewedFields={reviewedFields}
+          checkedFields={summaryCheckedFields}
+          checkedMeta={summaryCheckedMeta}
+          reviewerConfirmedFields={reviewerConfirmedFields}
+          reviewerConfirmedMeta={reviewerConfirmedMeta}
+          managerConfirmedFields={managerConfirmedFields}
+          managerConfirmedMeta={managerConfirmedMeta}
+          reviewerConfirmStaleFields={reviewerConfirmStaleFields}
+          onToggleChecked={toggleSummaryChecked}
+          onTogglePreparerCheck={toggleSummaryPreparerCheck}
+          onToggleReviewerConfirm={toggleSummaryReviewerConfirm}
+          onToggleManagerConfirm={toggleSummaryManagerConfirm}
+          reviewRole={reviewRole}
+          reviewerSignedOffForms={reviewerSignedOffForms}
+          reviewerSignedOffFormsMeta={reviewerSignedOffFormsMeta}
+          onToggleFormSignOff={toggleReviewerFormSignOff}
+          flaggedFields={summaryFlaggedFields}
+          flaggedMeta={summaryFlaggedMeta}
+          onToggleFlagged={toggleSummaryFlagged}
+          flagNotes={summaryFlagNotes}
+          flagActivity={summaryFlagActivity}
+          onSetFlagNote={setSummaryFlagNote}
+          liveTotals={liveTotals}
+          liveAmounts={amounts}
+          editedFields={editedFields}
+          outputFormId={outputFormId}
+          activeDiagnosticKey={activeDiagnosticKey}
+          onNavigateSource={handleViewSourceInput}
+          onNavigateToSourceDoc={handleNavigateToSourceDoc}
+        />
+      </div>
+    </div>
+  )
+}

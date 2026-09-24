@@ -1,0 +1,833 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+}
+
+.scrollArea {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--space-container-padding-small, 16px) var(--space-container-padding-large, 24px);
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 240px;
+  align-items: start;
+  column-gap: var(--space-large, 24px);
+  row-gap: var(--space-medium, 16px);
+  max-width: 960px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.layoutCompact {
+  grid-template-columns: minmax(0, 1fr);
+  max-width: none;
+}
+
+.lockup,
+.intro {
+  grid-column: 1 / -1;
+}
+
+/* Wrapper is transparent to the grid so the rail can span the full content column. */
+.cardsRow {
+  display: contents;
+}
+
+.cardsColumn {
+  grid-column: 1;
+  min-width: 0;
+}
+
+.belowCards {
+  grid-column: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-medium, 16px);
+  width: 100%;
+  min-width: 0;
+}
+
+.layoutCompact .cardsColumn,
+.layoutCompact .belowCards {
+  grid-column: 1;
+}
+
+.layoutCompact .progressRail {
+  grid-column: 1;
+  grid-row: auto;
+  position: static;
+  width: 100%;
+  max-width: none;
+}
+
+.lockup {
+  display: flex;
+  align-items: center;
+  gap: var(--space-component-gap-medium, 8px);
+}
+
+.sparkleIcon {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+}
+
+.title {
+  margin: 0;
+  font-family: var(--font-family-heading);
+  font-size: var(--font-size-heading-6, 20px);
+  font-weight: var(--font-weight-heading-bold, 600);
+  line-height: 1.3;
+  color: var(--color-text-primary, #393a3d);
+}
+
+.intro {
+  margin: 0;
+  font-family: var(--font-family-body);
+  font-size: var(--font-size-body-3, 14px);
+  line-height: 1.5;
+  color: var(--color-text-primary, #393a3d);
+}
+
+.cardList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-medium, 16px);
+}
+
+.card {
+  border: 1px solid var(--color-container-border-primary, #d4d7dc);
+  border-radius: var(--radius-x-large, 12px);
+  background: var(--color-container-background-primary, #ffffff);
+  padding: var(--space-component-inline-padding-xx-large, 16px);
+}
+
+.cardHeaderStatic {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-medium, 16px);
+}
+
+.cardTitle {
+  flex: 1;
+  font-family: var(--font-family-component);
+  font-size: var(--font-size-component-medium, 16px);
+  font-weight: var(--font-weight-component-bold, 600);
+  line-height: 1.3;
+  color: var(--color-text-primary, #393a3d);
+}
+
+.badge {
+  padding: 2px 8px;
+  border-radius: var(--radius-small, 4px);
+  font-family: var(--font-family-component);
+  font-size: var(--font-size-component-x-small, 12px);
+  font-weight: var(--font-weight-component-bold, 600);
+  line-height: 1.3;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.badge_orange {
+  background: var(--color-container-background-attention, #fff4e5);
+  color: var(--color-text-attention, #d68000);
+}
+
+.badge_green {
+  background: var(--color-container-background-success-secondary, #e8f5f0);
+  color: var(--color-text-success, #00856d);
+}
+
+.progressRail {
+  grid-column: 2;
+  grid-row: span 2;
+  position: sticky;
+  top: var(--space-medium, 16px);
+  z-index: 1;
+  width: 240px;
+  flex-shrink: 0;
+  align-self: start;
+  height: fit-content;
+  padding: var(--space-medium, 16px);
+  border: 1px solid var(--color-container-border-primary, #d4d7dc);
+  border-radius: var(--radius-x-large, 12px);
+  background: var(--color-container-background-primary, #ffffff);
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.03);
+}
+
+.progressRailHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-x-small, 8px);
+  margin-bottom: var(--space-medium, 16px);
+}
+
+.progressRailLogo {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
+.progressLabel {
+  font-family: var(--font-family-component);
+  font-size: var(--font-size-component-x-small, 12px);
+  font-weight: var(--font-weight-component-bold, 600);
+  letter-spacing: 0.07em;
+  color: var(--color-text-secondary, #6b6c72);
+  transition: color var(--duration-fade-moderate, 200ms) var(--ease-fade);
+}
+
+.progressList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-small, 12px);
+}
+
+.progressItem {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-component-gap-medium, 8px);
+  font-family: var(--font-family-component);
+  font-size: var(--font-size-component-small, 14px);
+  line-height: 1.3;
+  color: var(--color-text-primary, #393a3d);
+}
+
+.progressItemLabel {
+  line-height: 20px;
+}
+
+.progressItemMain {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.progressItemSubtitle {
+  font-family: var(--font-family-body);
+  font-size: var(--font-size-body-4, 12px);
+  line-height: 1.3;
+  color: var(--color-text-secondary, #6b6c72);
+}
+
+.progressItemDone {
+  font-weight: var(--font-weight-body-semibold, 500);
+  color: var(--color-text-primary, #393a3d);
+}
+
+.progressDot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--color-container-border-primary, #d4d7dc);
+  border-radius: var(--radius-full, 9999px);
+  flex-shrink: 0;
+}
+
+.progressCheck {
+  color: var(--color-ui-positive);
+}
+
+.progressDotDone {
+  border-color: transparent;
+  background: var(--color-ui-positive);
+  animation: progressCheckPop var(--duration-appear-emphasize-fast, 500ms)
+    var(--ease-appear, cubic-bezier(0, 0, 0.25, 1)) both;
+}
+
+.progressDotDone .progressCheck {
+  color: var(--color-icon-inverse, #ffffff);
+}
+
+.progressDotActive {
+  border-color: var(--color-action-standard, #205ea3);
+  box-shadow: 0 0 0 3px rgba(32, 94, 163, 0.14);
+  transition:
+    border-color var(--duration-fade-moderate, 200ms) var(--ease-fade, cubic-bezier(0.35, 0, 0.5, 1)),
+    box-shadow var(--duration-fade-moderate, 200ms) var(--ease-fade, cubic-bezier(0.35, 0, 0.5, 1));
+}
+
+.progressItemActive {
+  color: var(--color-text-primary, #393a3d);
+  font-weight: var(--font-weight-component-semibold, 500);
+  transition: color var(--duration-fade-moderate, 200ms) var(--ease-fade);
+}
+
+/* The closing step is open, not in progress — an attention ring says "waiting
+   on you" without claiming the agent is still working. */
+.progressDotAwaiting {
+  border-color: var(--color-ui-attention, #d68000);
+  background: var(--color-container-background-attention, #ffecd9);
+}
+
+.reasoningBlock,
+.resultsBlock {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-medium, 16px);
+  padding-top: var(--space-x-small, 8px);
+}
+
+.reasoningHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--space-component-gap-medium, 8px);
+}
+
+.reasoningSparkle {
+  width: 24px;
+  height: 24px;
+}
+
+@keyframes reasoningSparkleSpin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.reasoningSparkleWorking {
+  animation: reasoningSparkleSpin 2.5s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reasoningSparkleWorking {
+    animation: none;
+  }
+}
+
+.reasoningTitle {
+  font-family: var(--font-family-component);
+  font-size: var(--font-size-component-medium, 16px);
+  font-weight: var(--font-weight-component-bold, 600);
+  color: var(--color-text-primary, #393a3d);
+}
+
+/* ── Vertical progress tracker: connector rail + one node per activity ── */
+
+.reasoningSteps {
+  list-style: none;
+  margin: 0;
+  padding: 0 0 0 var(--space-component-inline-padding-medium, 8px);
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.reasoningStep {
+  display: flex;
+  align-items: stretch;
+  gap: var(--space-component-inline-padding-xx-large, 16px);
+  will-change: opacity, transform;
+}
+
+.reasoningStepRail {
+  position: relative;
+  width: 8px;
+  flex-shrink: 0;
+}
+
+/* Connector line, centred on the node. */
+.reasoningStepRail::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  margin-left: -0.5px;
+  background: var(--color-divider-tertiary, #d4d7dc);
+}
+
+/* First node starts the line; last node ends it. */
+.reasoningStep:first-child .reasoningStepRail::before {
+  top: 16px;
+}
+
+.reasoningStep:last-child .reasoningStepRail::before {
+  bottom: auto;
+  height: 16px;
+}
+
+.reasoningStep:first-child:last-child .reasoningStepRail::before {
+  display: none;
+}
+
+.reasoningStepRail::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 12px;
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-full, 9999px);
+  background: var(--color-icon-disabled, #b8bbc1);
+}
+
+.reasoningStepContent {
+  flex: 1;
+  min-width: 0;
+  padding: var(--space-component-stack-padding-large, 8px) 0;
+}
+
+/* ── Motion: fade + gentle rise (IDS appear tokens) ── */
+@keyframes agentFadeSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes agentFadeSlideOut {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes progressCheckPop {
+  from {
+    opacity: 0;
+    transform: scale(0.72);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.revealHidden {
+  opacity: 0;
+  transform: translateY(14px);
+  pointer-events: none;
+}
+
+.revealIn {
+  animation: agentFadeSlideIn var(--duration-appear-emphasize-moderate, 700ms)
+    var(--ease-appear, cubic-bezier(0, 0, 0.25, 1)) both;
+}
+
+.revealOut {
+  animation: agentFadeSlideOut var(--duration-disappear-emphasize-fast, 500ms)
+    var(--ease-disappear, cubic-bezier(0.35, 0, 0.25, 1)) both;
+}
+
+.reasoningStepTitle {
+  display: block;
+  font-family: var(--font-family-body);
+  font-size: var(--font-size-body-2, 16px);
+  font-weight: var(--font-weight-body-semibold, 500);
+  line-height: 1.5;
+  color: var(--color-text-primary, #393a3d);
+  margin-bottom: var(--space-component-stack-padding-small, 4px);
+}
+
+.reasoningStepBody {
+  margin: 0;
+  font-family: var(--font-family-body);
+  font-size: var(--font-size-body-2, 16px);
+  font-weight: var(--font-weight-body, 400);
+  line-height: 1.5;
+  color: var(--color-text-secondary, #6b6c72);
+}
+
+.showThinkingBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-component-gap-small, 4px);
+  padding: 0;
+  border: none;
+  background: none;
+  font-family: var(--font-family-component);
+  font-size: var(--font-size-component-small, 14px);
+  font-weight: var(--font-weight-component-semibold, 500);
+  color: var(--color-link-text, #0365ac);
+  cursor: pointer;
+}
+
+.chevron {
+  transition: transform var(--duration-transform-fast, 200ms) ease;
+}
+
+.chevronUp {
+  transform: rotate(180deg);
+}
+
+.fixesDivider {
+  display: flex;
+  align-items: center;
+  gap: var(--space-medium, 16px);
+  width: 100%;
+}
+
+.fixesDividerLine {
+  flex: 1;
+  height: 1px;
+  background: var(--color-divider-secondary, #d4d7dc);
+  opacity: 0.6;
+}
+
+.fixesDividerLabel {
+  flex-shrink: 0;
+  padding: 6px 14px;
+  border-radius: var(--radius-full, 9999px);
+  background: var(--color-container-background-secondary, #f4f5f8);
+  font-family: var(--font-family-component);
+  font-size: var(--font-size-component-x-small, 12px);
+  font-weight: var(--font-weight-component-bold, 600);
+  color: var(--color-text-secondary, #6b6c72);
+}
+
+.agentMessageRow {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-component-gap-medium, 8px);
+}
+
+.agentAvatar {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.agentMessageText {
+  margin: 0;
+  font-family: var(--font-family-body);
+  font-size: var(--font-size-body-3, 14px);
+  line-height: 1.5;
+  color: var(--color-text-primary, #393a3d);
+}
+
+.progressCard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-x-small, 8px);
+  width: 100%;
+  padding: 18px 20px;
+  border: 1px solid var(--color-container-border-primary, #d4d7dc);
+  border-radius: var(--radius-x-large, 12px);
+  background: var(--color-container-background-primary, #ffffff);
+}
+
+.progressCardHeader {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-medium, 16px);
+}
+
+.progressCardTitle {
+  font-family: var(--font-family-body);
+  font-size: var(--font-size-body-3, 14px);
+  font-weight: var(--font-weight-body-semibold, 500);
+  color: var(--color-text-primary, #393a3d);
+}
+
+.progressCardCount {
+  font-family: var(--font-family-body);
+  font-size: var(--font-size-body-3, 14px);
+  color: var(--color-text-secondary, #6b6c72);
+}
+
+.progressCardDivider {
+  height: 1px;
+  background: var(--color-divider-tertiary, #eceef1);
+}
+
+.fixSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-small, 12px);
+  padding: var(--space-medium, 16px) 0;
+  border-bottom: 1px solid var(--color-divider-tertiary, #eceef1);
+}
+
+.fixSection:last-of-type {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.fixSectionHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--space-x-small, 8px);
+}
+
+.summaryCheck {
+  color: var(--color-ui-positive);
+  flex-shrink: 0;
+}
+
+.fixSectionTitle {
+  font-family: var(--font-family-body);
+  font-size: var(--font-size-body-3, 14px);
+  line-height: 1.43;
+  color: var(--color-text-primary, #21262a);
+}
+
+.fixLinkList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-small, 12px);
+}
+
+.fixLinkRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-component-gap-small, 4px);
+}
+
+.richDocLink {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-component-gap-small, 4px);
+  min-height: 20px;
+  padding: var(--space-container-padding-xxx-small, 4px);
+  border: none;
+  border-radius: var(--radius-small, 4px);
+  background: var(--color-container-background-info, #d9effb);
+  font-family: var(--font-family-component);
+  font-size: var(--font-size-component-small, 14px);
+  font-weight: var(--font-weight-component-bold, 600);
+  line-height: 1.3;
+  color: var(--color-link-text, #0365ac);
+  cursor: pointer;
+}
+
+.richDocLink:hover {
+  background: var(--color-container-background-info-hover, #c5e4f7);
+}
+
+.richDocLinkIcon {
+  flex-shrink: 0;
+  width: 1em;
+  height: 1em;
+}
+
+.fixLinkDetail {
+  font-family: var(--font-family-body);
+  font-size: var(--font-size-body-3, 14px);
+  line-height: 1.43;
+  color: var(--color-text-primary, #21262a);
+}
+
+.attentionCard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-x-small, 8px);
+  width: 100%;
+  padding: 18px 20px;
+  /* Neutral border — the warning badge carries the status, not the container. */
+  border: 1px solid var(--color-container-border-primary, #d4d7dc);
+  border-radius: var(--radius-x-large, 12px);
+  background: var(--color-container-background-primary, #ffffff);
+}
+
+.attentionTitleGroup {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-x-small, 8px);
+  min-width: 0;
+}
+
+.attentionIntro {
+  margin: 0;
+  font-family: var(--font-family-body);
+  font-size: var(--font-size-body-3, 14px);
+  line-height: 1.5;
+  color: var(--color-text-secondary, #6b6c72);
+}
+
+/* Bulleted rows: the marker sits outside so the title, detail, and link all
+   share one left reading edge. */
+.attentionList {
+  list-style: disc;
+  margin: 0;
+  padding: 0 0 0 var(--space-medium, 16px);
+}
+
+.attentionItem {
+  display: list-item;
+  padding: var(--space-medium, 16px) 0;
+  border-bottom: 1px solid var(--color-divider-tertiary, #eceef1);
+}
+
+.attentionItem::marker {
+  color: var(--color-text-primary, #21262a);
+}
+
+.attentionItem:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.attentionItemTitle {
+  display: block;
+  font-family: var(--font-family-body);
+  font-size: var(--font-size-body-3, 14px);
+  font-weight: var(--font-weight-body-semibold, 500);
+  line-height: 1.43;
+  color: var(--color-text-primary, #21262a);
+}
+
+.attentionItemDetail {
+  margin: 3px 0 0;
+  font-family: var(--font-family-body);
+  font-size: var(--font-size-body-3, 14px);
+  line-height: 1.43;
+  color: var(--color-text-secondary, #6b6c72);
+}
+
+.attentionItem .richDocLink {
+  margin-top: var(--space-x-small, 8px);
+}
+
+.reminderCard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-x-small, 8px);
+  width: 100%;
+  padding: 12px 15px;
+  border: 1px solid var(--color-container-border-secondary, #e3e5e8);
+  border-radius: var(--radius-x-large, 12px);
+  background: var(--color-container-background-primary, #ffffff);
+}
+
+.reminderHeader {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-x-small, 8px);
+}
+
+.reminderIcon {
+  width: 16px;
+  height: 16px;
+}
+
+.reminderTitle {
+  font-family: var(--font-family-component);
+  font-size: var(--font-size-component-medium, 16px);
+  font-weight: var(--font-weight-component-semibold, 500);
+  color: var(--color-text-primary, #393a3d);
+}
+
+.reminderText {
+  margin: 0;
+  font-family: var(--font-family-body);
+  font-size: var(--font-size-body-3, 14px);
+  line-height: 1.5;
+  color: var(--color-text-primary, #393a3d);
+}
+
+.footerActions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--space-x-small, 8px);
+  width: 100%;
+}
+
+.suggestionRow {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--space-x-small, 8px);
+  padding: var(--space-x-small, 8px) var(--space-container-padding-large, 24px)
+    var(--space-container-padding-small, 16px);
+  max-width: 960px;
+  width: 100%;
+  margin: 0 auto;
+  flex-shrink: 0;
+}
+
+.suggestionChip {
+  padding: var(--space-small, 12px) var(--space-component-inline-padding-xx-large, 16px);
+  border: 1px solid var(--color-action-border-secondary, #393a3d);
+  border-radius: var(--radius-message, 24px);
+  background: var(--color-container-background-primary, #ffffff);
+  font-family: var(--font-family-component);
+  font-size: var(--font-size-component-medium, 16px);
+  font-weight: var(--font-weight-component-semibold, 500);
+  line-height: 1.3;
+  color: var(--color-text-primary, #393a3d);
+  cursor: pointer;
+  white-space: nowrap;
+  transition:
+    background var(--duration-fade-moderate, 200ms) var(--ease-fade),
+    border-color var(--duration-fade-moderate, 200ms) var(--ease-fade);
+}
+
+.suggestionChip:hover {
+  background: var(--color-action-passive-subtle-hover, #f0f4f6);
+}
+
+.suggestionChipPrimary {
+  padding: var(--space-small, 12px) var(--space-component-inline-padding-xx-large, 16px);
+  border: 1px solid var(--color-action-standard, #205ea3);
+  border-radius: var(--radius-message, 24px);
+  background: var(--color-action-standard, #205ea3);
+  font-family: var(--font-family-component);
+  font-size: var(--font-size-component-medium, 16px);
+  font-weight: var(--font-weight-component-semibold, 500);
+  line-height: 1.3;
+  color: var(--color-text-inverse, #ffffff);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.suggestionChipPrimary:hover {
+  background: var(--color-action-standard-hover, #174d87);
+  border-color: var(--color-action-standard-hover, #174d87);
+}
+
+.catchUpCard {
+  margin-top: var(--space-medium, 16px);
+  padding: var(--space-medium, 16px);
+  border-radius: var(--radius-large, 8px);
+  border: 1px solid var(--color-container-border-primary, #d4d7dc);
+  background: var(--color-container-background-primary, #ffffff);
+}
+
+.catchUpText {
+  margin: 0;
+  font-family: var(--font-family-body);
+  font-size: var(--font-size-body-3, 14px);
+  line-height: 1.5;
+  color: var(--color-text-primary, #393a3d);
+}
+
+.reasoningBlock,
+.resultsBlock {
+  overflow: hidden;
+}

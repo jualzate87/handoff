@@ -1,0 +1,466 @@
+/**
+ * Phase 2 diagnostic dismiss rules - Filing stoppers / Compliance / Opportunities.
+ *
+ * Outstanding input↔source mismatches from Phase 1 surface here when values
+ * were marked correct without fixing (or silent import gaps remain).
+ * Pure YoY curiosity cards are not in this catalog.
+ */
+import {
+  MARGINAL_RATE,
+  NEC_SOURCE_AMOUNT,
+  SCH_C_COMBINED_RATE,
+  TOKEN_QUALIFIED_DIVS_SOURCE,
+  computeQualifiedDivOverstatement,
+  getBlankBox12Rows,
+  type LiveAmounts,
+  type LiveReturnTotals,
+} from '../../data/liveReturn'
+import { TOKEN_QUALIFIED_DIVS_RETURN } from '../../data/frozenReturn'
+import {
+  PHASE1_FLAG_KEYS,
+  get1040HighlightField,
+  isPhase1FlagResolved,
+  type Phase1FlagKey,
+} from './phase1FieldSync'
+import type { OutputFormId } from './outputForms'
+
+const PHASE1_FLAG_KEY_SET = new Set<string>(PHASE1_FLAG_KEYS)
+
+/** Phase 2 issue keys - must match AgentReportPane GUIDED_ORDER. */
+export type Phase2IssueKey =
+  | 'importMismatches'
+  | 'qualifiedDivClassification'
+  | 'niitForm8960'
+  | 'underpaymentRisk'
+  | 'necScheduleC'
+  | 'w2Box12Missing'
+  | 'optItemize'
+  | 'schCExpenses'
+  | 'sepIra'
+
+/** Canonical Phase 2 order - Import accuracy → Compliance → Opportunities. */
+export const PHASE2_DIAGNOSTIC_ORDER: readonly Phase2IssueKey[] = [
+  'importMismatches',
+  'qualifiedDivClassification',
+  'underpaymentRisk',
+  'necScheduleC',
+  'niitForm8960',
+  'w2Box12Missing',
+  'optItemize',
+  'schCExpenses',
+  'sepIra',
+] as const
+
+/** 110% of 2024 total tax ($102,754) - Form 2210 safe harbor used in card copy. */
+export const SAFE_HARBOR_2024 = 113_029
+
+/** Prior-year amount owed (line 37) - supporting math only. */
+export const PRIOR_YEAR_OWE = 26_654
+
+/** Source-document amounts that invalidate import-related diagnostics when restored. */
+export const SOURCE_AMOUNTS = {
+  wages: 148_940,
+  divWithholding: 26_363,
+  rWithholding: 30_000,
+  taxablePension: 150_000,
+  /** Token 1099-DIV Box 1b on the PDF (return seeds silent error at TOKEN_QUALIFIED_DIVS_RETURN) */
+  qualifiedDivsToken: TOKEN_QUALIFIED_DIVS_SOURCE,
+  priorOrdinaryDivs: 219_850,
+  /** Summit 1099-NEC Box 1 on source (return seeds silent omit at $0) */
+  necIncome: NEC_SOURCE_AMOUNT,
+} as const
+
+/** Single-filer NIIT AGI threshold (Form 8960). */
+export const NIIT_AGI_THRESHOLD_SINGLE = 200_000
+
+export type DiagnosticSyncContext = {
+  reviewedFields: Map<string, unknown>
+  live: LiveReturnTotals
+  amounts: LiveAmounts
+}
+
+export type DiagnosticDismissRule = {
+  dismissWhenReviewed: ReadonlyArray<Phase1FlagKey | string>
+  dismissWhenAmounts?: (ctx: DiagnosticSyncContext) => boolean
+  /** When true, diagnostic is ACTIVE only while the amount condition holds (inverse of dismiss). */
+  activeWhenAmounts?: (ctx: DiagnosticSyncContext) => boolean
+  notes?: string
+}
+
+export type ImportMismatchRow = {
+  id: string
+  label: string
+  returnValue: string
+  sourceValue: string
+  field: string
+  tab: string
+  /** What this single row costs the return, in dollars of tax or lost credit. */
+  taxImpact: number
+  /** How that dollar figure was derived, for the tax impact tooltip / copy. */
+  taxImpactNote: string
+}
+
+const usd = (n: number) => `$${Math.round(n).toLocaleString()}`
+
+/** Remaining input↔source gaps after Phase 1 (mark-correct without fixing, silent errors). */
+export function getOutstandingImportMismatches(amounts: LiveAmounts): ImportMismatchRow[] {
+  const rows: ImportMismatchRow[] = []
+
+  if (amounts.wages !== SOURCE_AMOUNTS.wages) {
+    rows.push({
+      id: 'wages',
+      label: 'W-2 Box 1 wages (Tech Circle)',
+      returnValue: `$${amounts.wages.toLocaleString()}`,
+      sourceValue: `$${SOURCE_AMOUNTS.wages.toLocaleString()}`,
+      field: 'wages',
+      tab: 'w2s',
+      taxImpact: (SOURCE_AMOUNTS.wages - amounts.wages) * MARGINAL_RATE,
+      taxImpactNote: `${usd(SOURCE_AMOUNTS.wages - amounts.wages)} of wages missing from the return, taxed at 35%.`,
+    })
+  }
+  if (amounts.qualifiedDivsToken === TOKEN_QUALIFIED_DIVS_RETURN
+    || amounts.qualifiedDivsToken !== SOURCE_AMOUNTS.qualifiedDivsToken) {
+    if (amounts.qualifiedDivsToken !== SOURCE_AMOUNTS.qualifiedDivsToken) {
+      rows.push({
+        id: 'qualifiedDivs',
+        label: '1099-DIV Box 1b qualified dividends (Token)',
+        returnValue: `$${amounts.qualifiedDivsToken.toLocaleString()}`,
+        sourceValue: `$${SOURCE_AMOUNTS.qualifiedDivsToken.toLocaleString()}`,
+        field: 'qualifiedDivs',
+        tab: '1099-divs',
+        taxImpact: computeQualifiedDivOverstatement(amounts).taxDelta,
+        taxImpactNote: `${usd(computeQualifiedDivOverstatement(amounts).overstated)} taxed at the 20% qualified rate instead of 35% ordinary.`,
+      })
+    }
+  }
+  if (amounts.divWithholding !== SOURCE_AMOUNTS.divWithholding) {
+    rows.push({
+      id: 'divWithholding',
+      label: '1099-DIV Box 4 federal withholding (Token)',
+      returnValue: `$${amounts.divWithholding.toLocaleString()}`,
+      sourceValue: `$${SOURCE_AMOUNTS.divWithholding.toLocaleString()}`,
+      field: 'fedTaxWithheld',
+      tab: '1099-divs',
+      taxImpact: SOURCE_AMOUNTS.divWithholding - amounts.divWithholding,
+      taxImpactNote: 'Withholding credit is dollar for dollar, so the full gap is added to the balance due.',
+    })
+  }
+  if (amounts.taxablePension !== SOURCE_AMOUNTS.taxablePension) {
+    rows.push({
+      id: 'taxablePension',
+      label: '1099-R Box 2a taxable amount (Meridian)',
+      returnValue: `$${amounts.taxablePension.toLocaleString()}`,
+      sourceValue: `$${SOURCE_AMOUNTS.taxablePension.toLocaleString()}`,
+      field: 'r-taxableAmt',
+      tab: '1099-rs',
+      taxImpact: (SOURCE_AMOUNTS.taxablePension - amounts.taxablePension) * MARGINAL_RATE,
+      taxImpactNote: `${usd(SOURCE_AMOUNTS.taxablePension - amounts.taxablePension)} of taxable pension missing from line 4b, taxed at 35%.`,
+    })
+  }
+  if (amounts.rWithholding < SOURCE_AMOUNTS.rWithholding) {
+    rows.push({
+      id: 'rWithholding',
+      label: '1099-R Box 4 federal withholding (Meridian)',
+      returnValue: `$${amounts.rWithholding.toLocaleString()}`,
+      sourceValue: `$${SOURCE_AMOUNTS.rWithholding.toLocaleString()}`,
+      field: 'withholding1099',
+      tab: '1099-rs',
+      taxImpact: SOURCE_AMOUNTS.rWithholding - amounts.rWithholding,
+      taxImpactNote: 'The entire Box 4 withholding was dropped on import, so the balance due is overstated by the same amount.',
+    })
+  }
+  if (!amounts.necOnReturn || amounts.necIncome !== SOURCE_AMOUNTS.necIncome) {
+    rows.push({
+      id: 'necIncome',
+      label: '1099-NEC Box 1 nonemployee compensation (Summit)',
+      returnValue: amounts.necOnReturn ? `$${amounts.necIncome.toLocaleString()}` : '$0',
+      sourceValue: `$${SOURCE_AMOUNTS.necIncome.toLocaleString()}`,
+      field: 'nec-box1',
+      tab: '1099-necs',
+      taxImpact:
+        (SOURCE_AMOUNTS.necIncome - (amounts.necOnReturn ? amounts.necIncome : 0)) *
+        SCH_C_COMBINED_RATE,
+      taxImpactNote: 'Nonemployee compensation carries income tax plus self-employment tax, roughly 47 cents on the dollar.',
+    })
+  }
+
+  return rows
+}
+
+/** Total tax exposure across every remaining import mismatch. */
+export function getImportMismatchTaxImpact(amounts: LiveAmounts): number {
+  return Math.round(
+    getOutstandingImportMismatches(amounts).reduce((sum, row) => sum + row.taxImpact, 0),
+  )
+}
+
+/**
+ * | Diagnostic                 | Active / dismiss rules                             |
+ * |----------------------------|----------------------------------------------------|
+ * | importMismatches           | Active while any input↔source gap remains          |
+ * | qualifiedDivClassification | Active while Box 1b exceeds the source 1099-DIV    |
+ * | niitForm8960               | Dismiss when AGI < $200k                           |
+ * | underpaymentRisk           | Dismiss when WH restored or ≥ safe harbor          |
+ * | necScheduleC               | Dismiss once NEC income is on the return           |
+ * | w2Box12Missing             | Active while a Box 12 code has no amount           |
+ * | optItemize                 | Dismiss once mortgage interest is entered          |
+ * | schCExpenses               | Dismiss once Schedule C expenses are entered       |
+ * | sepIra                     | Study-static until marked reviewed                 |
+ */
+export const DIAGNOSTIC_DISMISS_RULES: Record<Phase2IssueKey, DiagnosticDismissRule> = {
+  importMismatches: {
+    dismissWhenReviewed: [],
+    activeWhenAmounts: ({ amounts }) => getOutstandingImportMismatches(amounts).length > 0,
+    notes:
+      'Surfaces remaining input↔source mismatches (including silent errors) after Phase 1.',
+  },
+  niitForm8960: {
+    dismissWhenReviewed: [],
+    dismissWhenAmounts: ({ live }) => live.totalIncome < NIIT_AGI_THRESHOLD_SINGLE,
+    notes: 'Form 8960: dismissed if AGI falls below the $200k single-filer NIIT threshold.',
+  },
+  underpaymentRisk: {
+    dismissWhenReviewed: ['fedTaxWithheld'],
+    dismissWhenAmounts: ({ live, amounts }) =>
+      live.totalWithholding >= SAFE_HARBOR_2024 ||
+      amounts.divWithholding >= SOURCE_AMOUNTS.divWithholding ||
+      amounts.rWithholding >= SOURCE_AMOUNTS.rWithholding,
+    notes:
+      'Underpayment card: dismissed when withholding is restored or meets safe harbor.',
+  },
+  necScheduleC: {
+    dismissWhenReviewed: [],
+    notes:
+      'Study-static compliance: Schedule C / expense completeness stays until marked reviewed.',
+  },
+  qualifiedDivClassification: {
+    dismissWhenReviewed: [],
+    activeWhenAmounts: ({ amounts }) =>
+      computeQualifiedDivOverstatement(amounts).overstated > 0,
+    notes:
+      'Box 1b on the return exceeds the Token 1099-DIV, so ordinary dividends are taxed at the qualified rate.',
+  },
+  w2Box12Missing: {
+    dismissWhenReviewed: [],
+    activeWhenAmounts: ({ amounts }) => getBlankBox12Rows(amounts).length > 0,
+    notes: 'Active while any W-2 Box 12 code imported without its amount.',
+  },
+  optItemize: {
+    dismissWhenReviewed: [],
+    dismissWhenAmounts: ({ amounts }) => amounts.mortgageInterest > 0,
+    notes:
+      'Opportunity: std deduction vs itemize. Dismissed once Form 1098 mortgage interest is entered.',
+  },
+  schCExpenses: {
+    dismissWhenReviewed: [],
+    dismissWhenAmounts: ({ amounts }) => amounts.schCExpenses > 0,
+    notes:
+      'Opportunity: client-confirmed Schedule C expenses are not on the return until an amount is entered.',
+  },
+  sepIra: {
+    dismissWhenReviewed: [],
+    notes:
+      'Study-static opportunity: retirement contribution headroom against Schedule C profit.',
+  },
+}
+
+export const PHASE1_TO_PHASE2_ISSUES: Partial<Record<string, Phase2IssueKey[]>> = (() => {
+  const map: Partial<Record<string, Phase2IssueKey[]>> = {}
+  for (const [issueKey, rule] of Object.entries(DIAGNOSTIC_DISMISS_RULES) as Array<
+    [Phase2IssueKey, DiagnosticDismissRule]
+  >) {
+    for (const flagKey of rule.dismissWhenReviewed) {
+      const list = map[flagKey] ?? []
+      if (!list.includes(issueKey)) list.push(issueKey)
+      map[flagKey] = list
+    }
+  }
+  return map
+})()
+
+export function phase2IssuesForFlag(flagKey: Phase1FlagKey | string): Phase2IssueKey[] {
+  return PHASE1_TO_PHASE2_ISSUES[flagKey] ?? []
+}
+
+export function isDiagnosticAutoDismissed(
+  issueKey: Phase2IssueKey,
+  ctx: DiagnosticSyncContext,
+): boolean {
+  const rule = DIAGNOSTIC_DISMISS_RULES[issueKey]
+  if (!rule) return false
+
+  // activeWhenAmounts: diagnostic only appears while condition is true
+  if (rule.activeWhenAmounts) {
+    return !rule.activeWhenAmounts(ctx)
+  }
+
+  for (const flagKey of rule.dismissWhenReviewed) {
+    if (PHASE1_FLAG_KEY_SET.has(flagKey)) {
+      if (isPhase1FlagResolved(flagKey as Phase1FlagKey, ctx.reviewedFields)) return true
+    } else if (ctx.reviewedFields.has(flagKey)) {
+      return true
+    }
+  }
+
+  if (rule.dismissWhenAmounts?.(ctx)) return true
+  return false
+}
+
+export function getActiveDiagnosticKeys(ctx: DiagnosticSyncContext): Phase2IssueKey[] {
+  return PHASE2_DIAGNOSTIC_ORDER.filter(k => !isDiagnosticAutoDismissed(k, ctx))
+}
+
+/** Default Summary / 1040 row for each Phase 2 diagnostic (when detail pane is open). */
+export const DIAGNOSTIC_OUTPUT_FIELDS: Record<Phase2IssueKey, string> = {
+  importMismatches: 'wages',
+  qualifiedDivClassification: 'qualifiedDivs',
+  underpaymentRisk: 'withholding',
+  necScheduleC: 'otherIncome',
+  niitForm8960: 'ordinaryDivs',
+  w2Box12Missing: 'wages',
+  optItemize: 'stdDeduction',
+  schCExpenses: 'otherIncome',
+  sepIra: 'otherIncome',
+}
+
+/** Schedule / form line highlights when a diagnostic opens a non-Summary output form. */
+export const DIAGNOSTIC_FORM_LINE_HIGHLIGHTS: Partial<
+  Record<Phase2IssueKey, Partial<Record<OutputFormId, string>>>
+> = {
+  necScheduleC: { schC: 'schC-1', sch1: 'sch1-8' },
+  niitForm8960: { f8960: 'f8960-5a', '1040': 'niitTax' },
+  underpaymentRisk: { f2210: 'f2210-17', '1040': 'withholding' },
+  optItemize: { schA: 'schA-8a', '1040': 'stdDeduction' },
+  importMismatches: { '1040': 'wages' },
+  qualifiedDivClassification: { f8960: 'f8960-2', '1040': 'qualifiedDivs' },
+  w2Box12Missing: { '1040': 'wages' },
+  schCExpenses: { schC: 'schC-28', sch1: 'sch1-10' },
+  sepIra: { schC: 'schC-31', sch1: 'sch1-10' },
+}
+
+/** Map a detail / issue field key → Summary / 1040 row (shared with Phase 1). */
+export function resolveOutputFieldFromIssueField(issueField: string | null): string | null {
+  if (!issueField) return null
+  return get1040HighlightField(issueField) ?? issueField
+}
+
+/** Resolve the Summary / 1040 row to highlight for an active Phase 2 diagnostic. */
+export function resolveOutputFieldFromDiagnostic(
+  issueKey: Phase2IssueKey,
+  amounts?: LiveAmounts,
+  issueField?: string | null,
+): string {
+  if (issueField) {
+    return resolveOutputFieldFromIssueField(issueField) ?? DIAGNOSTIC_OUTPUT_FIELDS[issueKey]
+  }
+  if (issueKey === 'importMismatches' && amounts) {
+    const first = getOutstandingImportMismatches(amounts)[0]
+    if (first) {
+      return resolveOutputFieldFromIssueField(first.field) ?? DIAGNOSTIC_OUTPUT_FIELDS[issueKey]
+    }
+  }
+  return DIAGNOSTIC_OUTPUT_FIELDS[issueKey]
+}
+
+/** Highlight field id for schedule / form views (may differ from Summary row keys). */
+export function resolveFormLineHighlight(
+  formId: OutputFormId,
+  options: {
+    issueKey?: Phase2IssueKey | null
+    issueField?: string | null
+    sourceHighlight?: string | null
+    amounts?: LiveAmounts
+  },
+): string | null {
+  const { issueKey, issueField, sourceHighlight, amounts } = options
+
+  if (issueKey) {
+    const byForm = DIAGNOSTIC_FORM_LINE_HIGHLIGHTS[issueKey]?.[formId]
+    if (byForm) return byForm
+    const summaryField = resolveOutputFieldFromDiagnostic(issueKey, amounts, issueField)
+    if (formId === 'summary' || formId === '1040') return summaryField
+    return null
+  }
+
+  if (sourceHighlight && (formId === 'summary' || formId === '1040')) {
+    return sourceHighlight
+  }
+
+  return sourceHighlight ?? null
+}
+
+/**
+ * Rules the agent evaluated and closed out. These carry no action, but showing
+ * the reasoning is what makes the pass defensible in a review file.
+ */
+export type CheckedNoActionItem = {
+  id: string
+  title: string
+  conclusion: string
+  source?: {
+    label: string
+    href: string
+  }
+}
+
+export const CHECKED_NO_ACTION_ITEMS: readonly CheckedNoActionItem[] = [
+  {
+    id: 'qbi-199a',
+    title: 'QBI deduction is $0, Form 8995 not required',
+    conclusion:
+      'Summit consulting is a specified service trade or business above the $247,300 single filer phase-out.',
+    source: {
+      label: 'About Form 8995 (QBI deduction)',
+      href: 'https://www.irs.gov/forms-pubs/about-form-8995',
+    },
+  },
+  {
+    id: 'filing-status',
+    title: 'Single, no dependents confirmed',
+    conclusion:
+      'Matches last year and the Tax Organizer. Head of household and dependent credits do not apply.',
+    source: {
+      label: 'Publication 501 (filing status and dependents)',
+      href: 'https://www.irs.gov/publications/p501',
+    },
+  },
+  {
+    id: 'capital-gains',
+    title: 'No capital gains, Schedule D not required',
+    conclusion:
+      'No 1099-B in the packet and line 7 is $0, consistent with last year.',
+    source: {
+      label: 'About Schedule D (Form 1040)',
+      href: 'https://www.irs.gov/forms-pubs/about-schedule-d-form-1040',
+    },
+  },
+  {
+    id: 'ira-basis',
+    title: 'No IRA basis issue, Form 8606 not required',
+    conclusion:
+      'Meridian 1099-R code 7 shows the full distribution taxable with no after-tax basis.',
+    source: {
+      label: 'About Form 8606 (nondeductible IRAs)',
+      href: 'https://www.irs.gov/forms-pubs/about-form-8606',
+    },
+  },
+] as const
+
+export function getPhase2Progress(ctx: DiagnosticSyncContext): {
+  activeKeys: Phase2IssueKey[]
+  total: number
+  reviewed: number
+  remaining: number
+  complete: boolean
+} {
+  const activeKeys = getActiveDiagnosticKeys(ctx)
+  const reviewed = activeKeys.filter(k => ctx.reviewedFields.has(k)).length
+  const remaining = activeKeys.length - reviewed
+  return {
+    activeKeys,
+    total: activeKeys.length,
+    reviewed,
+    remaining,
+    complete: remaining === 0,
+  }
+}

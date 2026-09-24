@@ -1,0 +1,74 @@
+.popover {
+  position: fixed;
+  width: 20rem;
+  max-width: calc(100vw - var(--space-container-padding-medium, 20px));
+  background: var(--color-container-background-primary);
+  border: 1px solid var(--color-divider-secondary);
+  border-radius: var(--radius-medium, 4px);
+  box-shadow: var(--elevation-overlay, 0 4px 16px rgba(0, 0, 0, 0.12));
+  padding: var(--space-container-padding-x-small);
+  z-index: 10000;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-component-gap-medium);
+  overflow: visible;
+}
+
+.contextRow {
+  display: flex;
+  align-items: flex-start;
+  min-width: 0;
+}
+
+.contextRow > * {
+  max-width: 100%;
+}
+
+.typeRow {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-component-gap-x-small);
+}
+
+.meta {
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: var(--space-component-gap-small);
+  padding-top: var(--space-component-gap-x-small);
+}
+
+.typeOption {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-column-gap-x-small, 8px);
+}
+
+.typeDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* Sits over the trigger's addon padding so the dot reads inside the field border. */
+.triggerDot {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+/* Without the checkmark gutter the options need the field's own left inset. */
+.typeMenu li > span[role='none']:first-child:empty {
+  display: none;
+}
+
+.typeMenu li {
+  padding-left: 12px;
+}

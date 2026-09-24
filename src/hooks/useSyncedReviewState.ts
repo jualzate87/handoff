@@ -1,0 +1,1340 @@
+import { useCallback, useEffect, useRef, useState } from 'react'
+import { SEED_AMOUNTS, type LiveAmounts } from '../data/liveReturn'
+import type { W2Employer } from '../pages/data-review/DetailFields'
+import type { TopTab } from '../pages/data-review/ReviewTab'
+import type { DivPayer } from '../pages/data-review/DetailFieldsDiv'
+import type { IntPayer } from '../pages/data-review/DetailFields1099'
+import { PHASE1_TO_PHASE2_ISSUES } from '../pages/data-review/phase2FlagSync'
+import {
+  AGENT_LINKED_PHASE1_REVIEW_KEYS,
+  AGENT_SCOPED_ISSUE_KEYS,
+} from '../pages/check-return/aiDiagnosticCategories'
+import { canVerifyDoc } from '../pages/data-review/docReviewStatus'
+import { normalizeVerifiedDocEntries, normalizeVerifiedDocKey } from '../data/verifiedDocKeys'
+import type { MilestoneCompletion } from '../data/reviewMilestones'
+import {
+  AGENT_INTELLIGENCE_ACTOR,
+  buildAgentIntelligenceDemoFixes,
+} from '../lib/applyAgentIntelligenceFixes'
+import { WORKFLOW_STORAGE_KEY } from '../lib/returnWorkflow'
+import {
+  coerceTimestamp,
+  formatActivityTimestamp,
+  sanitizeActivityEntry,
+} from '../lib/coerceTimestamp'
+
+// ProtoC2: source-doc review state persisted in localStorage so preparer work in
+// tab A is visible when the reviewer opens tab B (same origin). BroadcastChannel
+// + storage events keep open tabs in sync.
+
+/** @deprecated Prefer LiveAmounts - kept for DetailFields prop shims. */
+export interface FieldValues {
+  withholding: { techCircle: number }
+  box12: number
+  taxableInterest: number
+  qualifiedDivs: number
+}
+
+export interface ReviewedEntry { by: string; at: string }
+/** Who/when for last check, flag, edit, or doc verify - same shape as reviewed. */
+export type ActivityEntry = ReviewedEntry
+
+interface SyncedState {
+  activeTopTab: TopTab
+  activeSubTab: W2Employer
+  selectedField: string | null
+  /** All editable return amounts - single source of truth for 1040 recalculation */
+  amounts: LiveAmounts
+  reviewedFieldsList: [string, ReviewedEntry][]
+  /** Field keys the preparer has edited+saved this session (with who/when) */
+  editedFieldsList: [string, ActivityEntry][]
+  /** Field keys changed but not yet saved via Save and recalculate */
+  unsavedFieldsList: string[]
+  /** Docs marked verified - with who/when */
+  verifiedDocsList: [string, ActivityEntry][]
+  /** Phase 1 flag keys auto-cleared when each doc was verified - restored on un-verify */
+  verifiedDocAutoFlagsList: [string, string[]][]
+  /** Summary-row checks (preparer verified against source) - mutually exclusive with flags */
+  summaryCheckedFieldsList: [string, ActivityEntry][]
+  /** Summary-row reviewer sign-off confirmations - independent of preparer checks */
+  reviewerConfirmedFieldsList: [string, ActivityEntry][]
+  /** Docs marked verified by preparer */
+  reviewerConfirmedDocsList: [string, ActivityEntry][]
+  /** Summary-row L3 (manager) checks */
+  managerConfirmedFieldsList: [string, ActivityEntry][]
+  /** Per output form / schedule reviewer sign-off (e.g. schedule-c, form-1040) */
+  reviewerSignedOffFormsList: [string, ActivityEntry][]
+  /** Summary fields needing reviewer re-confirm after post-verify edit */
+  reviewerConfirmStaleFieldsList: string[]
+  /** Source docs with an edit-after-verify banner (until dismissed or re-verified) */
+  docEditAfterVerifyNoticesList: string[]
+  /** Manual attestation checkboxes for review checklist (Phase 2 sign-off) */
+  manualChecklistItems: Record<string, boolean>
+  /** Declaration milestone completions - who/when for flexible checklist */
+  completedMilestones: Record<string, MilestoneCompletion>
+  /**
+   * Summary-row user flags (preparer attention markers).
+   * Mutually exclusive with checks. Notes may remain when flag is off.
+   */
+  summaryFlaggedFieldsList: [string, ActivityEntry][]
+  /** Optional short notes keyed by Summary field id - kept when flag is turned off */
+  summaryFlagNotes: Record<string, string>
+  /**
+   * Last flag activity (set/note Done) even after flag is cleared -
+   * used for lightweight meta display.
+   */
+  summaryFlagActivity: Record<string, ActivityEntry>
+  /**
+   * Free-text / static detail-field overrides (employer name, addresses, etc.).
+   * Keys match DetailFields row keys (e.g. `employerName-techCircle`).
+   * Persists across tabs and Phase 2 so edits never disappear.
+   */
+  fieldOverrides: Record<string, string>
+  activeDivPayer: DivPayer
+  activeIntPayer: IntPayer
+}
+
+const CHANNEL_NAME = 'protoc3-data-review-sync'
+
+type SyncBroadcastMessage = {
+  tabId: string
+  state: SyncedState
+}
+
+function createSyncTabId(): string {
+  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+    return crypto.randomUUID()
+  }
+  return `tab-${Date.now()}-${Math.random().toString(36).slice(2)}`
+}
+// Bump whenever DEFAULT_STATE shape or seed values change so stale sessions reset.
+const STATE_VERSION = 35
+const STORAGE_KEY = 'protoc3-data-review-state-v' + STATE_VERSION
+/** Prior keys - sessionStorage (tab-scoped) and older localStorage versions */
+const LEGACY_STORAGE_KEYS = [
+  STORAGE_KEY,
+  'protoc3-data-review-state-v29',
+  'protoc3-data-review-state-v34',
+  'protoc3-data-review-state-v32',
+  'protoc3-data-review-state-v28',
+  'protoc3-data-review-state-v27',
+  'protoc3-data-review-state-v26',
+] as const
+
+function readPersistedRaw(): string | null {
+  for (const key of LEGACY_STORAGE_KEYS) {
+    try {
+      const fromLocal = localStorage.getItem(key)
+      if (fromLocal) {
+        if (key !== STORAGE_KEY) localStorage.setItem(STORAGE_KEY, fromLocal)
+        return fromLocal
+      }
+      const fromSession = sessionStorage.getItem(key)
+      if (fromSession) {
+        localStorage.setItem(STORAGE_KEY, fromSession)
+        sessionStorage.removeItem(key)
+        return fromSession
+      }
+    } catch {
+      // ignore quota / private mode
+    }
+  }
+  return null
+}
+
+function writePersisted(state: SyncedState): void {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state))
+  } catch {
+    // ignore quota / private mode
+  }
+}
+
+function hydrateSyncedState(raw: string): SyncedState {
+  const parsed = JSON.parse(raw) as Partial<SyncedState> & {
+    verifiedDocsList?: unknown
+    verifiedDocAutoFlagsList?: unknown
+    editedFieldsList?: unknown
+    reviewedFieldsList?: unknown
+    summaryCheckedFieldsList?: unknown
+    reviewerConfirmedFieldsList?: unknown
+    managerConfirmedFieldsList?: unknown
+    reviewerConfirmedDocsList?: unknown
+    reviewerSignedOffFormsList?: unknown
+    reviewerConfirmStaleFieldsList?: unknown
+    manualChecklistItems?: unknown
+    completedMilestones?: unknown
+    summaryFlaggedFieldsList?: unknown
+    summaryFlagActivity?: unknown
+  }
+  return sanitizeSyncedState({
+    ...DEFAULT_STATE,
+    ...parsed,
+    amounts: {
+      ...SEED_AMOUNTS,
+      ...(parsed.amounts ?? {}),
+      box12Rows: {
+        ...SEED_AMOUNTS.box12Rows,
+        ...(parsed.amounts?.box12Rows ?? {}),
+      },
+    },
+    manualChecklistItems: parsed.manualChecklistItems && typeof parsed.manualChecklistItems === 'object'
+      ? parsed.manualChecklistItems as Record<string, boolean>
+      : {},
+    summaryFlagNotes: parsed.summaryFlagNotes ?? {},
+    fieldOverrides: parsed.fieldOverrides ?? {},
+    reviewerConfirmStaleFieldsList: Array.isArray(parsed.reviewerConfirmStaleFieldsList)
+      ? parsed.reviewerConfirmStaleFieldsList.filter((k): k is string => typeof k === 'string')
+      : [],
+    managerConfirmedFieldsList: migrateActivityList(parsed.managerConfirmedFieldsList),
+    docEditAfterVerifyNoticesList: Array.isArray(parsed.docEditAfterVerifyNoticesList)
+      ? parsed.docEditAfterVerifyNoticesList
+          .filter((k): k is string => typeof k === 'string')
+          .map(normalizeVerifiedDocKey)
+      : [],
+    reviewedFieldsList: migrateActivityList(parsed.reviewedFieldsList),
+    editedFieldsList: migrateActivityList(parsed.editedFieldsList),
+    unsavedFieldsList: Array.isArray(parsed.unsavedFieldsList)
+      ? parsed.unsavedFieldsList.filter((k): k is string => typeof k === 'string')
+      : [],
+    verifiedDocAutoFlagsList: migrateVerifiedDocAutoFlagsList(parsed.verifiedDocAutoFlagsList),
+    ...migrateDualSlotLists(parsed),
+    completedMilestones: migrateCompletedMilestones(parsed.completedMilestones),
+    reviewerSignedOffFormsList: migrateActivityList(parsed.reviewerSignedOffFormsList),
+    summaryFlaggedFieldsList: migrateActivityList(parsed.summaryFlaggedFieldsList),
+    summaryFlagActivity: migrateActivityRecord(parsed.summaryFlagActivity),
+  })
+}
+
+/** Re-sanitize in-memory or cross-tab state so every `at` field is a string. */
+export function sanitizeSyncedState(state: SyncedState): SyncedState {
+  const dualSlots = {
+    summaryCheckedFieldsList: migrateActivityList(state.summaryCheckedFieldsList),
+    reviewerConfirmedFieldsList: migrateActivityList(state.reviewerConfirmedFieldsList),
+    managerConfirmedFieldsList: migrateActivityList(state.managerConfirmedFieldsList),
+    verifiedDocsList: normalizeVerifiedDocEntries(migrateActivityList(state.verifiedDocsList)),
+    reviewerConfirmedDocsList: normalizeVerifiedDocEntries(migrateActivityList(state.reviewerConfirmedDocsList)),
+  }
+  const loaded: SyncedState = {
+    ...DEFAULT_STATE,
+    ...state,
+    reviewedFieldsList: migrateActivityList(state.reviewedFieldsList),
+    editedFieldsList: migrateActivityList(state.editedFieldsList),
+    unsavedFieldsList: Array.isArray(state.unsavedFieldsList)
+      ? state.unsavedFieldsList.filter((k): k is string => typeof k === 'string')
+      : [],
+    verifiedDocAutoFlagsList: migrateVerifiedDocAutoFlagsList(state.verifiedDocAutoFlagsList),
+    ...dualSlots,
+    completedMilestones: migrateCompletedMilestones(state.completedMilestones),
+    reviewerSignedOffFormsList: migrateActivityList(state.reviewerSignedOffFormsList),
+    summaryFlaggedFieldsList: migrateActivityList(state.summaryFlaggedFieldsList),
+    summaryFlagActivity: migrateActivityRecord(state.summaryFlagActivity),
+  }
+  return reconcileVerifiedDocFlags(enforceMutualExclusion(loaded))
+}
+export const PREPARER_NAME = 'Sara Chen'
+export const REVIEWER_NAME = 'Jordan Lee'
+/** Storage key for review state - exported for tests and diagnostics */
+export { STORAGE_KEY }
+
+/** Imperative navigation patch for cross-route jumps (Input return, popovers). */
+export function patchSyncedReviewNavigation(
+  patch: Partial<
+    Pick<
+      SyncedState,
+      | 'activeTopTab'
+      | 'activeSubTab'
+      | 'activeDivPayer'
+      | 'activeIntPayer'
+      | 'selectedField'
+    >
+  >,
+): void {
+  try {
+    const raw = readPersistedRaw()
+    const current = raw ? hydrateSyncedState(raw) : sanitizeSyncedState({ ...DEFAULT_STATE })
+    const next = sanitizeSyncedState({ ...current, ...patch })
+    writePersisted(next)
+    const channel = new BroadcastChannel(CHANNEL_NAME)
+    channel.postMessage(next)
+    channel.close()
+  } catch {
+    // ignore quota / private mode
+  }
+}
+
+/** C2: who stamps checks/flags/edits - switched when “Open as reviewer” */
+let currentActorName = PREPARER_NAME
+
+export function setReviewActor(name: string) {
+  currentActorName = name
+}
+
+export function getReviewActor(): string {
+  return currentActorName
+}
+
+export function isCurrentReviewerActor(): boolean {
+  return isReviewerActor()
+}
+
+export function isCurrentManagerActor(): boolean {
+  if (currentActorName === 'Alex Rivera') return true
+  try {
+    const raw = localStorage.getItem(WORKFLOW_STORAGE_KEY)
+    if (!raw) return false
+    const parsed = JSON.parse(raw) as { currentUserId?: string }
+    return parsed.currentUserId === 'alex'
+  } catch {
+    return false
+  }
+}
+
+export { formatActivityTimestamp }
+/** @deprecated Use coerceTimestamp from lib/coerceTimestamp - kept for existing imports */
+export const coerceActivityAt = coerceTimestamp
+
+function migrateCompletedMilestones(raw: unknown): Record<string, MilestoneCompletion> {
+  if (!raw || typeof raw !== 'object') return {}
+  const out: Record<string, MilestoneCompletion> = {}
+  for (const [id, value] of Object.entries(raw as Record<string, unknown>)) {
+    if (!value || typeof value !== 'object') continue
+    const v = value as Partial<MilestoneCompletion>
+    const name = typeof v.name === 'string' ? v.name : PREPARER_NAME
+    const by: MilestoneCompletion['by'] =
+      v.by === 'reviewer' || v.by === 'preparer'
+        ? v.by
+        : name === REVIEWER_NAME
+          ? 'reviewer'
+          : 'preparer'
+    out[id] = { by, name, at: coerceTimestamp(v.at) }
+  }
+  return out
+}
+
+export function formatActivityMeta(entry?: ActivityEntry | null): string {
+  if (!entry) return ''
+  return `${entry.by} · ${coerceTimestamp(entry.at)}`
+}
+
+export function actorInitials(name: string): string {
+  return name
+    .split(/\s+/)
+    .filter(Boolean)
+    .map(p => p[0]?.toUpperCase() ?? '')
+    .join('')
+    .slice(0, 2)
+}
+
+/** Short milestone / checklist attribution - Sara Chen → SC, Jordan Lee → Jordan */
+export function milestoneActorLabel(name: string): string {
+  if (name === PREPARER_NAME) return 'SC'
+  if (name === REVIEWER_NAME) return 'Jordan'
+  const initials = actorInitials(name)
+  if (initials.length >= 2) return initials
+  return name.split(/\s+/)[0] || name
+}
+
+/** Inline dual-slot trail - preparer muted, reviewer emphasized */
+export function formatDualCheckTrail(
+  preparer?: ActivityEntry | null,
+  reviewer?: ActivityEntry | null,
+): string {
+  const parts: string[] = []
+  if (preparer) parts.push(`${actorInitials(preparer.by)} ✓`)
+  if (reviewer) parts.push(`${actorInitials(reviewer.by)} ✓`)
+  return parts.join(' · ')
+}
+
+export function formatDualCheckTooltip(
+  preparer?: ActivityEntry | null,
+  reviewer?: ActivityEntry | null,
+): string {
+  const lines: string[] = []
+  if (preparer) lines.push(`Verified by ${preparer.by} · ${preparer.at}`)
+  if (reviewer) lines.push(`Confirmed by ${reviewer.by} · ${reviewer.at}`)
+  return lines.join('\n')
+}
+
+function isReviewerActorName(name: string): boolean {
+  return name === REVIEWER_NAME || name === 'Jake Morrison' || name === 'Jordan Lee'
+}
+
+function isReviewerActor(): boolean {
+  if (isReviewerActorName(currentActorName)) return true
+  try {
+    const raw = localStorage.getItem(WORKFLOW_STORAGE_KEY)
+    if (!raw) return false
+    const parsed = JSON.parse(raw) as { currentUserId?: string }
+    const id = parsed.currentUserId
+    return id === 'jake' || id === 'alex'
+  } catch {
+    return false
+  }
+}
+
+/** Split legacy single-slot checks/docs by actor into dual maps */
+function migrateDualSlotLists(parsed: {
+  summaryCheckedFieldsList?: unknown
+  verifiedDocsList?: unknown
+  reviewerConfirmedFieldsList?: unknown
+  reviewerConfirmedDocsList?: unknown
+}): Pick<
+  SyncedState,
+  'summaryCheckedFieldsList' | 'reviewerConfirmedFieldsList' | 'verifiedDocsList' | 'reviewerConfirmedDocsList'
+> {
+  const preparerChecks: [string, ActivityEntry][] = []
+  const reviewerChecks: [string, ActivityEntry][] = []
+  for (const [k, e] of migrateActivityList(parsed.summaryCheckedFieldsList)) {
+    if (isReviewerActorName(e.by)) reviewerChecks.push([k, e])
+    else preparerChecks.push([k, e])
+  }
+  for (const [k, e] of migrateActivityList(parsed.reviewerConfirmedFieldsList)) {
+    if (!reviewerChecks.some(([rk]) => rk === k)) reviewerChecks.push([k, e])
+  }
+
+  const preparerDocs: [string, ActivityEntry][] = []
+  const reviewerDocs: [string, ActivityEntry][] = []
+  for (const [k, e] of migrateActivityList(parsed.verifiedDocsList)) {
+    if (isReviewerActorName(e.by)) reviewerDocs.push([k, e])
+    else preparerDocs.push([k, e])
+  }
+  for (const [k, e] of migrateActivityList(parsed.reviewerConfirmedDocsList)) {
+    if (!reviewerDocs.some(([rk]) => rk === k)) reviewerDocs.push([k, e])
+  }
+
+  return {
+    summaryCheckedFieldsList: preparerChecks,
+    reviewerConfirmedFieldsList: reviewerChecks,
+    verifiedDocsList: preparerDocs,
+    reviewerConfirmedDocsList: reviewerDocs,
+  }
+}
+
+/** Summary field ids that may be affected by a detail-field edit */
+function summaryFieldsAffectedByEdit(fieldKey: string): string[] {
+  const out = new Set<string>([fieldKey])
+  const base = fieldKey.split('-')[0]
+  if (base) out.add(base)
+  if (fieldKey.startsWith('wages')) out.add('wages')
+  if (fieldKey === 'box12' || fieldKey.startsWith('box12')) out.add('box12')
+  if (fieldKey.includes('taxableInterest')) out.add('taxableInterest')
+  if (fieldKey.includes('qualifiedDivs')) out.add('qualifiedDivs')
+  if (fieldKey.includes('ordinaryDivs')) out.add('ordinaryDivs')
+  if (fieldKey.includes('grossDistrib')) out.add('grossDistrib-meridian')
+  return [...out]
+}
+
+function applyEditStaleMarkers(state: SyncedState, fieldKey: string): string[] {
+  const stale = new Set(state.reviewerConfirmStaleFieldsList)
+  const preparerChecked = new Set(state.summaryCheckedFieldsList.map(([k]) => k))
+  const beforeReviewer = new Set(state.reviewerConfirmedFieldsList.map(([k]) => k))
+  const afterReviewer = new Set(
+    reviewerConfirmKeysToClear(state.reviewerConfirmedFieldsList, fieldKey).map(([k]) => k),
+  )
+  for (const k of beforeReviewer) {
+    if (!afterReviewer.has(k)) stale.add(k)
+  }
+  for (const sf of summaryFieldsAffectedByEdit(fieldKey)) {
+    if (preparerChecked.has(sf)) stale.add(sf)
+  }
+  return [...stale]
+}
+
+function clearStaleMarker(list: string[], fieldName: string): string[] {
+  return list.filter(k => k !== fieldName)
+}
+
+/** Clear reviewer confirmations touched by an edit on fieldKey or its summary/base alias */
+function reviewerConfirmKeysToClear(
+  list: [string, ActivityEntry][],
+  fieldKey: string,
+): [string, ActivityEntry][] {
+  const base = fieldKey.split('-')[0]
+  return list.filter(([k]) => {
+    if (k === fieldKey || k === base) return false
+    if (fieldKey.startsWith(`${k}-`) || k.startsWith(`${fieldKey}-`)) return false
+    if (base && k.startsWith(`${base}-`)) return false
+    return true
+  })
+}
+
+function nowEntry(): ActivityEntry {
+  return { by: currentActorName, at: formatActivityTimestamp() }
+}
+
+/** Migrate legacy string[] lists → [key, ActivityEntry][] */
+function migrateActivityList(
+  raw: unknown,
+  fallbackAt = 'earlier',
+): [string, ActivityEntry][] {
+  if (!Array.isArray(raw)) return []
+  return raw.map((item): [string, ActivityEntry] | null => {
+    if (typeof item === 'string') {
+      return [item, { by: PREPARER_NAME, at: fallbackAt }]
+    }
+    if (Array.isArray(item) && typeof item[0] === 'string') {
+      const entry = item[1]
+      if (entry && typeof entry === 'object' && 'by' in entry) {
+        const e = entry as Partial<ActivityEntry>
+        const by = typeof e.by === 'string' ? e.by : PREPARER_NAME
+        return [item[0], sanitizeActivityEntry(e, by, fallbackAt)]
+      }
+      return [item[0], { by: PREPARER_NAME, at: fallbackAt }]
+    }
+    return null
+  }).filter((x): x is [string, ActivityEntry] => x !== null)
+}
+
+function migrateActivityRecord(raw: unknown): Record<string, ActivityEntry> {
+  if (!raw || typeof raw !== 'object') return {}
+  const out: Record<string, ActivityEntry> = {}
+  for (const [key, value] of Object.entries(raw as Record<string, unknown>)) {
+    out[key] = sanitizeActivityEntry(value, PREPARER_NAME)
+  }
+  return out
+}
+
+function migrateVerifiedDocAutoFlagsList(raw: unknown): [string, string[]][] {
+  if (!Array.isArray(raw)) return []
+  return raw
+    .map((item): [string, string[]] | null => {
+      if (!Array.isArray(item) || typeof item[0] !== 'string') return null
+      const flags = Array.isArray(item[1])
+        ? item[1].filter((k): k is string => typeof k === 'string')
+        : []
+      return [normalizeVerifiedDocKey(item[0]), flags]
+    })
+    .filter((x): x is [string, string[]] => x !== null)
+}
+
+const DEFAULT_STATE: SyncedState = {
+  activeTopTab: 'w2s',
+  activeSubTab: 'techCircle',
+  selectedField: null,
+  amounts: { ...SEED_AMOUNTS },
+  reviewedFieldsList: [],
+  editedFieldsList: [],
+  unsavedFieldsList: [],
+  verifiedDocsList: [],
+  verifiedDocAutoFlagsList: [],
+  summaryCheckedFieldsList: [],
+  reviewerConfirmedFieldsList: [],
+  managerConfirmedFieldsList: [],
+  reviewerConfirmedDocsList: [],
+  reviewerSignedOffFormsList: [],
+  reviewerConfirmStaleFieldsList: [],
+  docEditAfterVerifyNoticesList: [],
+  manualChecklistItems: {},
+  completedMilestones: {},
+  summaryFlaggedFieldsList: [],
+  summaryFlagNotes: {},
+  summaryFlagActivity: {},
+  fieldOverrides: {},
+  activeDivPayer: 'tokenFinancial',
+  activeIntPayer: 'unwaverIngFinancial',
+}
+
+/** Ensure check and flag never coexist for the same field (check wins if both present). */
+function enforceMutualExclusion(state: SyncedState): SyncedState {
+  const checked = new Set(state.summaryCheckedFieldsList.map(([k]) => k))
+  const flagged = state.summaryFlaggedFieldsList.filter(([k]) => !checked.has(k))
+  if (flagged.length === state.summaryFlaggedFieldsList.length) return state
+  return { ...state, summaryFlaggedFieldsList: flagged }
+}
+
+function reconcileVerifiedDocFlags(state: SyncedState): SyncedState {
+  // Mark-as-verified no longer auto-clears Phase 1 flags - keep reviewedFields as persisted.
+  return state
+}
+
+function isFreshPreparerEntry(): boolean {
+  if (typeof window === 'undefined') return false
+  const hash = window.location.hash.replace(/^#/, '')
+  const q = hash.indexOf('?')
+  if (q === -1) return false
+  const params = new URLSearchParams(hash.slice(q + 1))
+  return params.get('entry') === 'input-return' && params.get('role') !== 'reviewer'
+}
+
+function loadInitialState(): SyncedState {
+  if (isFreshPreparerEntry()) return createDefaultReviewState()
+  try {
+    const raw = readPersistedRaw()
+    if (raw) return hydrateSyncedState(raw)
+  } catch {
+    // ignore malformed storage - fall through to defaults
+  }
+  return DEFAULT_STATE
+}
+
+/** Apply OCR/import seeds after SmartReturn finishes importing documents. */
+export function applyImportedAmounts(state: SyncedState): SyncedState {
+  return sanitizeSyncedState({
+    ...state,
+    amounts: {
+      ...SEED_AMOUNTS,
+      box12Rows: { ...SEED_AMOUNTS.box12Rows },
+    },
+  })
+}
+
+/** Called when import progress reaches 100% - persists imported values for input + review. */
+export function completeDocumentImport(): SyncedState {
+  const raw = readPersistedRaw()
+  const current = raw ? hydrateSyncedState(raw) : createDefaultReviewState()
+  const next = applyImportedAmounts(current)
+  writePersisted(next)
+  try {
+    const channel = new BroadcastChannel(CHANNEL_NAME)
+    channel.postMessage(next)
+    channel.close()
+  } catch {
+    // ignore - other tabs will pick up via storage event
+  }
+  return next
+}
+
+/** Fresh review state - used when preparer starts a new Pass 1 session. */
+export function createDefaultReviewState(): SyncedState {
+  return sanitizeSyncedState({ ...DEFAULT_STATE })
+}
+
+/**
+ * Restore demo seed amounts and clear agent-scoped reviewed flags so agent mode
+ * always opens with the full four-card diagnosis (import, div class, withholding, itemize).
+ */
+export function resetAgentDemoReviewState(): SyncedState {
+  const raw = readPersistedRaw()
+  const current = raw ? hydrateSyncedState(raw) : createDefaultReviewState()
+  const keysToClear = new Set<string>([
+    ...AGENT_SCOPED_ISSUE_KEYS,
+    ...AGENT_LINKED_PHASE1_REVIEW_KEYS,
+  ])
+  const nextReviewed = current.reviewedFieldsList.filter(([key]) => !keysToClear.has(key))
+  const next = sanitizeSyncedState({
+    ...current,
+    amounts: {
+      ...SEED_AMOUNTS,
+      box12Rows: { ...SEED_AMOUNTS.box12Rows },
+    },
+    reviewedFieldsList: nextReviewed,
+  })
+  writePersisted(next)
+  try {
+    const channel = new BroadcastChannel(CHANNEL_NAME)
+    channel.postMessage({ tabId: 'agent-demo-reset', state: next })
+    channel.close()
+  } catch {
+    // ignore - other tabs pick up via storage event
+  }
+  return next
+}
+
+/** Persist agent auto-fixes from the intelligence processing demo (W-2 wages, SSN, import gaps). */
+export function applyAgentIntelligenceFixesToState(state: SyncedState): SyncedState {
+  const { amounts: amountPatch, reviewedFieldKeys } = buildAgentIntelligenceDemoFixes()
+  const at = formatActivityTimestamp()
+  const agentEntry = { by: AGENT_INTELLIGENCE_ACTOR, at }
+
+  const nextAmounts = { ...state.amounts, ...amountPatch }
+  if (amountPatch.box12Rows) {
+    const rows = {
+      a: { ...state.amounts.box12Rows.a, ...amountPatch.box12Rows.a },
+      b: { ...state.amounts.box12Rows.b, ...amountPatch.box12Rows.b },
+      c: { ...state.amounts.box12Rows.c, ...amountPatch.box12Rows.c },
+      d: { ...state.amounts.box12Rows.d, ...amountPatch.box12Rows.d },
+    }
+    nextAmounts.box12Rows = rows
+    nextAmounts.box12 = rows.a.amount + rows.b.amount + rows.c.amount + rows.d.amount
+  }
+
+  const reviewed = new Map(state.reviewedFieldsList)
+  reviewedFieldKeys.forEach(key => {
+    if (!reviewed.has(key)) reviewed.set(key, agentEntry)
+    const linked = PHASE1_TO_PHASE2_ISSUES[key]
+    linked?.forEach(issueKey => {
+      if (!reviewed.has(issueKey)) reviewed.set(issueKey, agentEntry)
+    })
+  })
+
+  const edited = new Map(state.editedFieldsList)
+  if (amountPatch.wages !== undefined) {
+    edited.set('wages-techCircle', agentEntry)
+  }
+
+  return sanitizeSyncedState({
+    ...state,
+    amounts: nextAmounts,
+    reviewedFieldsList: Array.from(reviewed.entries()),
+    editedFieldsList: Array.from(edited.entries()),
+  })
+}
+
+/** Clear persisted review state (localStorage + in-memory). Reviewer handoff uses the same store. */
+export function resetPersistedReviewState(): SyncedState {
+  const fresh = createDefaultReviewState()
+  try {
+    localStorage.removeItem(STORAGE_KEY)
+    for (const key of LEGACY_STORAGE_KEYS) {
+      if (key !== STORAGE_KEY) localStorage.removeItem(key)
+    }
+  } catch {
+    // ignore quota / private mode
+  }
+  return fresh
+}
+
+/**
+ * Shared source-doc review state with localStorage persistence (cross-tab handoff).
+ */
+export function useSyncedReviewState() {
+  const channelRef = useRef<BroadcastChannel | null>(null)
+  const tabIdRef = useRef(createSyncTabId())
+  const [state, setState] = useState<SyncedState>(loadInitialState)
+  const stateRef = useRef(state)
+  stateRef.current = state
+
+  useEffect(() => {
+    const channel = new BroadcastChannel(CHANNEL_NAME)
+    channelRef.current = channel
+    channel.onmessage = (e: MessageEvent<SyncBroadcastMessage | SyncedState>) => {
+      const payload = e.data
+      // Ignore echoes from this tab — publish() already applied the update locally.
+      if (payload && typeof payload === 'object' && 'tabId' in payload) {
+        const msg = payload as SyncBroadcastMessage
+        if (msg.tabId === tabIdRef.current) return
+        const next = sanitizeSyncedState(msg.state)
+        stateRef.current = next
+        setState(next)
+        writePersisted(next)
+        return
+      }
+      // Legacy message shape (other tabs / older builds)
+      const next = sanitizeSyncedState(payload as SyncedState)
+      stateRef.current = next
+      setState(next)
+      writePersisted(next)
+    }
+
+    const onStorage = (e: StorageEvent) => {
+      if (e.key !== STORAGE_KEY || !e.newValue) return
+      try {
+        const next = hydrateSyncedState(e.newValue)
+        stateRef.current = next
+        setState(next)
+      } catch {
+        // ignore malformed cross-tab payload
+      }
+    }
+    window.addEventListener('storage', onStorage)
+
+    return () => {
+      channel.close()
+      window.removeEventListener('storage', onStorage)
+    }
+  }, [])
+
+  const resetReviewState = useCallback(() => {
+    const fresh = resetPersistedReviewState()
+    stateRef.current = fresh
+    setState(fresh)
+    channelRef.current?.postMessage({ tabId: tabIdRef.current, state: fresh })
+  }, [])
+
+  const resetAgentDemo = useCallback(() => {
+    const next = resetAgentDemoReviewState()
+    stateRef.current = next
+    setState(next)
+    channelRef.current?.postMessage({ tabId: tabIdRef.current, state: next })
+  }, [])
+
+  const applyAgentIntelligenceFixes = useCallback(() => {
+    const next = applyAgentIntelligenceFixesToState(stateRef.current)
+    stateRef.current = next
+    setState(next)
+    writePersisted(next)
+    channelRef.current?.postMessage({ tabId: tabIdRef.current, state: next })
+  }, [])
+
+  const publish = (next: SyncedState) => {
+    // Update the ref synchronously so back-to-back calls in the same tick (e.g.
+    // fieldKeys.forEach(k => markReviewed(k))) each see the previous call's
+    // write instead of all reading the same stale snapshot and clobbering
+    // each other. setState is still what actually triggers the re-render.
+    const safe = sanitizeSyncedState(next)
+    stateRef.current = safe
+    setState(safe)
+    writePersisted(safe)
+    channelRef.current?.postMessage({ tabId: tabIdRef.current, state: safe })
+  }
+
+  const update = (patch: Partial<SyncedState>) => {
+    publish({ ...stateRef.current, ...patch })
+  }
+
+  const reviewedFields = new Map(state.reviewedFieldsList)
+  const editedFields = new Map(state.editedFieldsList)
+  const editedFieldKeys = new Set(state.editedFieldsList.map(([k]) => k))
+  const unsavedFieldKeys = new Set(state.unsavedFieldsList)
+
+  const applyUnsavedFieldPatch = (fieldKey: string): Partial<SyncedState> => {
+    const unsaved = new Set(stateRef.current.unsavedFieldsList)
+    unsaved.add(fieldKey)
+    const clearedReviewer = reviewerConfirmKeysToClear(
+      stateRef.current.reviewerConfirmedFieldsList,
+      fieldKey,
+    )
+    const stale = applyEditStaleMarkers(stateRef.current, fieldKey)
+    return {
+      unsavedFieldsList: [...unsaved],
+      ...(clearedReviewer.length !== stateRef.current.reviewerConfirmedFieldsList.length
+        ? { reviewerConfirmedFieldsList: clearedReviewer }
+        : {}),
+      ...(stale.length !== stateRef.current.reviewerConfirmStaleFieldsList.length
+        || stale.some((k, i) => k !== stateRef.current.reviewerConfirmStaleFieldsList[i])
+        ? { reviewerConfirmStaleFieldsList: stale }
+        : {}),
+    }
+  }
+
+  const markUnsaved = (fieldKey: string) => {
+    update(applyUnsavedFieldPatch(fieldKey))
+  }
+
+  const commitUnsavedEdits = (): string[] => {
+    const keys = [...stateRef.current.unsavedFieldsList]
+    if (!keys.length) return []
+    const nextEdited = new Map(stateRef.current.editedFieldsList)
+    const entry = nowEntry()
+    keys.forEach(k => nextEdited.set(k, entry))
+    update({
+      editedFieldsList: Array.from(nextEdited.entries()),
+      unsavedFieldsList: [],
+    })
+    return keys
+  }
+
+  const markEdited = (fieldKey: string) => {
+    const next = new Map(stateRef.current.editedFieldsList)
+    next.set(fieldKey, nowEntry())
+    const clearedReviewer = reviewerConfirmKeysToClear(
+      stateRef.current.reviewerConfirmedFieldsList,
+      fieldKey,
+    )
+    const stale = applyEditStaleMarkers(stateRef.current, fieldKey)
+    update({
+      editedFieldsList: Array.from(next.entries()),
+      ...(clearedReviewer.length !== stateRef.current.reviewerConfirmedFieldsList.length
+        ? { reviewerConfirmedFieldsList: clearedReviewer }
+        : {}),
+      ...(stale.length !== stateRef.current.reviewerConfirmStaleFieldsList.length
+        || stale.some((k, i) => k !== stateRef.current.reviewerConfirmStaleFieldsList[i])
+        ? { reviewerConfirmStaleFieldsList: stale }
+        : {}),
+    })
+  }
+
+  const markEditedBulk = (fieldKeys: string[]) => {
+    const next = new Map(stateRef.current.editedFieldsList)
+    const entry = nowEntry()
+    fieldKeys.forEach(k => next.set(k, entry))
+    let reviewerList = stateRef.current.reviewerConfirmedFieldsList
+    let staleList = stateRef.current.reviewerConfirmStaleFieldsList
+    fieldKeys.forEach(k => {
+      reviewerList = reviewerConfirmKeysToClear(reviewerList, k)
+      staleList = applyEditStaleMarkers({ ...stateRef.current, reviewerConfirmedFieldsList: reviewerList, reviewerConfirmStaleFieldsList: staleList }, k)
+    })
+    update({
+      editedFieldsList: Array.from(next.entries()),
+      ...(reviewerList.length !== stateRef.current.reviewerConfirmedFieldsList.length
+        ? { reviewerConfirmedFieldsList: reviewerList }
+        : {}),
+      reviewerConfirmStaleFieldsList: staleList,
+    })
+  }
+
+  /** Persist a static/detail field value - marks unsaved until Save and recalculate. */
+  const setFieldOverride = (fieldKey: string, value: string) => {
+    update({
+      fieldOverrides: { ...stateRef.current.fieldOverrides, [fieldKey]: value },
+      ...applyUnsavedFieldPatch(fieldKey),
+    })
+  }
+
+  const markReviewed = (fieldName: string) => {
+    const at = formatActivityTimestamp()
+    const next = new Map(stateRef.current.reviewedFieldsList)
+    const linked = PHASE1_TO_PHASE2_ISSUES[fieldName]
+    if (next.has(fieldName)) {
+      next.delete(fieldName)
+      if (linked) {
+        linked.forEach(issueKey => next.delete(issueKey))
+      }
+    } else {
+      next.set(fieldName, { by: PREPARER_NAME, at })
+      // Auto-dismiss linked Phase 2 insights when a Phase 1 flag is resolved
+      if (linked) {
+        linked.forEach(issueKey => {
+          if (!next.has(issueKey)) next.set(issueKey, { by: PREPARER_NAME, at })
+        })
+      }
+    }
+    update({ reviewedFieldsList: Array.from(next.entries()) })
+  }
+
+  const markReviewedBulk = (fieldNames: string[]) => {
+    const at = formatActivityTimestamp()
+    const next = new Map(stateRef.current.reviewedFieldsList)
+    fieldNames.forEach(f => {
+      if (!next.has(f)) next.set(f, { by: PREPARER_NAME, at })
+      const linked = PHASE1_TO_PHASE2_ISSUES[f]
+      if (linked) {
+        linked.forEach(issueKey => {
+          if (!next.has(issueKey)) next.set(issueKey, { by: PREPARER_NAME, at })
+        })
+      }
+    })
+    update({ reviewedFieldsList: Array.from(next.entries()) })
+  }
+
+  const clearReviewedForKeys = (fieldNames: string[]) => {
+    if (fieldNames.length === 0) return
+    const toRemove = new Set(fieldNames)
+    const next = new Map(stateRef.current.reviewedFieldsList)
+    let changed = false
+    for (const key of toRemove) {
+      if (next.delete(key)) changed = true
+    }
+    if (!changed) return
+    update({ reviewedFieldsList: Array.from(next.entries()) })
+  }
+
+  const verifiedDocs = new Map(state.verifiedDocsList)
+  const verifiedDocKeys = new Set(state.verifiedDocsList.map(([k]) => k))
+  const reviewerConfirmedDocs = new Map(state.reviewerConfirmedDocsList)
+  const reviewerConfirmedDocKeys = new Set(state.reviewerConfirmedDocsList.map(([k]) => k))
+  const summaryCheckedFields = new Map(state.summaryCheckedFieldsList)
+  const summaryCheckedKeys = new Set(state.summaryCheckedFieldsList.map(([k]) => k))
+  const reviewerConfirmedFields = new Map(state.reviewerConfirmedFieldsList)
+  const reviewerConfirmedKeys = new Set(state.reviewerConfirmedFieldsList.map(([k]) => k))
+  const managerConfirmedFields = new Map(state.managerConfirmedFieldsList)
+  const managerConfirmedKeys = new Set(state.managerConfirmedFieldsList.map(([k]) => k))
+  const reviewerConfirmStaleKeys = new Set(state.reviewerConfirmStaleFieldsList)
+  const summaryFlaggedFields = new Map(state.summaryFlaggedFieldsList)
+  const summaryFlaggedKeys = new Set(state.summaryFlaggedFieldsList.map(([k]) => k))
+  const summaryFlagNotes = state.summaryFlagNotes
+  const summaryFlagActivity = state.summaryFlagActivity
+
+  const docEditAfterVerifyNoticeKeys = new Set(
+    state.docEditAfterVerifyNoticesList.map(normalizeVerifiedDocKey),
+  )
+
+  const clearDocEditAfterVerifyNotice = (rawDocKey: string) => {
+    const docKey = normalizeVerifiedDocKey(rawDocKey)
+    const next = stateRef.current.docEditAfterVerifyNoticesList.filter(
+      k => normalizeVerifiedDocKey(k) !== docKey,
+    )
+    if (next.length === stateRef.current.docEditAfterVerifyNoticesList.length) return
+    update({ docEditAfterVerifyNoticesList: next })
+  }
+
+  const removePreparerDocVerification = (
+    rawDocKey: string,
+    options?: { restoreAutoFlags?: boolean; showEditNotice?: boolean },
+  ) => {
+    const docKey = normalizeVerifiedDocKey(rawDocKey)
+    const nextVerified = new Map(stateRef.current.verifiedDocsList)
+    const existing = [...nextVerified.keys()].find(k => normalizeVerifiedDocKey(k) === docKey)
+    if (!existing) return false
+
+    nextVerified.delete(existing)
+
+    const patch: Partial<SyncedState> = {
+      verifiedDocsList: Array.from(nextVerified.entries()),
+    }
+
+    if (options?.restoreAutoFlags !== false) {
+      const autoFlagsMap = new Map(stateRef.current.verifiedDocAutoFlagsList)
+      const autoFlags = autoFlagsMap.get(docKey) ?? autoFlagsMap.get(existing) ?? []
+      autoFlagsMap.delete(docKey)
+      autoFlagsMap.delete(existing)
+      const nextReviewed = new Map(stateRef.current.reviewedFieldsList)
+      for (const flag of autoFlags) {
+        nextReviewed.delete(flag)
+      }
+      patch.verifiedDocAutoFlagsList = Array.from(autoFlagsMap.entries())
+      patch.reviewedFieldsList = Array.from(nextReviewed.entries())
+    }
+
+    const nextReviewerDocs = new Map(stateRef.current.reviewerConfirmedDocsList)
+    const reviewerExisting = [...nextReviewerDocs.keys()].find(
+      k => normalizeVerifiedDocKey(k) === docKey,
+    )
+    if (reviewerExisting) nextReviewerDocs.delete(reviewerExisting)
+    patch.reviewerConfirmedDocsList = Array.from(nextReviewerDocs.entries())
+
+    const notices = new Set(
+      stateRef.current.docEditAfterVerifyNoticesList.map(normalizeVerifiedDocKey),
+    )
+    if (options?.showEditNotice) notices.add(docKey)
+    else notices.delete(docKey)
+    patch.docEditAfterVerifyNoticesList = [...notices]
+
+    update(patch)
+    return true
+  }
+
+  const unverifyDocDueToEdit = (rawDocKey: string) => {
+    if (isReviewerActor()) return
+    removePreparerDocVerification(rawDocKey, {
+      restoreAutoFlags: false,
+      showEditNotice: true,
+    })
+  }
+
+  const dismissDocEditAfterVerifyNotice = (rawDocKey: string) => {
+    clearDocEditAfterVerifyNotice(rawDocKey)
+  }
+
+  const toggleVerifiedDoc = (rawDocKey: string) => {
+    const docKey = normalizeVerifiedDocKey(rawDocKey)
+    if (isReviewerActor()) {
+      const nextConfirmed = new Map(stateRef.current.reviewerConfirmedDocsList)
+      const existing = [...nextConfirmed.keys()].find(k => normalizeVerifiedDocKey(k) === docKey)
+      if (existing) nextConfirmed.delete(existing)
+      else nextConfirmed.set(docKey, nowEntry())
+      update({ reviewerConfirmedDocsList: Array.from(nextConfirmed.entries()) })
+      return
+    }
+
+    const nextVerified = new Map(stateRef.current.verifiedDocsList)
+    const existing = [...nextVerified.keys()].find(k => normalizeVerifiedDocKey(k) === docKey)
+    if (existing) {
+      removePreparerDocVerification(docKey, { restoreAutoFlags: true, showEditNotice: false })
+      return
+    }
+
+    const autoFlagsMap = new Map(stateRef.current.verifiedDocAutoFlagsList)
+    const reviewedMap = new Map(stateRef.current.reviewedFieldsList)
+    const verifyResult = canVerifyDoc({
+      docKey,
+      reviewedFields: reviewedMap,
+      amounts: stateRef.current.amounts,
+      isReviewer: false,
+    })
+    if (!verifyResult.allowed) {
+      return
+    }
+
+    nextVerified.set(docKey, nowEntry())
+    update({
+      verifiedDocsList: Array.from(nextVerified.entries()),
+      verifiedDocAutoFlagsList: Array.from(autoFlagsMap.entries()),
+      docEditAfterVerifyNoticesList: stateRef.current.docEditAfterVerifyNoticesList.filter(
+        k => normalizeVerifiedDocKey(k) !== docKey,
+      ),
+    })
+  }
+
+  /** Toggle Summary check/confirm - preparer vs reviewer slot based on current actor */
+  const toggleSummaryChecked = (fieldName: string) => {
+    if (isCurrentManagerActor()) {
+      toggleSummaryManagerConfirm(fieldName)
+    } else if (isReviewerActor()) {
+      toggleSummaryReviewerConfirm(fieldName)
+    } else {
+      toggleSummaryPreparerCheck(fieldName)
+    }
+  }
+
+  const toggleSummaryPreparerCheck = (fieldName: string) => {
+    if (isReviewerActor() || isCurrentManagerActor()) return
+
+    const nextChecked = new Map(stateRef.current.summaryCheckedFieldsList)
+    const nextFlagged = new Map(stateRef.current.summaryFlaggedFieldsList)
+    if (nextChecked.has(fieldName)) {
+      nextChecked.delete(fieldName)
+    } else {
+      nextChecked.set(fieldName, nowEntry())
+      nextFlagged.delete(fieldName)
+    }
+    update({
+      summaryCheckedFieldsList: Array.from(nextChecked.entries()),
+      summaryFlaggedFieldsList: Array.from(nextFlagged.entries()),
+    })
+  }
+
+  const toggleSummaryReviewerConfirm = (fieldName: string) => {
+    if (isCurrentManagerActor() || !isReviewerActor()) return
+
+    const nextConfirmed = new Map(stateRef.current.reviewerConfirmedFieldsList)
+    if (nextConfirmed.has(fieldName)) nextConfirmed.delete(fieldName)
+    else nextConfirmed.set(fieldName, nowEntry())
+    const nextStale = nextConfirmed.has(fieldName)
+      ? clearStaleMarker(stateRef.current.reviewerConfirmStaleFieldsList, fieldName)
+      : stateRef.current.reviewerConfirmStaleFieldsList
+    update({
+      reviewerConfirmedFieldsList: Array.from(nextConfirmed.entries()),
+      reviewerConfirmStaleFieldsList: nextStale,
+    })
+  }
+
+  const toggleSummaryManagerConfirm = (fieldName: string) => {
+    if (!isCurrentManagerActor()) return
+
+    const nextConfirmed = new Map(stateRef.current.managerConfirmedFieldsList)
+    if (nextConfirmed.has(fieldName)) nextConfirmed.delete(fieldName)
+    else nextConfirmed.set(fieldName, nowEntry())
+    update({
+      managerConfirmedFieldsList: Array.from(nextConfirmed.entries()),
+    })
+  }
+
+  /**
+   * Toggle Summary user flag - clearing check if turning flag on.
+   * Notes are kept when flagging off so re-flagging can restore them.
+   */
+  const toggleSummaryFlagged = (fieldName: string) => {
+    const nextFlagged = new Map(stateRef.current.summaryFlaggedFieldsList)
+    const nextChecked = new Map(stateRef.current.summaryCheckedFieldsList)
+    const nextActivity = { ...stateRef.current.summaryFlagActivity }
+    if (nextFlagged.has(fieldName)) {
+      nextFlagged.delete(fieldName)
+    } else {
+      const entry = nowEntry()
+      nextFlagged.set(fieldName, entry)
+      nextActivity[fieldName] = entry
+      nextChecked.delete(fieldName) // mutual exclusion: flag supersedes check
+    }
+    update({
+      summaryFlaggedFieldsList: Array.from(nextFlagged.entries()),
+      summaryCheckedFieldsList: Array.from(nextChecked.entries()),
+      summaryFlagActivity: nextActivity,
+    })
+  }
+
+  const setSummaryFlagNote = (fieldName: string, note: string) => {
+    const trimmed = note.trim()
+    const next = { ...stateRef.current.summaryFlagNotes }
+    if (trimmed) next[fieldName] = trimmed
+    else delete next[fieldName]
+    const entry = nowEntry()
+    const nextActivity = { ...stateRef.current.summaryFlagActivity, [fieldName]: entry }
+    // Refresh flag activity timestamp when note is saved (flag already on)
+    const nextFlagged = new Map(stateRef.current.summaryFlaggedFieldsList)
+    if (nextFlagged.has(fieldName)) nextFlagged.set(fieldName, entry)
+    update({
+      summaryFlagNotes: next,
+      summaryFlagActivity: nextActivity,
+      summaryFlaggedFieldsList: Array.from(nextFlagged.entries()),
+    })
+  }
+
+  const updateAmounts = (patch: Partial<LiveAmounts>) => {
+    const prev = stateRef.current.amounts
+    const nextAmounts = { ...prev, ...patch }
+    // Keep aggregate box12 in sync when rows are patched (deep-merge per letter)
+    if (patch.box12Rows) {
+      const rows = {
+        a: { ...prev.box12Rows.a, ...patch.box12Rows.a },
+        b: { ...prev.box12Rows.b, ...patch.box12Rows.b },
+        c: { ...prev.box12Rows.c, ...patch.box12Rows.c },
+        d: { ...prev.box12Rows.d, ...patch.box12Rows.d },
+      }
+      nextAmounts.box12Rows = rows
+      nextAmounts.box12 =
+        rows.a.amount + rows.b.amount + rows.c.amount + rows.d.amount
+    }
+    update({ amounts: nextAmounts })
+  }
+
+  /** Convenience - update W-2 wages per employer used by DetailFields. */
+  const setWages = (next: { techCircle: number; bingEquipment?: number }) => {
+    updateAmounts({
+      wages: next.techCircle,
+      ...(next.bingEquipment !== undefined ? { wagesBingEquipment: next.bingEquipment } : {}),
+    })
+  }
+
+  /**
+   * Legacy FieldValues shim for DetailFields that still call onFieldValueChange
+   * with withholding / taxableInterest / qualifiedDivs / box12.
+   */
+  const updateFieldValue = (
+    key: keyof FieldValues,
+    value: number | { techCircle: number },
+  ) => {
+    const a = stateRef.current.amounts
+    if (key === 'withholding' && typeof value === 'object') {
+      updateAmounts({ w2Withholding: value.techCircle })
+      return
+    }
+    if (typeof value !== 'number') return
+    if (key === 'box12') {
+      // Legacy single-amount shim - write into row a; aggregate recomputed in updateAmounts
+      updateAmounts({
+        box12Rows: {
+          ...a.box12Rows,
+          a: { ...a.box12Rows.a, amount: value },
+        },
+      })
+    } else if (key === 'taxableInterest') updateAmounts({ interestUnwavering: value })
+    else if (key === 'qualifiedDivs') updateAmounts({ qualifiedDivsToken: value })
+    else if (key === 'withholding') {
+      // flat number - treat as W-2 Box 2
+      updateAmounts({ w2Withholding: value })
+    }
+  }
+
+  const amounts = state.amounts
+  const wages = { techCircle: amounts.wages, bingEquipment: amounts.wagesBingEquipment ?? 0 }
+  const fieldValues: FieldValues = {
+    withholding: { techCircle: amounts.w2Withholding },
+    box12: amounts.box12,
+    taxableInterest: amounts.interestUnwavering,
+    qualifiedDivs: amounts.qualifiedDivsToken,
+  }
+
+  const toggleManualChecklistItem = (itemId: string) => {
+    const next = { ...stateRef.current.manualChecklistItems }
+    next[itemId] = !next[itemId]
+    update({ manualChecklistItems: next })
+  }
+
+  const reviewerSignedOffForms = new Map(state.reviewerSignedOffFormsList)
+  const reviewerSignedOffFormKeys = new Set(state.reviewerSignedOffFormsList.map(([k]) => k))
+
+  const toggleReviewerFormSignOff = (formKey: string) => {
+    if (!isReviewerActor()) return
+    const next = new Map(stateRef.current.reviewerSignedOffFormsList)
+    if (next.has(formKey)) next.delete(formKey)
+    else next.set(formKey, nowEntry())
+    update({ reviewerSignedOffFormsList: Array.from(next.entries()) })
+  }
+
+  const setManualChecklistItem = (itemId: string, checked: boolean) => {
+    update({
+      manualChecklistItems: {
+        ...stateRef.current.manualChecklistItems,
+        [itemId]: checked,
+      },
+    })
+  }
+
+  const toggleMilestoneDeclaration = (milestoneId: string) => {
+    const next = { ...stateRef.current.completedMilestones }
+    if (next[milestoneId]) {
+      delete next[milestoneId]
+    } else {
+      const entry = nowEntry()
+      next[milestoneId] = {
+        by: entry.by === REVIEWER_NAME ? 'reviewer' : 'preparer',
+        at: entry.at,
+        name: entry.by,
+      }
+    }
+    update({ completedMilestones: next })
+  }
+
+  const setMilestoneDeclaration = (milestoneId: string, complete: boolean) => {
+    const next = { ...stateRef.current.completedMilestones }
+    if (complete) {
+      const entry = nowEntry()
+      next[milestoneId] = {
+        by: entry.by === REVIEWER_NAME ? 'reviewer' : 'preparer',
+        at: entry.at,
+        name: entry.by,
+      }
+    } else {
+      delete next[milestoneId]
+    }
+    update({ completedMilestones: next })
+  }
+
+  const getSyncedSnapshot = useCallback((): SyncedState => {
+    return JSON.parse(JSON.stringify(stateRef.current)) as SyncedState
+  }, [])
+
+  const restoreSyncedSnapshot = useCallback((snapshot: SyncedState) => {
+    publish(snapshot)
+  }, [])
+
+  return {
+    activeTopTab: state.activeTopTab,
+    setActiveTopTab: (tab: TopTab) => update({ activeTopTab: tab }),
+    activeSubTab: state.activeSubTab,
+    setActiveSubTab: (tab: W2Employer) => update({ activeSubTab: tab }),
+    selectedField: state.selectedField,
+    setSelectedField: (field: string | null) => update({ selectedField: field }),
+    amounts,
+    updateAmounts,
+    wages,
+    setWages,
+    fieldValues,
+    updateFieldValue,
+    reviewedFields,
+    /** Set of field keys for components that only need presence */
+    editedFields: editedFieldKeys,
+    /** Full who/when map for edited fields */
+    editedFieldsMeta: editedFields,
+    /** Field keys with unsaved edits (pending Save and recalculate) */
+    unsavedFields: unsavedFieldKeys,
+    markUnsaved,
+    commitUnsavedEdits,
+    markEdited,
+    markEditedBulk,
+    fieldOverrides: state.fieldOverrides,
+    setFieldOverride,
+    activeDivPayer: state.activeDivPayer,
+    setActiveDivPayer: (payer: DivPayer) => update({ activeDivPayer: payer }),
+    activeIntPayer: state.activeIntPayer,
+    setActiveIntPayer: (payer: IntPayer) => update({ activeIntPayer: payer }),
+    markReviewed,
+    markReviewedBulk,
+    clearReviewedForKeys,
+    /** Set of verified doc keys (presence) - matches prior API */
+    verifiedDocs: verifiedDocKeys,
+    verifiedDocsMeta: verifiedDocs,
+    toggleVerifiedDoc,
+    unverifyDocDueToEdit,
+    docEditAfterVerifyNotices: docEditAfterVerifyNoticeKeys,
+    dismissDocEditAfterVerifyNotice,
+    reviewerConfirmedDocs: reviewerConfirmedDocKeys,
+    reviewerConfirmedDocsMeta: reviewerConfirmedDocs,
+    /** Set of preparer-checked summary field keys */
+    summaryCheckedFields: summaryCheckedKeys,
+    summaryCheckedMeta: summaryCheckedFields,
+    /** Set of reviewer-confirmed summary field keys */
+    reviewerConfirmedFields: reviewerConfirmedKeys,
+    reviewerConfirmedMeta: reviewerConfirmedFields,
+    managerConfirmedFields: managerConfirmedKeys,
+    managerConfirmedMeta: managerConfirmedFields,
+    reviewerConfirmStaleFields: reviewerConfirmStaleKeys,
+    toggleSummaryChecked,
+    toggleSummaryPreparerCheck,
+    toggleSummaryReviewerConfirm,
+    toggleSummaryManagerConfirm,
+    /** Set of flagged summary field keys (presence) */
+    summaryFlaggedFields: summaryFlaggedKeys,
+    summaryFlaggedMeta: summaryFlaggedFields,
+    toggleSummaryFlagged,
+    summaryFlagNotes,
+    summaryFlagActivity,
+    setSummaryFlagNote,
+    manualChecklistItems: state.manualChecklistItems,
+    toggleManualChecklistItem,
+    setManualChecklistItem,
+    completedMilestones: state.completedMilestones,
+    toggleMilestoneDeclaration,
+    setMilestoneDeclaration,
+    reviewerSignedOffForms: reviewerSignedOffFormKeys,
+    reviewerSignedOffFormsMeta: reviewerSignedOffForms,
+    toggleReviewerFormSignOff,
+    resetReviewState,
+    resetAgentDemo,
+    applyAgentIntelligenceFixes,
+    getSyncedSnapshot,
+    restoreSyncedSnapshot,
+  }
+}

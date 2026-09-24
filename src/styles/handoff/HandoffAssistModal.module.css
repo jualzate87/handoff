@@ -1,0 +1,30 @@
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-row-gap-medium);
+  width: 100%;
+  min-width: 0;
+}
+
+.lead {
+  margin: 0;
+  font-family: var(--font-family-body);
+  font-size: var(--font-size-body-2);
+  font-weight: var(--font-weight-body);
+  line-height: var(--line-height-body);
+  color: var(--color-text-primary);
+}
+
+.statusSwitch {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.actionsRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-column-gap-medium);
+  width: 100%;
+}

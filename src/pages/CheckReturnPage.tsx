@@ -1,0 +1,271 @@
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { useNavigate, useSearchParams } from 'react-router-dom'
+import LeftNavPTO from './data-review/LeftNavPTO'
+import SmartReturnHeader from './SmartReturnHeader'
+import ReturnContextRail from '../components/ReturnContextRail'
+import CheckReturnNav, { type ContentView } from './check-return/CheckReturnNav'
+import CheckReturnMainContent from './check-return/CheckReturnMainContent'
+import {
+  checkReturnFormToOutputId,
+} from './check-return/outputFormNav'
+import type { OutputFormId } from './data-review/outputForms'
+import { computeLiveReturn } from '../data/liveReturn'
+import { useSyncedReviewState } from '../hooks/useSyncedReviewState'
+import { getDiagnosticOverviewCounts } from './check-return/aiDiagnosticCategories'
+import type { Phase2IssueKey } from './data-review/phase2FlagSync'
+import {
+  AI_DIAGNOSTIC_CATEGORIES,
+  primaryIssueKeyForCategory,
+} from './check-return/aiDiagnosticCategories'
+import type { AiDiagnosticsView } from './check-return/AiDiagnosticsPanel'
+import ActivityPanel from './check-return/ActivityPanel'
+import ReturnCommentsPanel from '../components/ReturnCommentsPanel'
+import ReviewerHandoffPrompt, {
+  type ReviewerPromptVariant,
+} from './handoff/ReviewerHandoffPrompt'
+import { JOINED_AS_EVENT, REVIEWER_WELCOME_KEY } from '../lib/returnWorkflow'
+import { navigateToActivityTarget } from './check-return/activityNavigation'
+import type { ActivityDeepLink } from './check-return/activityTypes'
+import { openSourceDocumentReviewPopout } from '../lib/prototypeRoutes'
+import type { ReturnContextRailItemId } from '../components/ReturnContextRail'
+import layout from '../styles/CoreScreenLayout.module.css'
+import styles from '../styles/CheckReturnPage.module.css'
+
+function resolveInitialOutputForm(searchParams: URLSearchParams): OutputFormId {
+  const formParam = searchParams.get('form')
+  if (formParam === '1040' || formParam === 'sch1' || formParam === 'schC' || formParam === 'schD' || formParam === 'schA') {
+    return formParam as OutputFormId
+  }
+  return '1040'
+}
+
+interface CheckReturnPageProps {
+  /** Rendered behind AI review in sidebar layout — no handoff toast or AI entry. */
+  embeddedUnderlay?: boolean
+}
+
+export default function CheckReturnPage({ embeddedUnderlay = false }: CheckReturnPageProps) {
+  const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+  const initialForm = useMemo(() => resolveInitialOutputForm(searchParams), [searchParams])
+  const openFormFromUrl = searchParams.get('form') != null
+  const showEmbeddedAiDiagnostics = searchParams.get('experience') === 'ai-diags'
+
+  const [contentView, setContentView] = useState<ContentView>(() =>
+    showEmbeddedAiDiagnostics
+      ? 'ai-diagnostics'
+      : openFormFromUrl
+        ? 'form-output'
+        : 'federal-summary',
+  )
+  const [selectedForm, setSelectedForm] = useState<string | null>(() =>
+    openFormFromUrl ? '1040' : null,
+  )
+  const [outputFormId, setOutputFormId] = useState<OutputFormId>(initialForm)
+  const [aiDiagnosticsView, setAiDiagnosticsView] = useState<AiDiagnosticsView>('overview')
+  const [selectedDiagnosticKey, setSelectedDiagnosticKey] = useState<Phase2IssueKey | null>(null)
+  const [selectedAiDiagnosticSubId, setSelectedAiDiagnosticSubId] = useState<string | null>(null)
+  const [reviewLogOpen, setReviewLogOpen] = useState(false)
+  const [commentsOpen, setCommentsOpen] = useState(false)
+  const aiReviewButtonRef = useRef<HTMLButtonElement | null>(null)
+  const [showReviewerWelcome, setShowReviewerWelcome] = useState(
+    () => sessionStorage.getItem(REVIEWER_WELCOME_KEY) === '1',
+  )
+  const reviewerPromptVariant: ReviewerPromptVariant =
+    searchParams.get('prompt') === 'popover' ? 'popover' : 'toast'
+
+  const { amounts, reviewedFields } = useSyncedReviewState()
+  const live = useMemo(() => computeLiveReturn(amounts), [amounts])
+  const diagnosticOverview = useMemo(
+    () => getDiagnosticOverviewCounts({ reviewedFields, live, amounts }),
+    [reviewedFields, live, amounts],
+  )
+
+  useEffect(() => {
+    const el = document.documentElement
+    const prev = el.getAttribute('data-theme')
+    el.setAttribute('data-theme', 'intuit')
+    el.style.setProperty('--color-action-standard', '#205ea3')
+    el.style.setProperty('--color-action-standard-hover', '#174d87')
+    el.style.setProperty('--color-action-standard-active', '#174d87')
+    return () => {
+      if (prev) el.setAttribute('data-theme', prev)
+      el.style.removeProperty('--color-action-standard')
+      el.style.removeProperty('--color-action-standard-hover')
+      el.style.removeProperty('--color-action-standard-active')
+    }
+  }, [])
+
+  useEffect(() => {
+    if (!openFormFromUrl) return
+    setContentView('form-output')
+    setSelectedForm('1040')
+    setOutputFormId(initialForm)
+  }, [openFormFromUrl, initialForm])
+
+  useEffect(() => {
+    if (!showEmbeddedAiDiagnostics) return
+    setContentView('ai-diagnostics')
+    setAiDiagnosticsView('overview')
+    setSelectedDiagnosticKey(null)
+    setSelectedAiDiagnosticSubId(null)
+  }, [showEmbeddedAiDiagnostics])
+
+  // Switching roles while already on Check return does not remount the page,
+  // so re-arm the handoff nudge when someone joins as the other person.
+  useEffect(() => {
+    const onJoined = () => {
+      setShowReviewerWelcome(sessionStorage.getItem(REVIEWER_WELCOME_KEY) === '1')
+    }
+    window.addEventListener(JOINED_AS_EVENT, onJoined)
+    return () => window.removeEventListener(JOINED_AS_EVENT, onJoined)
+  }, [])
+
+  const handleSelectFederal = () => {
+    setContentView('federal-summary')
+    setSelectedForm(null)
+  }
+
+  const handleSelectCalifornia = () => {
+    setContentView('california-summary')
+    setSelectedForm(null)
+  }
+
+  const handleSelectForm = (form: string) => {
+    setSelectedForm(form)
+    const mapped = checkReturnFormToOutputId(form)
+    if (mapped) {
+      setOutputFormId(mapped)
+      setContentView('form-output')
+    }
+  }
+
+  const handleSelectAiDiagnosticsOverview = () => {
+    setContentView('ai-diagnostics')
+    setAiDiagnosticsView('overview')
+    setSelectedDiagnosticKey(null)
+    setSelectedAiDiagnosticSubId(null)
+  }
+
+  const handleSelectAiDiagnosticSub = (subId: string) => {
+    const index = Number(subId.replace('diagnostic-', '')) - 1
+    const category = AI_DIAGNOSTIC_CATEGORIES[index]
+    if (!category) return
+    const issueKey = primaryIssueKeyForCategory(category.id, diagnosticOverview.activeKeys)
+    setContentView('ai-diagnostics')
+    setSelectedAiDiagnosticSubId(subId)
+    if (issueKey) {
+      setSelectedDiagnosticKey(issueKey)
+      setAiDiagnosticsView('detail')
+    } else {
+      setSelectedDiagnosticKey(null)
+      setAiDiagnosticsView('overview')
+    }
+  }
+
+  const handleAiDiagnosticsViewChange = (
+    view: AiDiagnosticsView,
+    issueKey?: Phase2IssueKey | null,
+  ) => {
+    setAiDiagnosticsView(view)
+    setSelectedDiagnosticKey(issueKey ?? null)
+    if (view === 'overview') {
+      setSelectedAiDiagnosticSubId(null)
+    }
+  }
+
+  const handleContextRailItem = (id: ReturnContextRailItemId) => {
+    if (id === 'activity') {
+      setReviewLogOpen(open => !open)
+      setCommentsOpen(false)
+    }
+    if (id === 'comments') {
+      setCommentsOpen(open => !open)
+      setReviewLogOpen(false)
+    }
+  }
+
+  const dismissReviewerWelcome = () => {
+    sessionStorage.removeItem(REVIEWER_WELCOME_KEY)
+    setShowReviewerWelcome(false)
+  }
+
+  const handleActivityNavigate = (link: ActivityDeepLink) => {
+    navigateToActivityTarget(link, {
+      setContentView,
+      setSelectedForm,
+      setOutputFormId,
+      handleSelectAiDiagnosticSub,
+      handleSelectFederal,
+    })
+  }
+
+  return (
+    <div className={`${layout.page} ${styles.page}`} data-theme="intuit">
+      <div className={layout.body}>
+        <LeftNavPTO />
+        <div className={layout.rightSide}>
+          <SmartReturnHeader
+            activeTab="checkreturns"
+            showViewSourceDocuments
+            aiReviewButtonRef={embeddedUnderlay ? undefined : aiReviewButtonRef}
+            onViewSourceDocuments={() => openSourceDocumentReviewPopout()}
+            onAiReview={
+              embeddedUnderlay
+                ? undefined
+                : () => navigate('/ai-review', { state: { layoutMode: 'fullscreen' } })
+            }
+          />
+          {!embeddedUnderlay && showReviewerWelcome ? (
+            <ReviewerHandoffPrompt
+              variant={reviewerPromptVariant}
+              anchorRef={aiReviewButtonRef}
+              onDismiss={dismissReviewerWelcome}
+            />
+          ) : null}
+          <div className={styles.contentArea}>
+            <CheckReturnNav
+              startCollapsed={embeddedUnderlay}
+              contentView={contentView}
+              selectedForm={selectedForm}
+              aiDiagnosticCount={diagnosticOverview.total}
+              selectedAiDiagnosticSubId={selectedAiDiagnosticSubId}
+              onSelectFederal={handleSelectFederal}
+              onSelectCalifornia={handleSelectCalifornia}
+              onSelectForm={handleSelectForm}
+              onSelectAiDiagnostics={handleSelectAiDiagnosticsOverview}
+              onSelectAiDiagnosticSub={handleSelectAiDiagnosticSub}
+              showAiReviewNav={showEmbeddedAiDiagnostics}
+            />
+
+            <CheckReturnMainContent
+              contentView={contentView}
+              selectedForm={selectedForm}
+              outputFormId={outputFormId}
+              aiDiagnosticsView={aiDiagnosticsView}
+              selectedDiagnosticKey={selectedDiagnosticKey}
+              onAiDiagnosticsViewChange={handleAiDiagnosticsViewChange}
+              diagnosticHighlightKey={selectedDiagnosticKey}
+            />
+            <ReturnContextRail
+              className={styles.contextRail}
+              activeItem={
+                reviewLogOpen ? 'activity' : commentsOpen ? 'comments' : undefined
+              }
+              onItemClick={handleContextRailItem}
+            />
+            <ActivityPanel
+              isOpen={reviewLogOpen}
+              onToggle={() => setReviewLogOpen(open => !open)}
+              onNavigate={handleActivityNavigate}
+            />
+            <ReturnCommentsPanel
+              isOpen={commentsOpen}
+              onToggle={() => setCommentsOpen(open => !open)}
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}

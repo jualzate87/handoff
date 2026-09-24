@@ -1,0 +1,43 @@
+.footer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-row-gap-medium, 20px);
+  width: 100%;
+}
+
+.footerPrompt {
+  margin: 0;
+  font-family: var(--font-family-body);
+  font-size: var(--font-size-body-2, 16px);
+  line-height: 1.5;
+  color: var(--color-text-primary, #393a3d);
+}
+
+.controlBar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-column-gap-x-small, 8px);
+  width: 100%;
+}
+
+.iconBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-x-small, 4px);
+  border: none;
+  border-radius: var(--radius-small, 4px);
+  background: transparent;
+  color: var(--color-icon-primary, #393a3d);
+  cursor: pointer;
+}
+
+.iconBtn:hover {
+  background: var(--color-action-passive-subtle-hover, rgba(107, 108, 114, 0.08));
+}
+
+.ctaRow {
+  display: flex;
+  justify-content: flex-end;
+  width: 100%;
+}

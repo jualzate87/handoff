@@ -1,0 +1,115 @@
+.summaryPanel {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  border: 1px solid var(--color-container-border-secondary, #babec5);
+  border-radius: var(--radius-large, 8px);
+  background: var(--color-container-background-primary, #ffffff);
+  overflow: hidden;
+}
+
+.summaryHeader {
+  justify-content: space-between;
+}
+
+.summaryHeaderLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-column-gap-x-small, 8px);
+  font-family: var(--font-family-component);
+  font-size: var(--font-size-component-small, 14px);
+  font-weight: var(--font-weight-component-semibold, 500);
+  color: var(--color-text-primary, #393a3d);
+}
+
+.sparkle {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+.sections {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-width: 0;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-column-gap-xx-small);
+  width: 100%;
+  min-width: 0;
+}
+
+.section:not(:last-child) {
+  padding-bottom: var(--space-column-gap-small);
+}
+
+/* Heavier rule between sections so it outranks the per-item dividers. */
+.section + .section {
+  padding-top: var(--space-column-gap-small);
+  border-top: 1.5px solid var(--color-divider-secondary);
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--space-input-stack-padding-medium);
+}
+
+.sectionTitle {
+  margin: 0;
+  font-family: var(--font-family-body);
+  font-size: var(--font-size-body-2);
+  font-weight: var(--font-weight-body-semibold);
+  line-height: var(--line-height-body);
+  color: var(--color-text-primary);
+}
+
+.sectionIntro {
+  margin: 0;
+  font-family: var(--font-family-body);
+  font-size: var(--font-size-body-3);
+  font-weight: var(--font-weight-body);
+  line-height: var(--line-height-body);
+  color: var(--color-text-primary);
+}
+
+.itemList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-component-gap-x-small);
+  padding: var(--space-input-stack-padding-medium) 0;
+  border-bottom: 1px solid var(--color-divider-tertiary);
+}
+
+.item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.itemTitle {
+  font-family: var(--font-family-body);
+  font-size: var(--font-size-body-3);
+  font-weight: var(--font-weight-body-semibold);
+  line-height: var(--line-height-body);
+  color: var(--color-text-primary);
+}
+
+.itemDetail {
+  font-family: var(--font-family-body);
+  font-size: var(--font-size-body-3);
+  font-weight: var(--font-weight-body);
+  line-height: var(--line-height-body);
+  color: var(--color-input-label);
+}

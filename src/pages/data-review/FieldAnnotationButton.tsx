@@ -1,0 +1,154 @@
+import { useCallback, useState } from 'react'
+import { CommentDots, Flag } from '@design-systems/icons'
+import Tooltip from './Tooltip'
+import AnnotationPopover from './AnnotationPopover'
+import {
+  isFlagLikeAnnotation,
+  isNoteLikeAnnotation,
+  type AnnotationType,
+  annotationTypeLabel,
+  formatAnnotationNote,
+  parseAnnotationType,
+  stripAnnotationPrefix,
+} from './annotationTypes'
+import detailStyles from '../../styles/data-review/DetailFields.module.css'
+import summaryStyles from '../../styles/data-review/LeftPanel1040.module.css'
+
+type Variant = 'detail' | 'summary'
+
+export interface FieldAnnotationButtonProps {
+  fieldKey: string
+  contextLabel: string
+  variant?: Variant
+  isFlagged?: boolean
+  hasComment?: boolean
+  existingFlagNote?: string
+  allowFlagTypes?: boolean
+  onAddNote?: (text: string, context: string) => void
+  onToggleFlagged?: (fieldKey: string) => void
+  onSetFlagNote?: (fieldKey: string, note: string) => void
+  buttonClassName?: string
+}
+
+function computeAnchor(btn: HTMLElement, variant: Variant) {
+  const rect = btn.getBoundingClientRect()
+  if (variant === 'summary') {
+    return { top: rect.top + rect.height / 2, left: rect.left - 292 }
+  }
+  const popoverWidth = 300
+  let left = rect.left - popoverWidth - 8
+  if (left < 8) left = rect.right + 8
+  return { top: rect.bottom, left }
+}
+
+export default function FieldAnnotationButton({
+  fieldKey,
+  contextLabel,
+  variant = 'detail',
+  isFlagged = false,
+  hasComment = false,
+  existingFlagNote = '',
+  allowFlagTypes = true,
+  onAddNote,
+  onToggleFlagged,
+  onSetFlagNote,
+  buttonClassName,
+}: FieldAnnotationButtonProps) {
+  const [open, setOpen] = useState(false)
+  const [anchor, setAnchor] = useState<{ top: number; left: number } | null>(null)
+  const [draft, setDraft] = useState('')
+  const [annotationType, setAnnotationType] = useState<AnnotationType>('note')
+
+  const btnCls =
+    buttonClassName ??
+    (variant === 'summary' ? summaryStyles.summaryActionBtn : detailStyles.commentBtn)
+  const activeCls =
+    variant === 'summary'
+      ? summaryStyles.summaryActionBtnActive
+      : detailStyles.commentBtnActive
+  const flagCls = variant === 'summary' ? summaryStyles.summaryActionBtnFlag : ''
+
+  const close = useCallback(() => {
+    setOpen(false)
+    setAnchor(null)
+    setDraft('')
+    setAnnotationType('note')
+  }, [])
+
+  const openPopover = (btn: HTMLElement) => {
+    const initialType = parseAnnotationType(existingFlagNote, isFlagged)
+    setAnnotationType(initialType)
+    setDraft(
+      initialType === 'note' && !isFlagged
+        ? ''
+        : stripAnnotationPrefix(existingFlagNote),
+    )
+    setAnchor(computeAnchor(btn, variant))
+    setOpen(true)
+  }
+
+  const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.stopPropagation()
+    if (open) close()
+    else openPopover(e.currentTarget)
+  }
+
+  const handleSubmit = () => {
+    const formatted = formatAnnotationNote(annotationType, draft)
+    if (isNoteLikeAnnotation(annotationType) && !formatted) return
+
+    // All annotation types land in Comments when onAddNote is wired.
+    if (onAddNote) {
+      onAddNote(formatted || annotationTypeLabel(annotationType), contextLabel)
+    } else if (variant === 'summary' && onToggleFlagged && onSetFlagNote) {
+      if (!isFlagged) onToggleFlagged(fieldKey)
+      onSetFlagNote(fieldKey, formatted)
+    }
+    close()
+  }
+
+  const showFlagIcon = isFlagged && variant === 'summary'
+  const commentCls =
+    hasComment && !showFlagIcon && variant === 'summary'
+      ? summaryStyles.summaryActionBtnHasComment
+      : ''
+  const tooltip = showFlagIcon
+    ? 'Edit flag or add note'
+    : hasComment
+      ? 'Comment on this line — click to add another'
+      : 'Add note or flag'
+
+  return (
+    <>
+      <Tooltip text={tooltip} placement="top" disabled={open}>
+        <button
+          type="button"
+          className={[btnCls, open ? activeCls : '', showFlagIcon ? flagCls : '', commentCls]
+            .filter(Boolean)
+            .join(' ')}
+          aria-label={`Annotate ${contextLabel}`}
+          aria-pressed={isFlagged}
+          onClick={handleClick}
+        >
+          {showFlagIcon ? <Flag size="small" aria-hidden /> : <CommentDots size="small" aria-hidden />}
+        </button>
+      </Tooltip>
+      <AnnotationPopover
+        open={open}
+        anchor={anchor}
+        anchorMode={variant === 'summary' ? 'center' : 'below'}
+        contextLabel={contextLabel}
+        draft={draft}
+        annotationType={annotationType}
+        onDraftChange={setDraft}
+        onTypeChange={setAnnotationType}
+        onClose={close}
+        onSubmit={handleSubmit}
+        allowFlagTypes={allowFlagTypes}
+        submitLabel={isNoteLikeAnnotation(annotationType) ? 'Post' : 'Save'}
+        cancelLabel={isNoteLikeAnnotation(annotationType) ? 'Cancel' : 'Skip'}
+        chipVariant={isFlagLikeAnnotation(annotationType) ? 'flag' : 'default'}
+      />
+    </>
+  )
+}
