@@ -97,7 +97,7 @@ export default function SmartReturnPage() {
       <Modal
         open={docsArrivedOpen}
         onClose={() => setDocsArrivedOpen(false)}
-        size="small"
+        size="medium"
         dismissible
       >
         <ModalHeader

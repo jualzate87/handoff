@@ -8,6 +8,7 @@ import {
   hasAgentIntelligenceFixes,
   REVIEWER_NAME,
 } from '../../hooks/useSyncedReviewState'
+import { useReturnNotes } from '../../hooks/useReturnNotes'
 import ReturnReadyMessage from '../../components/ReturnReadyMessage'
 import {
   openSourceDocumentById,
@@ -60,9 +61,18 @@ export default function OutputReviewPanel({
     toggleReviewerFormSignOff,
   } = useSyncedReviewState()
 
+  const { addNote } = useReturnNotes()
+
   const liveTotals = useMemo(() => computeLiveReturn(amounts), [amounts])
   const reviewRole = getReviewActor() === REVIEWER_NAME ? 'reviewer' : 'preparer'
   const highlightField1040 = resolveOutputFieldFromIssueField(selectedField)
+
+  const handleAddFieldNote = useCallback(
+    (text: string, context: string) => {
+      addNote(text, getReviewActor(), reviewRole, context)
+    },
+    [addNote, reviewRole],
+  )
 
   const handle1040FieldClick = useCallback(
     (field1040: string | null) => {
@@ -160,6 +170,7 @@ export default function OutputReviewPanel({
           activeDiagnosticKey={activeDiagnosticKey}
           onNavigateSource={handleViewSourceInput}
           onNavigateToSourceDoc={handleNavigateToSourceDoc}
+          onAddFieldNote={handleAddFieldNote}
         />
       </div>
     </div>

@@ -24,6 +24,7 @@ import { navigateToActivityTarget } from './check-return/activityNavigation'
 import type { ActivityDeepLink } from './check-return/activityTypes'
 import { openSourceDocumentReviewPopout } from '../lib/prototypeRoutes'
 import type { ReturnContextRailItemId } from '../components/ReturnContextRail'
+import { RETURN_NOTES_EVENT } from '../hooks/useReturnNotes'
 import styles from '../styles/CheckReturnPage.module.css'
 
 function resolveInitialOutputForm(searchParams: URLSearchParams): OutputFormId {
@@ -103,6 +104,18 @@ export default function CheckReturnPage({ embeddedUnderlay = false }: CheckRetur
     setSelectedForm('1040')
     setOutputFormId(initialForm)
   }, [openFormFromUrl, initialForm])
+
+  useEffect(() => {
+    const onNotesChanged = (event: Event) => {
+      const openComments = (event as CustomEvent<{ openComments?: boolean }>).detail?.openComments
+      if (openComments) {
+        setCommentsOpen(true)
+        setReviewLogOpen(false)
+      }
+    }
+    window.addEventListener(RETURN_NOTES_EVENT, onNotesChanged)
+    return () => window.removeEventListener(RETURN_NOTES_EVENT, onNotesChanged)
+  }, [])
 
   useEffect(() => {
     if (!showEmbeddedAiDiagnostics) return

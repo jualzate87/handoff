@@ -325,11 +325,11 @@ export default function AgentCatchUpPane({
                   </div>
                 ) : null}
 
-                {showControls && !signedOff ? (
+                {showControls && !signedOff && isReviewer ? (
                   <div className={styles.revealIn}>
                     <AgentReviewSummaryFooter
                       showPrompt={false}
-                      onPrimaryAction={isReviewer ? () => setSignedOff(true) : onApproveReturn}
+                      onPrimaryAction={() => setSignedOff(true)}
                       primaryLabel={content.primaryAction}
                       secondaryLabel={onViewAiReview ? CTA_VIEW_AI_REVIEW : undefined}
                       onSecondaryAction={onViewAiReview}

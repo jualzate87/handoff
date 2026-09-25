@@ -1111,17 +1111,26 @@ export default function DataReviewPage() {
     new Date().toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true })
 
   const handleAddNote = (text: string, context?: string) => {
-    setNotes(prev => [...prev, {
-      id: `note-${Date.now()}`,
-      text,
-      author: getReviewActor(),
-      at: formatNoteAt(),
-      context,
-      status: 'open',
-      role: reviewRole,
-      replies: [],
-    }])
-    
+    setNotes(prev => {
+      const next = [...prev, {
+        id: `note-${Date.now()}`,
+        text,
+        author: getReviewActor(),
+        at: formatNoteAt(),
+        context,
+        status: 'open' as const,
+        role: reviewRole,
+        replies: [],
+      }]
+      try {
+        localStorage.setItem(NOTES_KEY, JSON.stringify(next))
+      } catch { /* ignore */ }
+      return next
+    })
+    // Other localStorage readers (e.g. the Comments rail badge) only refresh on
+    // this event - the [notes] effect alone doesn't reach them within this tab.
+    window.dispatchEvent(new CustomEvent(RETURN_NOTES_EVENT, { detail: { openComments: false } }))
+
     openRightPanel('comments')
   }
 
