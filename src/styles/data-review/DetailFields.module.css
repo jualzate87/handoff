@@ -790,6 +790,23 @@
   line-height: 16px;
 }
 
+/* Persistent "AI fixed" badge — same shape as .editedBadge, Intelligence blue instead of amber */
+.aiFixedBadge {
+  font-family: var(--font-family-component) !important;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: #0365ac;
+  background: #d9effb;
+  border: 1px solid #0365ac;
+  border-radius: 4px;
+  padding: 1px 7px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  line-height: 16px;
+}
+
 /* Refresh icon button */
 .refreshBtn {
   background: none;

@@ -207,9 +207,15 @@ export default function DataReviewPopout() {
     })
   }, [setActiveTopTab, setActiveSubTab, setActiveDivPayer, setActiveIntPayer, setSelectedField])
 
+  // Only applies the URL the popout was opened with. Deliberately runs once on
+  // mount — searchParams stays tied to that initial URL (syncPopoutHash below
+  // updates the address bar via history.replaceState, not React Router, so
+  // Router never re-parses it). Re-running this on every searchParams identity
+  // change would re-apply the mount-time tab over any in-app tab switch.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     applyPopoutNavigation(contextFromSearchParams(searchParams))
-  }, [searchParams, applyPopoutNavigation])
+  }, [])
 
   useEffect(() => {
     const onHashChange = () => {
@@ -804,6 +810,7 @@ export default function DataReviewPopout() {
                 reviewedFields={reviewedFields}
                 unsavedFields={unsavedFields}
                 recalculatedFields={recalculatedFields}
+                editedFieldsMeta={editedFieldsMeta}
                 fieldOverrides={fieldOverrides}
                 onFieldOverride={handleFieldOverride}
                 verifiedDocs={verifiedDocs}
@@ -872,6 +879,7 @@ export default function DataReviewPopout() {
                 reviewedFields={reviewedFields}
                 unsavedFields={unsavedFields}
                 recalculatedFields={recalculatedFields}
+                editedFieldsMeta={editedFieldsMeta}
                 fieldOverrides={fieldOverrides}
                 onFieldOverride={handleFieldOverride}
                 verifiedDocs={verifiedDocs}
@@ -901,6 +909,7 @@ export default function DataReviewPopout() {
                 reviewedFields={reviewedFields}
                 unsavedFields={unsavedFields}
                 recalculatedFields={recalculatedFields}
+                editedFieldsMeta={editedFieldsMeta}
                 fieldOverrides={fieldOverrides}
                 onFieldOverride={handleFieldOverride}
                 verifiedDocs={verifiedDocs}

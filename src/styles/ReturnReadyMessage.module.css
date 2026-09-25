@@ -5,21 +5,9 @@
   gap: 6px;
   margin: 0 0 var(--space-component-gap-large, 16px);
   padding: 14px 20px;
-  border: 1px solid #0566ff;
+  border: 1.2px solid #0566ff;
   border-radius: var(--radius-large, 12px);
   background: var(--color-container-background-primary, #ffffff);
-  overflow: hidden;
-}
-
-/* Thin gradient accent along the top edge, matching the Intelligence mark. */
-.card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 3px;
-  background: linear-gradient(90deg, #21abf6 0%, #0097e6 45%, #205ea3 100%);
 }
 
 .titleRow {

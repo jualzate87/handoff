@@ -141,6 +141,7 @@ interface DetailFieldsDivProps {
   reviewedFields?: Map<string, { by: string; at: string }>
   unsavedFields?: Set<string>
   recalculatedFields?: Set<string>
+  editedFieldsMeta?: Map<string, { by: string; at: string }>
   /** Persisted static field values */
   fieldOverrides?: Record<string, string>
   /** Persist a static field edit (also stamps Edited badge) */
@@ -176,6 +177,7 @@ export default function DetailFieldsDiv({
   reviewedFields,
   unsavedFields,
   recalculatedFields,
+  editedFieldsMeta,
   fieldOverrides = {},
   onFieldOverride,
   verifiedDocs,
@@ -383,6 +385,7 @@ export default function DetailFieldsDiv({
             unsavedFields={unsavedFields}
             recalculatedFields={recalculatedFields}
             flowsTo1040={flowsTo1040}
+            editedBy={editedFieldsMeta?.get(fieldKey)?.by}
           />
         </div>
         <ValidationNote fieldKey={flagKey} reviewedKey={reviewedKey} />
@@ -508,6 +511,7 @@ export default function DetailFieldsDiv({
                 unsavedFields={unsavedFields}
                 recalculatedFields={recalculatedFields}
                 flowsTo1040
+                editedBy={editedFieldsMeta?.get('qualifiedDivs')?.by}
               />
             </div>
             <ValidationNote fieldKey="qualifiedDivs" />

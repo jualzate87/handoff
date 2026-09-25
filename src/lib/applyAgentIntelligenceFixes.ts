@@ -17,6 +17,8 @@ export type AgentIntelligenceFixResult = {
   amounts: Partial<LiveAmounts>
   /** Detail-fields / phase-1 reviewed keys cleared by the agent run. */
   reviewedFieldKeys: string[]
+  /** Detail-fields keys the agent changed the value of — shown with an "AI fixed" badge. */
+  editedFieldKeys: string[]
 }
 
 /**
@@ -38,5 +40,13 @@ export function buildAgentIntelligenceDemoFixes(): AgentIntelligenceFixResult {
       mortgageInterest: ESTIMATED_MORTGAGE_INTEREST,
     },
     reviewedFieldKeys: ['wages-techCircle', 'ssn-techCircle'],
+    editedFieldKeys: [
+      'wages-techCircle',
+      'fedTaxWithheld',
+      'qualifiedDivs',
+      'r-fedTaxWithheld',
+      'r-taxableAmt',
+      'nec-box1',
+    ],
   }
 }

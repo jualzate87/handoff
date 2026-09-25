@@ -68,6 +68,7 @@ interface DetailFieldsNecProps {
   reviewedFields?: Map<string, { by: string; at: string }>
   unsavedFields?: Set<string>
   recalculatedFields?: Set<string>
+  editedFieldsMeta?: Map<string, { by: string; at: string }>
   /** Persisted static field values */
   fieldOverrides?: Record<string, string>
   /** Persist a static field edit (also stamps Edited badge) */
@@ -100,6 +101,7 @@ export default function DetailFieldsNec({
   reviewedFields,
   unsavedFields,
   recalculatedFields,
+  editedFieldsMeta,
   fieldOverrides = {},
   onFieldOverride,
   verifiedDocs,
@@ -267,6 +269,7 @@ export default function DetailFieldsNec({
           unsavedFields={unsavedFields}
           recalculatedFields={recalculatedFields}
           flowsTo1040={fieldKey === 'nec-box1'}
+          editedBy={editedFieldsMeta?.get(fieldKey)?.by}
         />
       </div>
     )

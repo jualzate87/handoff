@@ -60,6 +60,7 @@ interface DetailFields1099RProps {
   reviewedFields?: Map<string, { by: string; at: string }>
   unsavedFields?: Set<string>
   recalculatedFields?: Set<string>
+  editedFieldsMeta?: Map<string, { by: string; at: string }>
   /** Persisted static field values */
   fieldOverrides?: Record<string, string>
   /** Persist a static field edit (also stamps Edited badge) */
@@ -89,6 +90,7 @@ export default function DetailFields1099R({
   reviewedFields,
   unsavedFields,
   recalculatedFields,
+  editedFieldsMeta,
   fieldOverrides = {},
   onFieldOverride,
   verifiedDocs,
@@ -264,6 +266,7 @@ export default function DetailFields1099R({
           unsavedFields={unsavedFields}
           recalculatedFields={recalculatedFields}
           flowsTo1040={flowsTo1040}
+          editedBy={editedFieldsMeta?.get(fieldKey)?.by}
         />
       </div>
       {flaggedFields[issueKey] && <ValidationNote issueKey={issueKey} resolveKey={resolveKey} />}

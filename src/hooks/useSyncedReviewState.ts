@@ -232,6 +232,24 @@ export function sanitizeSyncedState(state: SyncedState): SyncedState {
   }
   return reconcileVerifiedDocFlags(enforceMutualExclusion(loaded))
 }
+
+/**
+ * Cross-tab sync is for shared return data, not per-window navigation position.
+ * Without this, a background tab sitting idle on an unrelated route rebroadcasts
+ * its own stale activeTopTab/etc. on every publish() and stomps whatever tab a
+ * user just switched to in a different window (e.g. the source-doc popout).
+ */
+function keepOwnNavState(incoming: SyncedState, own: SyncedState): SyncedState {
+  return {
+    ...incoming,
+    activeTopTab: own.activeTopTab,
+    activeSubTab: own.activeSubTab,
+    activeDivPayer: own.activeDivPayer,
+    activeIntPayer: own.activeIntPayer,
+    selectedField: own.selectedField,
+  }
+}
+
 export const PREPARER_NAME = 'Amanda'
 export const REVIEWER_NAME = 'Jing'
 /** Storage key for review state - exported for tests and diagnostics */
@@ -645,7 +663,7 @@ export function resetAgentDemoReviewState(): SyncedState {
 
 /** Persist agent auto-fixes from the intelligence processing demo (W-2 wages, SSN, import gaps). */
 export function applyAgentIntelligenceFixesToState(state: SyncedState): SyncedState {
-  const { amounts: amountPatch, reviewedFieldKeys } = buildAgentIntelligenceDemoFixes()
+  const { amounts: amountPatch, reviewedFieldKeys, editedFieldKeys } = buildAgentIntelligenceDemoFixes()
   const at = formatActivityTimestamp()
   const agentEntry = { by: AGENT_INTELLIGENCE_ACTOR, at }
 
@@ -671,9 +689,7 @@ export function applyAgentIntelligenceFixesToState(state: SyncedState): SyncedSt
   })
 
   const edited = new Map(state.editedFieldsList)
-  if (amountPatch.wages !== undefined) {
-    edited.set('wages-techCircle', agentEntry)
-  }
+  editedFieldKeys.forEach(key => edited.set(key, agentEntry))
 
   return sanitizeSyncedState({
     ...state,
@@ -716,14 +732,14 @@ export function useSyncedReviewState() {
       if (payload && typeof payload === 'object' && 'tabId' in payload) {
         const msg = payload as SyncBroadcastMessage
         if (msg.tabId === tabIdRef.current) return
-        const next = sanitizeSyncedState(msg.state)
+        const next = keepOwnNavState(sanitizeSyncedState(msg.state), stateRef.current)
         stateRef.current = next
         setState(next)
         writePersisted(next)
         return
       }
       // Legacy message shape (other tabs / older builds)
-      const next = sanitizeSyncedState(payload as SyncedState)
+      const next = keepOwnNavState(sanitizeSyncedState(payload as SyncedState), stateRef.current)
       stateRef.current = next
       setState(next)
       writePersisted(next)
@@ -732,7 +748,7 @@ export function useSyncedReviewState() {
     const onStorage = (e: StorageEvent) => {
       if (e.key !== STORAGE_KEY || !e.newValue) return
       try {
-        const next = hydrateSyncedState(e.newValue)
+        const next = keepOwnNavState(hydrateSyncedState(e.newValue), stateRef.current)
         stateRef.current = next
         setState(next)
       } catch {

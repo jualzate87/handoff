@@ -33,6 +33,8 @@ interface AgentCatchUpPaneProps {
   onViewAiReview?: () => void
   /** Reopening an existing conversation — show the finished summary without replaying it. */
   resumed?: boolean
+  /** Closes this panel — used by the signed-off card's "Close" action. */
+  onClose?: () => void
 }
 
 function openDocLink(link: CatchUpDocLink) {
@@ -156,6 +158,7 @@ export default function AgentCatchUpPane({
   onApproveReturn,
   onViewAiReview,
   resumed = false,
+  onClose,
 }: AgentCatchUpPaneProps) {
   const [thinkingExpanded, setThinkingExpanded] = useState(false)
   const [checkedIds, setCheckedIds] = useState<Set<string>>(new Set())
@@ -318,7 +321,7 @@ export default function AgentCatchUpPane({
                       <AgentReviewSummaryFooter
                         showPrompt={false}
                         hideControlBar
-                        onPrimaryAction={onApproveReturn}
+                        onPrimaryAction={onClose ?? onApproveReturn}
                         primaryLabel={CTA_CLOSE_SUMMARY}
                       />
                     </div>

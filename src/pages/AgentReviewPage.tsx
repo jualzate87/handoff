@@ -364,6 +364,7 @@ export default function AgentReviewPage() {
               {step === 'catch-up' && (
                 <AgentCatchUpPane
                   onApproveReturn={() => openWorkspace()}
+                  onClose={handleClose}
                   onViewAiReview={
                     hasCompletedAiReview
                       ? () => {

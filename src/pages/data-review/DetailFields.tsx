@@ -401,6 +401,7 @@ export default function DetailFields({
             unsavedFields={unsavedFields}
             recalculatedFields={recalculatedFields}
             editTooltip={editMetaText(key)}
+            editedBy={editedFieldsMeta?.get(key)?.by}
           />
         )}
       </div>
@@ -527,6 +528,8 @@ export default function DetailFields({
             unsavedFields={unsavedFields}
             recalculatedFields={recalculatedFields}
             flowsTo1040
+            editTooltip={editMetaText(`wages-${activeSubTab}`)}
+            editedBy={editedFieldsMeta?.get(`wages-${activeSubTab}`)?.by}
           />
         </div>
         <ValidationNote fieldKey="wages" />
@@ -690,6 +693,7 @@ export default function DetailFields({
                       fieldKey={amtKey}
                       unsavedFields={unsavedFields}
                       recalculatedFields={recalculatedFields}
+                      editedBy={editedFieldsMeta?.get(amtKey)?.by}
                     />
                   </div>
                   {isLast && <ValidationNote fieldKey="box12" />}
@@ -739,6 +743,7 @@ export default function DetailFields({
                 fieldKey="box12"
                 unsavedFields={unsavedFields}
                 recalculatedFields={recalculatedFields}
+                editedBy={editedFieldsMeta?.get('box12')?.by}
               />
             </div>
             <ValidationNote fieldKey="box12" />
@@ -815,6 +820,7 @@ export default function DetailFields({
             fieldKey="box13"
             unsavedFields={unsavedFields}
             recalculatedFields={recalculatedFields}
+            editedBy={editedFieldsMeta?.get('box13')?.by}
           />
           {flaggedFields['box13'] && !reviewedFields?.has('box13') && (
             <ValidationNote fieldKey="box13" />
