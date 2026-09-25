@@ -39,6 +39,7 @@ import {
   ONBOARDING_LOADING_STEPS,
   SENDING_TITLE,
   SENDING_STEPS,
+  CLIENT_DOCS_ARRIVED_KEY,
 } from '../data/clientOnboarding'
 import { AgentIntelligenceReasoningLive } from './agent-review/AgentIntelligenceReasoning'
 import prior1040 from '../assets/jessica-1040-2024-variant-1.png'
@@ -124,7 +125,6 @@ export default function ClientOnboardingPage() {
   const [expanded, setExpanded] = useState<Section | null>('questionnaire')
   const [sending, setSending] = useState(false)
   const [sent, setSent] = useState(false)
-  const [handoffOpen, setHandoffOpen] = useState(false)
 
   useEffect(() => {
     const timer = setTimeout(() => setWelcomeOpen(true), 50)
@@ -453,7 +453,11 @@ export default function ClientOnboardingPage() {
           </Button>
           <Button
             priority="primary"
-            onClick={() => (sent ? setHandoffOpen(true) : navigate('/smart-return'))}
+            onClick={() => {
+              // The time-jump modal belongs to the return, so it opens there.
+              if (sent) sessionStorage.setItem(CLIENT_DOCS_ARRIVED_KEY, '1')
+              navigate('/smart-return')
+            }}
           >
             Open return
           </Button>
@@ -484,23 +488,6 @@ export default function ClientOnboardingPage() {
         </ModalActions>
       </Modal>
 
-      {/* Opening the return jumps the clock forward to Tina's reply. */}
-      <Modal open={handoffOpen} onClose={() => setHandoffOpen(false)} size="small" dismissible>
-        <ModalHeader alignment="center" transparentBackground onClose={() => setHandoffOpen(false)}>
-          <ModalTitle title="Tina sent her documents" />
-        </ModalHeader>
-        <ModalContent alignment="center">
-          <B2 className={styles.welcomeModalBody}>
-            A few days later — she answered the questionnaire, signed the engagement letter, and
-            uploaded everything on the checklist through her client portal.
-          </B2>
-        </ModalContent>
-        <ModalActions alignment="center">
-          <Button priority="primary" onClick={() => navigate('/smart-return')}>
-            Pick up the return
-          </Button>
-        </ModalActions>
-      </Modal>
     </div>
   )
 }
