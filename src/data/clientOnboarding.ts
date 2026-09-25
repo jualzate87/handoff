@@ -42,15 +42,7 @@ export const SENDING_TITLE = 'Sending to Tina Yuan…'
 export const SENDING_STEPS = [
   {
     title: 'Publishing to the client portal',
-    body: 'Posting the questionnaire, document checklist, and engagement letter to Tina’s Intuit Link account.',
-  },
-  {
-    title: 'Preparing the engagement letter for signature',
-    body: 'Adding signature fields so Tina can sign without printing anything.',
-  },
-  {
-    title: 'Notifying the client',
-    body: 'Emailing Tina a secure link and setting a reminder if she hasn’t responded in a week.',
+    body: 'Posting the questionnaire, checklist, and engagement letter to Tina’s Intuit Link account and emailing her a secure link.',
   },
 ]
 

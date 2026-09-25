@@ -1,5 +1,6 @@
 /** Tina Yuan - client/recipient address (Loop 2 Build Spec). */
 export const CLIENT_FIRST_NAME = 'Tina'
+export const CLIENT_LAST_NAME = 'Yuan'
 
 export const CLIENT_ADDRESS = {
   name: 'Tina Yuan',

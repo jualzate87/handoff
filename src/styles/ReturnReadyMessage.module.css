@@ -1,0 +1,22 @@
+.wrap {
+  margin: 0 0 var(--space-component-gap-large, 16px);
+}
+
+.body {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-component-gap-small, 8px);
+}
+
+.mark {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.text {
+  margin: 0;
+  line-height: 1.5;
+}

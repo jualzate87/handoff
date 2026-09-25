@@ -278,6 +278,19 @@ export function isCurrentReviewerActor(): boolean {
   return isReviewerActor()
 }
 
+/**
+ * True once Intuit Intelligence has written its auto-fixes into the return —
+ * the signal that the diagnostics it raised are cleared.
+ */
+export function hasAgentIntelligenceFixes(
+  reviewedFields: Map<string, ReviewedEntry>,
+): boolean {
+  for (const entry of reviewedFields.values()) {
+    if (entry.by === AGENT_INTELLIGENCE_ACTOR) return true
+  }
+  return false
+}
+
 export function isCurrentManagerActor(): boolean {
   if (currentActorName === 'Marcus Webb') return true
   try {

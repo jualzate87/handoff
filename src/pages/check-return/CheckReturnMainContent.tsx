@@ -6,6 +6,9 @@ import type { ContentView } from './CheckReturnNav'
 import type { OutputFormId } from '../data-review/outputForms'
 import type { Phase2IssueKey } from '../data-review/phase2FlagSync'
 import { FEDERAL_SUMMARY_ROWS } from './checkReturnSummaryData'
+import ReturnReadyMessage from '../../components/ReturnReadyMessage'
+import { CLIENT_ADDRESS } from '../../data/clientAddress'
+import { hasAgentIntelligenceFixes, useSyncedReviewState } from '../../hooks/useSyncedReviewState'
 import styles from '../../styles/CheckReturnPage.module.css'
 import panel from '../../styles/shared/ReturnMainPanel.module.css'
 
@@ -34,6 +37,9 @@ export default function CheckReturnMainContent({
   diagnosticHighlightKey = null,
   diagnosticsMode = 'manual',
 }: CheckReturnMainContentProps) {
+  const { reviewedFields } = useSyncedReviewState()
+  const showReadyMessage = hasAgentIntelligenceFixes(reviewedFields)
+
   return (
     <main
       className={
@@ -45,8 +51,9 @@ export default function CheckReturnMainContent({
       {contentView === 'federal-summary' && (
         <div className={panel.contentBody}>
           <h1 className={panel.pageTitle}>
-            Federal Income Tax Summary: Barry and Mary Wilson
+            Federal Income Tax Summary: {CLIENT_ADDRESS.name}
           </h1>
+          {showReadyMessage ? <ReturnReadyMessage /> : null}
           <div className={styles.tableScroll}>
             <table className={styles.summaryTable}>
               <thead>

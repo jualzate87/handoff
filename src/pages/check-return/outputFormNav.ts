@@ -17,7 +17,7 @@ export function checkReturnFormToOutputId(formLabel: string): OutputFormId | nul
 export function outputFormDisplayTitle(formId: OutputFormId): string {
   switch (formId) {
     case '1040':
-      return '1040: 2024 U.S. Individual Income Tax Return'
+      return '1040: 2025 U.S. Individual Income Tax Return'
     case 'sch1':
       return 'Schedule 1: Additional Income and Adjustments to Income'
     case 'schC':

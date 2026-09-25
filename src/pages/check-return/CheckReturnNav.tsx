@@ -10,6 +10,10 @@ import {
 import { NumericBadge } from '@ids-ts/badge'
 import '@ids-ts/badge/dist/main.css'
 import { IconControl } from '@ids-ts/icon-control'
+import {
+  hasAgentIntelligenceFixes,
+  useSyncedReviewState,
+} from '../../hooks/useSyncedReviewState'
 import '@ids-ts/icon-control/dist/main.css'
 import { AI_DIAGNOSTIC_CATEGORIES } from './aiDiagnosticCategories'
 import intuitIntelligenceLogo from '../../assets/icons/intuit-intelligence-logo-small.svg'
@@ -70,6 +74,10 @@ const DIAGNOSTIC_CATEGORY_ITEMS: { label: string; badge?: number }[] = [
   { label: 'EF Critical diagnostics', badge: 1 },
   { label: 'Critical Diagnostics', badge: 1 },
 ]
+
+/** Once the agent's fixes land, these categories have nothing left to flag. */
+const CLEARED_DIAGNOSTIC_CATEGORY_ITEMS: { label: string; badge?: number }[] =
+  DIAGNOSTIC_CATEGORY_ITEMS.map(item => ({ label: item.label }))
 
 interface CheckReturnNavProps {
   variant?: 'full' | 'focused'
@@ -257,6 +265,10 @@ export default function CheckReturnNav({
   startCollapsed = false,
 }: CheckReturnNavProps) {
   const focused = variant === 'focused'
+  const { reviewedFields } = useSyncedReviewState()
+  const diagnosticCategoryItems = hasAgentIntelligenceFixes(reviewedFields)
+    ? CLEARED_DIAGNOSTIC_CATEGORY_ITEMS
+    : DIAGNOSTIC_CATEGORY_ITEMS
   const [expandedCategory, setExpandedCategory] = useState<ExpandedCategory | null>(null)
 
   const toggleCategory = (category: ExpandedCategory) => {
@@ -467,7 +479,7 @@ export default function CheckReturnNav({
 
         {!focused && (
           <>
-            {DIAGNOSTIC_CATEGORY_ITEMS.map(item => (
+            {diagnosticCategoryItems.map(item => (
               <NavFlatRow key={item.label} label={item.label} badge={item.badge} />
             ))}
 

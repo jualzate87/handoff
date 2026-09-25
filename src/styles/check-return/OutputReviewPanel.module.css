@@ -71,3 +71,8 @@
   flex-direction: column;
   overflow: hidden;
 }
+
+.readyMessageHost {
+  padding: var(--space-component-padding-medium, 12px) var(--space-container-padding-medium, 20px) 0;
+  flex-shrink: 0;
+}
