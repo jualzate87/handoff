@@ -50,6 +50,8 @@ import {
 import styles from '../styles/AgentReviewPage.module.css'
 
 const ASSESSING_MS = 3200
+/** Keep in step with the sidebar slide-out transition in AgentReviewPage.module.css. */
+const SIDEBAR_CLOSE_MS = 240
 
 /**
  * Reopening the panel lands on the last conversation when there is one. An
@@ -95,8 +97,10 @@ export default function AgentReviewPage() {
     initialSession.processingMode,
   )
   const [isAssessing, setIsAssessing] = useState(false)
+  const [closing, setClosing] = useState(false)
   const [footerChips, setFooterChips] = useState<ReactNode>(null)
   const assessTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const agentFixesAppliedRef = useRef(false)
   const { applyAgentIntelligenceFixes, reviewedFields } = useSyncedReviewState()
 
@@ -121,6 +125,7 @@ export default function AgentReviewPage() {
       el.style.removeProperty('--color-action-standard-hover')
       el.style.removeProperty('--color-action-standard-active')
       if (assessTimerRef.current) clearTimeout(assessTimerRef.current)
+      if (closeTimerRef.current) clearTimeout(closeTimerRef.current)
     }
   }, [])
 
@@ -140,8 +145,15 @@ export default function AgentReviewPage() {
     if (isResumableStep(step)) saveAgentSession({ step, processingMode })
   }, [processingMode, step])
 
+  /** Sidebar slides out before the route changes; other layouts close at once. */
   const handleClose = () => {
-    navigate('/check-return')
+    if (!isSidebar) {
+      navigate('/check-return')
+      return
+    }
+    if (closing) return
+    setClosing(true)
+    closeTimerRef.current = setTimeout(() => navigate('/check-return'), SIDEBAR_CLOSE_MS)
   }
 
   const handleLayoutChange = (mode: AgentReviewLayoutMode) => {
@@ -228,14 +240,24 @@ export default function AgentReviewPage() {
       {isSidebar ? (
         <>
           <div className={styles.sidebarBackdrop} aria-hidden />
-          <div className={styles.proConnectUnderlay}>
-            <CheckReturnPage embeddedUnderlay />
+          <div
+            className={`${styles.proConnectUnderlay} ${
+              closing ? styles.proConnectUnderlayClosing : ''
+            }`}
+          >
+            <CheckReturnPage
+              embeddedUnderlay
+              onCloseIntelligence={handleClose}
+              intelligenceClosing={closing}
+            />
           </div>
         </>
       ) : null}
 
       <div
-        className={`${styles.shell} ${isSidebar ? styles.shellSidebar : styles.shellFullscreen}`}
+        className={`${styles.shell} ${isSidebar ? styles.shellSidebar : styles.shellFullscreen} ${
+          closing ? styles.shellSidebarClosing : ''
+        }`}
         data-layout={layoutMode}
         data-theme="intuit"
       >

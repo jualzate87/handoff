@@ -7,11 +7,14 @@ interface IASTopBarProps {
   firmName?: string
   /** Highlights the Intelligence icon — the panel is already open (e.g. sidebar layout). */
   intelligenceActive?: boolean
+  /** Toggles the Intelligence panel from the header icon. */
+  onIntelligenceClick?: () => void
 }
 
 export default function IASTopBar({
   firmName = 'Beasley & Howe Financials',
   intelligenceActive = false,
+  onIntelligenceClick,
 }: IASTopBarProps) {
   const { currentUser } = useReturnWorkflow()
 
@@ -54,6 +57,7 @@ export default function IASTopBar({
           className={`${styles.iconButton} ${intelligenceActive ? styles.iconButtonActive : ''}`}
           aria-label="Intuit Intelligence"
           aria-pressed={intelligenceActive}
+          onClick={onIntelligenceClick}
         >
           <img src={iaPropeller} alt="" className={styles.propeller} />
         </button>

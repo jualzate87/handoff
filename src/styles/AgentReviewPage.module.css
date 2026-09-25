@@ -34,6 +34,12 @@
   height: 100vh;
   overflow: hidden;
   background: transparent;
+  transition: width 240ms cubic-bezier(0.2, 0, 0, 1);
+}
+
+/* Reclaims the panel's room as it slides away. */
+.proConnectUnderlayClosing {
+  width: 100vw;
 }
 
 .proConnectUnderlay > :global(*) {
@@ -58,6 +64,42 @@
   height: auto;
   border: 1px solid var(--color-container-border-primary, #d4d7dc);
   border-radius: 12px;
+  animation: sidebarSlideIn 240ms cubic-bezier(0.2, 0, 0, 1) both;
+}
+
+/* Slides back out to the right before the route changes. */
+.shellSidebarClosing {
+  animation: sidebarSlideOut 240ms cubic-bezier(0.4, 0, 1, 1) both;
+  pointer-events: none;
+}
+
+@keyframes sidebarSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(calc(100% + var(--sidebar-inset)));
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes sidebarSlideOut {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(calc(100% + var(--sidebar-inset)));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shellSidebar,
+  .shellSidebarClosing {
+    animation-duration: 1ms;
+  }
 }
 
 @media (max-width: 900px) {

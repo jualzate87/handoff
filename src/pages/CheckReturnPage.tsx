@@ -44,9 +44,17 @@ function resolveInitialOutputForm(searchParams: URLSearchParams): OutputFormId {
 interface CheckReturnPageProps {
   /** Rendered behind AI review in sidebar layout — no handoff toast or AI entry. */
   embeddedUnderlay?: boolean
+  /** Closes the Intelligence panel from the top bar icon (sidebar layout). */
+  onCloseIntelligence?: () => void
+  /** The panel is sliding away — the header can expand back out with it. */
+  intelligenceClosing?: boolean
 }
 
-export default function CheckReturnPage({ embeddedUnderlay = false }: CheckReturnPageProps) {
+export default function CheckReturnPage({
+  embeddedUnderlay = false,
+  onCloseIntelligence,
+  intelligenceClosing = false,
+}: CheckReturnPageProps) {
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const initialForm = useMemo(() => resolveInitialOutputForm(searchParams), [searchParams])
@@ -216,10 +224,13 @@ export default function CheckReturnPage({ embeddedUnderlay = false }: CheckRetur
 
   return (
     <div className={styles.page} data-theme="intuit">
-      <IASShell intelligenceActive={embeddedUnderlay}>
+      <IASShell
+        intelligenceActive={embeddedUnderlay && !intelligenceClosing}
+        onIntelligenceClick={onCloseIntelligence}
+      >
         <SmartReturnHeader
           activeTab="checkreturns"
-          compact={embeddedUnderlay}
+          compact={embeddedUnderlay && !intelligenceClosing}
           showViewSourceDocuments
           aiReviewButtonRef={embeddedUnderlay ? undefined : aiReviewButtonRef}
           onViewSourceDocuments={() => openSourceDocumentReviewPopout()}
