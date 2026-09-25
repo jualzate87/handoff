@@ -467,11 +467,10 @@ export default function ClientOnboardingPage() {
 
       {/* Demo welcome — first thing the audience sees. */}
       <Modal open={welcomeOpen} onClose={() => setWelcomeOpen(false)} size="medium" dismissible>
+        <ModalHeader alignment="center" transparentBackground onClose={() => setWelcomeOpen(false)} />
         <ModalContent alignment="center">
           <img src={welcomeIllustration} alt="" className={styles.welcomeModalIllustration} />
-          <ModalHeader alignment="center" transparentBackground onClose={() => setWelcomeOpen(false)}>
-            <ModalTitle title="Welcome to our tax demo" />
-          </ModalHeader>
+          <ModalTitle title="Welcome to our tax demo" />
           <B2 className={styles.welcomeModalBody}>
             You&rsquo;re Amanda at Beasley &amp; Howe. Today you&rsquo;ll work on Tina&rsquo;s taxes
             using a new experience designed for tax prep and strategy.
