@@ -104,7 +104,7 @@ export const CATCH_UP_APPROVE_RETURN = 'Approve return'
 export const CTA_REVIEWER_SUMMARY = 'Get reviewer summary'
 
 /** Opens the finished AI review from the summary. */
-export const CTA_VIEW_AI_REVIEW = 'See what Intuit Intelligence fixed'
+export const CTA_VIEW_AI_REVIEW = 'See the AI review'
 
 export const CTA_SHOW_THINKING = 'Show thinking'
 

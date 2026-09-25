@@ -154,12 +154,12 @@ export default function SmartReturnDocumentHub({ readOnly = false }: SmartReturn
             <div className={styles.contentArea}>
               <div className={styles.pageHeading}>
                 <h1 className={styles.pageTitle}>
-                  {readOnly ? "Tina's documents are ready" : "Let's get Tina's documents"}
+                  {readOnly ? "Tina's documents are ready" : "Tina sent her documents"}
                 </h1>
                 <p className={styles.pageSubtitle}>
                   {readOnly
                     ? 'Review the received documents below. When you\'re ready, select Review return in the header to begin your review.'
-                    : 'Gather your client\'s documents from the checklist, and import them all at once.'}
+                    : 'Everything on the checklist came through the client portal. Import it all at once when you\'re ready.'}
                 </p>
               </div>
 

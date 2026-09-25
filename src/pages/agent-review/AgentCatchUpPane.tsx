@@ -298,7 +298,6 @@ export default function AgentCatchUpPane({
                       showPrompt={false}
                       onPrimaryAction={onApproveReturn}
                       primaryLabel={content.primaryAction}
-                      actionVariant="button"
                       secondaryLabel={onViewAiReview ? CTA_VIEW_AI_REVIEW : undefined}
                       onSecondaryAction={onViewAiReview}
                     />

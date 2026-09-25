@@ -1,15 +1,36 @@
 /* Guided-tour pointer — a magenta cue that sits beside the next thing to click.
    Purely decorative: it never covers the target or intercepts the click. */
 
+.halo,
 .pointer {
   position: fixed;
   z-index: 9999;
   pointer-events: none;
+}
+
+.halo {
+  border: 2px solid var(--tour-accent, #d72792);
+  border-radius: 10px;
+  box-shadow: 0 0 0 4px rgba(215, 39, 146, 0.18);
+  animation: tourHaloPulse 1.8s ease-in-out infinite;
+}
+
+.pointer {
   width: 18px;
   height: 18px;
   border-radius: 50% 50% 50% 2px;
   background: var(--tour-accent, #d72792);
   box-shadow: 0 2px 8px rgba(215, 39, 146, 0.45);
+}
+
+@keyframes tourHaloPulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 4px rgba(215, 39, 146, 0.18);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(215, 39, 146, 0.08);
+  }
 }
 
 /* Rotate so the pointed corner faces the target. */
@@ -74,6 +95,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .halo,
   .pointer {
     animation: none;
   }

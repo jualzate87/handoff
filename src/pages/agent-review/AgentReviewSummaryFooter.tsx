@@ -1,6 +1,4 @@
 import { Copy, Download, ThumbDown, ThumbUp } from '@design-systems/icons'
-import { Button } from '@ids-ts/button'
-import '@ids-ts/button/dist/main.css'
 import { IconControl } from '@ids-ts/icon-control'
 import '@ids-ts/icon-control/dist/main.css'
 import AgentReviewSuggestionChips, { SuggestionChip } from './AgentReviewSuggestionChips'
@@ -11,11 +9,6 @@ interface AgentReviewSummaryFooterProps {
   onPrimaryAction: () => void
   primaryLabel?: string
   showPrompt?: boolean
-  /**
-   * Follow-up suggestions render as a chip; actions that commit the return keep
-   * a button so the weight matches the consequence.
-   */
-  actionVariant?: 'chip' | 'button'
   /** Optional follow-up chip shown beside the primary action. */
   secondaryLabel?: string
   onSecondaryAction?: () => void
@@ -25,7 +18,6 @@ export default function AgentReviewSummaryFooter({
   onPrimaryAction,
   primaryLabel = CTA_REVIEWER_SUMMARY,
   showPrompt = true,
-  actionVariant = 'chip',
   secondaryLabel,
   onSecondaryAction,
 }: AgentReviewSummaryFooterProps) {
@@ -54,21 +46,10 @@ export default function AgentReviewSummaryFooter({
         </IconControl>
       </div>
 
-      {actionVariant === 'chip' ? (
-        <AgentReviewSuggestionChips>
-          <SuggestionChip onClick={onPrimaryAction}>{primaryLabel}</SuggestionChip>
-          {secondary}
-        </AgentReviewSuggestionChips>
-      ) : (
-        <>
-          <div className={styles.ctaRow}>
-            <Button priority="secondary" size="medium" onClick={onPrimaryAction}>
-              {primaryLabel}
-            </Button>
-          </div>
-          {secondary ? <AgentReviewSuggestionChips>{secondary}</AgentReviewSuggestionChips> : null}
-        </>
-      )}
+      <AgentReviewSuggestionChips layout="column">
+        <SuggestionChip onClick={onPrimaryAction}>{primaryLabel}</SuggestionChip>
+        {secondary}
+      </AgentReviewSuggestionChips>
     </div>
   )
 }

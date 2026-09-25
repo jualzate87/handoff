@@ -133,12 +133,26 @@ export default function GuidedTour({ enabled }: GuidedTourProps) {
   const placement = step?.placement ?? 'right'
   const style: React.CSSProperties =
     placement === 'right'
-      ? { top: rect.top + rect.height / 2, left: rect.right + 6 }
+      ? { top: rect.top + rect.height / 2, left: rect.right + 8 }
       : placement === 'left'
-        ? { top: rect.top + rect.height / 2, left: rect.left - 6 }
+        ? { top: rect.top + rect.height / 2, left: rect.left - 8 }
         : placement === 'top'
-          ? { top: rect.top - 6, left: rect.left + rect.width / 2 }
-          : { top: rect.bottom + 6, left: rect.left + rect.width / 2 }
+          ? { top: rect.top - 8, left: rect.left + rect.width / 2 }
+          : { top: rect.bottom + 8, left: rect.left + rect.width / 2 }
 
-  return <div className={`${styles.pointer} ${styles[placement]}`} style={style} aria-hidden />
+  return (
+    <>
+      <div
+        className={styles.halo}
+        style={{
+          top: rect.top - 6,
+          left: rect.left - 6,
+          width: rect.width + 12,
+          height: rect.height + 12,
+        }}
+        aria-hidden
+      />
+      <div className={`${styles.pointer} ${styles[placement]}`} style={style} aria-hidden />
+    </>
+  )
 }
