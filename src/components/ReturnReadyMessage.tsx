@@ -13,7 +13,7 @@ export default function ReturnReadyMessage() {
       <span className={styles.titleRow}>
         <img src={intuitIntelligenceLogo} alt="" className={styles.mark} />
         <B2 weight="demi" className={styles.title}>
-          Return review complete
+          Return is ready for next steps
         </B2>
       </span>
       <B3 className={styles.body}>
