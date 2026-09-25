@@ -226,9 +226,12 @@ export default function AgentReviewPage() {
   return (
     <>
       {isSidebar ? (
-        <div className={styles.proConnectUnderlay}>
-          <CheckReturnPage embeddedUnderlay />
-        </div>
+        <>
+          <div className={styles.sidebarBackdrop} aria-hidden />
+          <div className={styles.proConnectUnderlay}>
+            <CheckReturnPage embeddedUnderlay />
+          </div>
+        </>
       ) : null}
 
       <div
@@ -249,7 +252,6 @@ export default function AgentReviewPage() {
                   <MenuExpand size="medium" />
                 </IconControl>
               </div>
-              <img src={intuitWordmark} alt="Intuit" className={styles.wordmarkCenter} />
               <div className={styles.headerSidebarEnd}>
                 <IconControl
                   aria-label="Open full screen"

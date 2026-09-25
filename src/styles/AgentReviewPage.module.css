@@ -16,6 +16,14 @@
  * side by side as two separate full-height panels, each inset 6px from the
  * window with a 6px gutter between them (--sidebar-gutter).
  */
+/* Blue chrome behind both panels — shows through their 6px insets and gutter. */
+.sidebarBackdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 800;
+  background: #003399;
+}
+
 /* IASShell already pads 6px on its right edge, which forms half the gutter. */
 .proConnectUnderlay {
   position: fixed;
@@ -25,11 +33,16 @@
   width: 54vw;
   height: 100vh;
   overflow: hidden;
-  background: var(--color-page-background-secondary, #f4f5f8);
+  background: transparent;
 }
 
 .proConnectUnderlay > :global(*) {
   min-height: 100%;
+}
+
+/* Match the shell chrome to the backdrop so the blue reads as one surface. */
+.proConnectUnderlay :global([class*='_root_']) {
+  --ias-chrome-bg: #003399;
 }
 
 .shellSidebar {
@@ -75,9 +88,9 @@
 }
 
 .headerSidebar {
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
+  display: flex;
   align-items: center;
+  justify-content: space-between;
   height: 60px;
   min-height: 60px;
   padding: var(--space-container-padding-small, 16px);
@@ -98,18 +111,7 @@
   gap: var(--space-x-small, 4px);
 }
 
-.headerSidebarEnd {
-  grid-column: 3;
-}
-
 .wordmark {
-  height: 15.5px;
-  width: auto;
-}
-
-.wordmarkCenter {
-  grid-column: 2;
-  justify-self: center;
   height: 15.5px;
   width: auto;
 }
