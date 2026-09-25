@@ -498,13 +498,13 @@ export const CATCH_UP_CALCULATIONS_BULLETS: CatchUpListEntry[] = [
 export const CATCH_UP_REVIEWER_FOCUS_INTRO =
   'Two items need your judgment. Clear them and this return is ready to file.'
 
-export const CATCH_UP_RETURN_STATUS_ITEMS = [
-  'Diagnostics: Fatal, EF critical, and critical all cleared',
-  'Data entry: Complete — all documents imported and reconciled',
-  'Calculations: Confirmed — federal and state tie out',
-  'Open items: 2, both awaiting judgment rather than correction',
-  'Ready for: Your sign-off, then filing',
-] as const
+export const CATCH_UP_RETURN_STATUS_ITEMS: CatchUpStatusItem[] = [
+  { text: 'Diagnostics: Fatal, EF critical, and critical all cleared', complete: true },
+  { text: 'Data entry: Complete — all documents imported and reconciled', complete: true },
+  { text: 'Calculations: Confirmed — federal and state tie out', complete: true },
+  { text: 'Open items: 2, both awaiting judgment rather than correction', complete: false },
+  { text: 'Ready for: Your sign-off, then filing', complete: false },
+]
 
 export const CATCH_UP_RETURN_STATUS_CALLOUT =
   'Prep and AI-assisted review are done and the return calculates clean. Confirm the two items below and it is ready to file.'
@@ -533,6 +533,12 @@ export const CATCH_UP_REVIEWER_CHECKLIST: CatchUpChecklistItem[] = [
 export const CATCH_UP_PRIOR_REVIEWER = 'Jing'
 
 /** Everything the catch-up summary renders — one narrative per handoff direction. */
+/** Return-status line: checked off once done, still a plain bullet while it needs attention. */
+export type CatchUpStatusItem = {
+  text: string
+  complete: boolean
+}
+
 export type CatchUpContent = {
   fromName: string
   notesHeading: string
@@ -549,7 +555,7 @@ export type CatchUpContent = {
   focusHeading: string
   focusIntro: string
   checklist: CatchUpChecklistItem[]
-  statusItems: readonly string[]
+  statusItems: readonly CatchUpStatusItem[]
   statusCallout: string
   primaryAction: string
 }
@@ -645,11 +651,11 @@ const CATCH_UP_FOR_PREPARER: CatchUpContent = {
     },
   ],
   statusItems: [
-    `Detail review: Complete — all lines verified by ${CATCH_UP_PRIOR_REVIEWER}`,
-    'Data entry: Complete — all documents imported and reconciled',
-    'Calculations: Confirmed — federal and state tie out',
-    'Open items: 1 — Form 1098 mortgage interest confirmation',
-    'Ready for: Your updates, then reviewer sign-off',
+    { text: `Detail review: Complete — all lines verified by ${CATCH_UP_PRIOR_REVIEWER}`, complete: true },
+    { text: 'Data entry: Complete — all documents imported and reconciled', complete: true },
+    { text: 'Calculations: Confirmed — federal and state tie out', complete: true },
+    { text: 'Open items: 1 — Form 1098 mortgage interest confirmation', complete: false },
+    { text: 'Ready for: Your updates, then reviewer sign-off', complete: false },
   ],
   statusCallout:
     `This return came back from review with one open item. Close it out and hand it back to ${CATCH_UP_PRIOR_REVIEWER} for final sign-off.`,
@@ -808,7 +814,7 @@ export type IntelligenceAttentionItem = {
 export const INTELLIGENCE_ATTENTION_TITLE = 'Needs your attention'
 
 export const INTELLIGENCE_ATTENTION_INTRO =
-  "One thing needs Tina's confirmation before this return can be filed. " +
+  "Resolve this last pending item with the client and the return will be ready for the next step. " +
   "I've drafted the note below — copy it and send it to her."
 
 export const INTELLIGENCE_CHECKED_TITLE = 'Checked and OK'

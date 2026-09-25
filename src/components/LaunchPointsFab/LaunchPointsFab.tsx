@@ -24,7 +24,7 @@ import {
 import { Switch } from '@ids-ts/switch'
 import '@ids-ts/switch/dist/main.css'
 import { isGuidedTourEnabled, setGuidedTourEnabled } from '../GuidedTour/GuidedTour'
-import { OTHER_FLOWS, ROLE_SWITCH_POINTS, type LaunchPoint } from './launchPointsData'
+import { ROLE_SWITCH_POINTS, type LaunchPoint } from './launchPointsData'
 import styles from './LaunchPointsFab.module.css'
 
 const REVIEWER_HANDOFF_PATH = '/check-return?handoff=reviewer'
@@ -68,19 +68,13 @@ export default function LaunchPointsFab({ onGuidedTourChange }: LaunchPointsFabP
   const location = useLocation()
   const rootRef = useRef<HTMLDivElement>(null)
   const [open, setOpen] = useState(false)
-  const [otherFlowsOpen, setOtherFlowsOpen] = useState(false)
   const hideOnPopout = location.pathname.endsWith('-popout')
-
-  useEffect(() => {
-    if (!open) setOtherFlowsOpen(false)
-  }, [open])
 
   useEffect(() => {
     if (!open) return
     const onPointerDown = (event: MouseEvent) => {
       if (rootRef.current && !rootRef.current.contains(event.target as Node)) {
         setOpen(false)
-        setOtherFlowsOpen(false)
       }
     }
     document.addEventListener('mousedown', onPointerDown)
@@ -91,7 +85,6 @@ export default function LaunchPointsFab({ onGuidedTourChange }: LaunchPointsFabP
     (point: LaunchPoint) => {
       if (!point.route) return
       setOpen(false)
-      setOtherFlowsOpen(false)
       if (point.route === PREPARER_DIAGNOSTICS_PATH) {
         prepareDiagnosticsLaunch()
       } else if (point.route === PREPARER_AGENT_DIAGNOSTICS_PATH) {
@@ -129,7 +122,6 @@ export default function LaunchPointsFab({ onGuidedTourChange }: LaunchPointsFabP
     resetReturnWorkflow()
     setStoredDemoRole('preparer')
     setOpen(false)
-    setOtherFlowsOpen(false)
     window.location.assign(buildHashRouteUrl('/smart-return'))
   }, [])
 
@@ -212,27 +204,6 @@ export default function LaunchPointsFab({ onGuidedTourChange }: LaunchPointsFabP
 
             <ul className={styles.list}>
               {roleSwitch ? renderPoint(roleSwitch, 0) : null}
-              <li className={styles.listItem}>
-                <button
-                  type="button"
-                  className={`${styles.itemBtn} ${otherFlowsOpen ? styles.itemBtnActive : ''}`}
-                  aria-expanded={otherFlowsOpen}
-                  onClick={() => setOtherFlowsOpen(prev => !prev)}
-                >
-                  <span className={styles.itemNumber}>2</span>
-                  <span className={styles.itemBody}>
-                    <span className={styles.itemTitleRow}>
-                      <span className={styles.itemTitle}>Other flows</span>
-                    </span>
-                    <p className={styles.itemDescription}>
-                      AI review, diagnostics, and agent mode
-                    </p>
-                  </span>
-                  <span className={styles.itemChevron} aria-hidden>
-                    <ChevronRight size="small" />
-                  </span>
-                </button>
-              </li>
             </ul>
 
             <div className={styles.panelFooter}>
@@ -247,18 +218,6 @@ export default function LaunchPointsFab({ onGuidedTourChange }: LaunchPointsFabP
               </button>
             </div>
           </div>
-
-          {otherFlowsOpen ? (
-            <div className={styles.flyup} role="dialog" aria-label="Other flows">
-              <div className={styles.panelHeader}>
-                <h2 className={styles.panelTitle}>Other flows</h2>
-                <p className={styles.panelSubtitle}>AI diagnostics demo entry points</p>
-              </div>
-              <ul className={styles.list}>
-                {OTHER_FLOWS.map((point, index) => renderPoint(point, index))}
-              </ul>
-            </div>
-          ) : null}
         </div>
       )}
     </div>

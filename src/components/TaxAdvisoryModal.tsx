@@ -2,6 +2,8 @@ import { Modal, ModalHeader, ModalContent, ModalActions } from '@ids-ts/modal-di
 import '@ids-ts/modal-dialog/dist/main.css'
 import { Button } from '@ids-ts/button'
 import '@ids-ts/button/dist/main.css'
+import { Badge } from '@ids-ts/badge'
+import '@ids-ts/badge/dist/main.css'
 import { NewWindow } from '@design-systems/icons'
 import { H4, B2, B4 } from '@ids-ts/typography'
 import '@ids-ts/typography/dist/main.css'
@@ -29,9 +31,14 @@ export default function TaxAdvisoryModal({ open, onClose }: TaxAdvisoryModalProp
         <div className={styles.body}>
           <img src={itaLogo} alt="" className={styles.logo} />
 
-          <B4 weight="demi" className={styles.eyebrow}>
-            Introducing ITA 2.0
-          </B4>
+          <span className={styles.eyebrowRow}>
+            <Badge status="new" capitalization="caps">
+              New
+            </Badge>
+            <B4 weight="demi" className={styles.eyebrow}>
+              Introducing ITA 2.0
+            </B4>
+          </span>
 
           <H4 as="h2" weight="demi" className={styles.title}>
             Ready for tax advisory

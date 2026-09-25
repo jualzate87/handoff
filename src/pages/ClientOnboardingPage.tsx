@@ -44,6 +44,7 @@ import {
 import { AgentIntelligenceReasoningLive } from './agent-review/AgentIntelligenceReasoning'
 import prior1040 from '../assets/jessica-1040-2024-variant-1.png'
 import intuitSparkle from '../assets/icons/intuit-intelligence-logo-small.svg'
+import welcomeIllustration from '../assets/welcome-illustration.png'
 import styles from '../styles/ClientOnboardingPage.module.css'
 
 const LOADING_HEADER_DELAY_MS = 150
@@ -470,6 +471,7 @@ export default function ClientOnboardingPage() {
           <ModalTitle title="Welcome to our tax demo" />
         </ModalHeader>
         <ModalContent alignment="center">
+          <img src={welcomeIllustration} alt="" className={styles.welcomeModalIllustration} />
           <B2 className={styles.welcomeModalBody}>
             You&rsquo;re Amanda at Beasley &amp; Howe. Today you&rsquo;ll work on Tina&rsquo;s taxes
             using a new experience designed for tax prep and strategy.

@@ -278,13 +278,22 @@ export default function AgentCatchUpPane({
                     <section className={styles.section}>
                       <h2 className={styles.sectionHeading}>4. Return status</h2>
                       <div className={styles.listGroup}>
-                        <ol className={styles.numberedList}>
+                        <ul className={styles.statusList}>
                           {content.statusItems.map((item) => (
-                            <li key={item} className={styles.numberedItem}>
-                              {item}
+                            <li key={item.text} className={styles.statusItem}>
+                              {item.complete ? (
+                                <CircleCheckFill
+                                  size="small"
+                                  className={styles.statusIconDone}
+                                  aria-hidden
+                                />
+                              ) : (
+                                <span className={styles.statusBullet} aria-hidden />
+                              )}
+                              <span>{item.text}</span>
                             </li>
                           ))}
-                        </ol>
+                        </ul>
                         <blockquote className={`${styles.callout} ${styles.calloutItalic}`}>
                           {content.statusCallout}
                         </blockquote>

@@ -303,21 +303,39 @@
   font-weight: var(--font-weight-body-semibold, 500);
 }
 
-.numberedList {
+.statusList {
   margin: 0;
-  padding-left: var(--space-large, 24px);
-  list-style: decimal;
+  padding: 0;
+  list-style: none;
   display: flex;
   flex-direction: column;
   gap: var(--space-component-gap-small, 8px);
 }
 
-.numberedItem {
+.statusItem {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-component-gap-small, 8px);
   font-family: var(--font-family-body);
   font-size: var(--font-size-body-2, 16px);
   font-weight: var(--font-weight-body-semibold, 500);
   line-height: 1.5;
   color: var(--color-message-text-received, #393a3d);
+}
+
+.statusIconDone {
+  flex-shrink: 0;
+  margin-top: 3px;
+  color: var(--color-ui-positive, #108000);
+}
+
+.statusBullet {
+  flex-shrink: 0;
+  width: 6px;
+  height: 6px;
+  margin-top: 9px;
+  border-radius: 50%;
+  background: var(--color-icon-secondary, #6b6c72);
 }
 
 .callout {

@@ -543,3 +543,10 @@
   margin: 0;
   line-height: 1.5;
 }
+
+.welcomeModalIllustration {
+  display: block;
+  height: 96px;
+  width: auto;
+  margin: 0 auto var(--space-component-gap-medium, 12px);
+}
