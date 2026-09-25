@@ -712,6 +712,40 @@
   margin-top: var(--space-x-small, 8px);
 }
 
+.clientNoteBlock {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-x-small, 8px);
+  margin-top: var(--space-x-small, 8px);
+  padding: 12px 14px;
+  border: 1px solid var(--color-container-border-primary, #d4d7dc);
+  border-radius: var(--radius-medium, 8px);
+  background: var(--color-container-background-secondary, #f7f8fa);
+}
+
+.clientNoteLabel {
+  margin: 0;
+  font-family: var(--font-family-body);
+  font-size: var(--font-size-body-4, 12px);
+  font-weight: var(--font-weight-body-semibold, 500);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  color: var(--color-text-secondary, #6b6c72);
+}
+
+.clientNoteText {
+  margin: 0;
+  font-family: var(--font-family-body);
+  font-size: var(--font-size-body-3, 14px);
+  line-height: 1.5;
+  color: var(--color-text-primary, #21262a);
+  white-space: pre-line;
+}
+
+.clientNoteCopy {
+  align-self: flex-start;
+}
+
 .reminderCard {
   display: flex;
   flex-direction: column;

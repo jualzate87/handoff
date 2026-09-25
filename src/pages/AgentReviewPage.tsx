@@ -19,6 +19,8 @@ import {
   STARTER_PROMPT_FULL_REVIEW,
 } from './agent-review/agentIntelligenceCopy'
 import AgentWelcomePane from './agent-review/AgentWelcomePane'
+import { useReturnWorkflow } from '../contexts/ReturnWorkflowContext'
+import { firstName } from '../lib/returnWorkflow'
 import AgentReviewDiagnosticsPane from './agent-review/AgentReviewDiagnosticsPane'
 import AgentCatchUpPane from './agent-review/AgentCatchUpPane'
 import AgentReviewProcessingPane from './agent-review/AgentReviewProcessingPane'
@@ -69,6 +71,7 @@ function resolveInitialSession() {
 export default function AgentReviewPage() {
   const navigate = useNavigate()
   const location = useLocation()
+  const { currentUser } = useReturnWorkflow()
   const [searchParams] = useSearchParams()
   const [initialSession] = useState(resolveInitialSession)
   const [historyOpen, setHistoryOpen] = useState(false)
@@ -338,7 +341,11 @@ export default function AgentReviewPage() {
           <div className={styles.main}>
             <div className={styles.pane}>
               {step === 'welcome' && (
-                <AgentWelcomePane onPromptClick={handlePromptClick} compact={isSidebar} />
+                <AgentWelcomePane
+                  preparerName={firstName(currentUser)}
+                  onPromptClick={handlePromptClick}
+                  compact={isSidebar}
+                />
               )}
               {step === 'diagnostics' && (
                 <AgentLoadingPane

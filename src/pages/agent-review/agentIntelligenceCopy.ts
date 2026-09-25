@@ -100,6 +100,12 @@ export const INTELLIGENCE_COMPLETION_FOOTER =
 
 export const CATCH_UP_APPROVE_RETURN = 'Approve return'
 
+/** Shown once the reviewer approves — the closing confirmation before advisory. */
+export const RETURN_SIGNED_OFF_TITLE = 'Return signed off'
+export const RETURN_SIGNED_OFF_BODY =
+  "Tina Yuan's 2025 return is approved and ready to file. You can close this."
+export const CTA_CLOSE_SUMMARY = 'Close'
+
 /** Follow-up chip shown after the fix run completes. */
 export const CTA_REVIEWER_SUMMARY = 'Get reviewer summary'
 
@@ -576,7 +582,7 @@ const CATCH_UP_FOR_PREPARER: CatchUpContent = {
   notesHeading: `Notes from ${CATCH_UP_PRIOR_REVIEWER} (reviewer)`,
   handoffParagraph:
     `${CATCH_UP_PRIOR_REVIEWER} finished the detail review and verified every source document against the return. ` +
-    'Two items came back to you before this can move to Ready to file. Employer: Tech Circle Inc. ' +
+    'One item came back to you before this can move to Ready to file. Employer: Tech Circle Inc. ' +
     'Income includes W-2 wages, 1099-INT, and 1099-DIV.',
   reasoningSteps: [
     {
@@ -614,28 +620,23 @@ const CATCH_UP_FOR_PREPARER: CatchUpContent = {
     },
   ],
   workCallout:
-    'Nothing from the AI review reopened. The two items below are new calls that need you before sign-off.',
+    'Nothing from the AI review reopened. The item below is the one new call that needs you before sign-off.',
   documentsIntro: 'All source documents remain imported and verified:',
   documentsBullets: CATCH_UP_DOCUMENTS_BULLETS,
   calculationsIntro: 'Federal and state calculations still tie out:',
   calculationsBullets: [
     { text: 'Federal income tax calculation — confirmed, no variances', emphasis: true },
     { text: 'All lines tie out', emphasis: true },
-    { text: 'Two open items block Ready to file', emphasis: true },
+    { text: 'One open item blocks Ready to file', emphasis: true },
   ],
   focusHeading: '3. Your focus before this moves forward',
-  focusIntro: `${CATCH_UP_PRIOR_REVIEWER}'s note calls out the items below. Close each one, then send it back for sign-off.`,
+  focusIntro: `${CATCH_UP_PRIOR_REVIEWER}'s note calls out the item below. Close it, then send it back for sign-off.`,
   checklist: [
     {
       id: 'mortgage-interest',
       title: 'Form 1098 mortgage interest confirmed',
-      note: 'Still an estimate — get the 1098 from the client and replace the placeholder amount',
+      note: 'Still an estimate — a ready-to-send note is drafted for Tina in the AI review',
       link: { docLabel: 'Source documents' },
-    },
-    {
-      id: 'form-2210',
-      title: 'Form 2210 penalty call made',
-      note: 'Decide whether to request the underpayment penalty waiver or let the IRS bill it',
     },
     {
       id: 'reviewer-notes',
@@ -647,11 +648,11 @@ const CATCH_UP_FOR_PREPARER: CatchUpContent = {
     `Detail review: Complete — all lines verified by ${CATCH_UP_PRIOR_REVIEWER}`,
     'Data entry: Complete — all documents imported and reconciled',
     'Calculations: Confirmed — federal and state tie out',
-    'Open items: 2 — Form 1098 mortgage interest, Form 2210 penalty call',
+    'Open items: 1 — Form 1098 mortgage interest confirmation',
     'Ready for: Your updates, then reviewer sign-off',
   ],
   statusCallout:
-    `This return came back from review with two open items. Close them out and hand it back to ${CATCH_UP_PRIOR_REVIEWER} for final sign-off.`,
+    `This return came back from review with one open item. Close it out and hand it back to ${CATCH_UP_PRIOR_REVIEWER} for final sign-off.`,
   primaryAction: 'Send back for review',
 }
 
@@ -800,15 +801,20 @@ export type IntelligenceAttentionItem = {
   field?: string
   formId?: string
   diagnostic?: string
+  /** Ready-to-send text the preparer can copy straight into a message to the client. */
+  clientNote?: string
 }
 
 export const INTELLIGENCE_ATTENTION_TITLE = 'Needs your attention'
 
 export const INTELLIGENCE_ATTENTION_INTRO =
-  'These two need a person: one confirmation from Tina and one call only you can make. ' +
-  'Clear them and the return is ready to file.'
+  "One thing needs Tina's confirmation before this return can be filed. " +
+  "I've drafted the note below — copy it and send it to her."
 
 export const INTELLIGENCE_CHECKED_TITLE = 'Checked and OK'
+
+export const CTA_COPY_NOTE = 'Copy note'
+export const CTA_NOTE_COPIED = 'Copied'
 
 export const INTELLIGENCE_NEEDS_ATTENTION_ITEMS: readonly IntelligenceAttentionItem[] = [
   {
@@ -818,15 +824,10 @@ export const INTELLIGENCE_NEEDS_ATTENTION_ITEMS: readonly IntelligenceAttentionI
       'The deduction is based on an estimated amount. Confirm it with the client and upload the actual form before filing.',
     linkLabel: 'Review Form 1098',
     formId: 'schA',
-  },
-  {
-    id: 'form-2210-penalty',
-    title: 'Form 2210 penalty treatment is your call',
-    detail:
-      'I calculated the $40,826 shortfall, but whether to annualize income or accept the penalty is a judgment call.',
-    linkLabel: 'Review Form 2210',
-    formId: 'f2210',
-    diagnostic: 'underpaymentRisk',
+    clientNote:
+      "Hi Tina — before I can finalize your return, I need the actual Form 1098 from your mortgage lender. " +
+      "I've estimated the mortgage interest deduction for now, but the real form will make sure the number is exact. " +
+      "Could you send it over when you get a chance? Thanks!",
   },
 ]
 

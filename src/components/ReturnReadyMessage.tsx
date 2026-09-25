@@ -1,6 +1,4 @@
-import PageMessage from '@ids-ts/page-message'
-import '@ids-ts/page-message/dist/main.css'
-import { B3 } from '@ids-ts/typography'
+import { B2, B3 } from '@ids-ts/typography'
 import '@ids-ts/typography/dist/main.css'
 import intuitIntelligenceLogo from '../assets/icons/intuit-intelligence-logo-small.svg'
 import styles from '../styles/ReturnReadyMessage.module.css'
@@ -11,16 +9,17 @@ import styles from '../styles/ReturnReadyMessage.module.css'
  */
 export default function ReturnReadyMessage() {
   return (
-    <div className={styles.wrap}>
-      <PageMessage type="success" title="No open diagnostics" open dismissible={false}>
-        <div className={styles.body}>
-          <img src={intuitIntelligenceLogo} alt="" className={styles.mark} />
-          <B3 className={styles.text}>
-            Intuit Intelligence cleared the fatal, EF critical, and critical diagnostics, and the
-            return calculates clean. It&rsquo;s ready to share with Tina.
-          </B3>
-        </div>
-      </PageMessage>
+    <div className={styles.card} role="status">
+      <span className={styles.titleRow}>
+        <img src={intuitIntelligenceLogo} alt="" className={styles.mark} />
+        <B2 weight="demi" className={styles.title}>
+          Return review complete
+        </B2>
+      </span>
+      <B3 className={styles.body}>
+        All critical issues are cleared and calculations are accurate. It&rsquo;s ready to share
+        with Tina.
+      </B3>
     </div>
   )
 }

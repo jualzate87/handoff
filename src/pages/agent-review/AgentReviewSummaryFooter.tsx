@@ -12,6 +12,8 @@ interface AgentReviewSummaryFooterProps {
   /** Optional follow-up chip shown beside the primary action. */
   secondaryLabel?: string
   onSecondaryAction?: () => void
+  /** Hides the copy/download/like/dislike row — not relevant to a confirmation card. */
+  hideControlBar?: boolean
 }
 
 export default function AgentReviewSummaryFooter({
@@ -20,6 +22,7 @@ export default function AgentReviewSummaryFooter({
   showPrompt = true,
   secondaryLabel,
   onSecondaryAction,
+  hideControlBar = false,
 }: AgentReviewSummaryFooterProps) {
   const secondary =
     secondaryLabel && onSecondaryAction ? (
@@ -31,20 +34,22 @@ export default function AgentReviewSummaryFooter({
         <p className={styles.footerPrompt}>{INTELLIGENCE_COMPLETION_FOOTER}</p>
       ) : null}
 
-      <div className={styles.controlBar}>
-        <IconControl aria-label="Copy" size="small" shape="square">
-          <Copy size="small" />
-        </IconControl>
-        <IconControl aria-label="Download" size="small" shape="square">
-          <Download size="small" />
-        </IconControl>
-        <IconControl aria-label="Like" size="small" shape="square">
-          <ThumbUp size="small" />
-        </IconControl>
-        <IconControl aria-label="Dislike" size="small" shape="square">
-          <ThumbDown size="small" />
-        </IconControl>
-      </div>
+      {hideControlBar ? null : (
+        <div className={styles.controlBar}>
+          <IconControl aria-label="Copy" size="small" shape="square">
+            <Copy size="small" />
+          </IconControl>
+          <IconControl aria-label="Download" size="small" shape="square">
+            <Download size="small" />
+          </IconControl>
+          <IconControl aria-label="Like" size="small" shape="square">
+            <ThumbUp size="small" />
+          </IconControl>
+          <IconControl aria-label="Dislike" size="small" shape="square">
+            <ThumbDown size="small" />
+          </IconControl>
+        </div>
+      )}
 
       <AgentReviewSuggestionChips layout="column">
         <SuggestionChip onClick={onPrimaryAction}>{primaryLabel}</SuggestionChip>

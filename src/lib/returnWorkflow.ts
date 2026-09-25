@@ -328,12 +328,7 @@ function preparerSections(
         {
           title: 'Form 1098 mortgage interest is an estimate',
           detail:
-            'The deduction is based on an estimate. Confirm the amount with the client and upload the actual form when it arrives.',
-        },
-        {
-          title: 'Form 2210 penalty is a judgment call',
-          detail:
-            'The underpayment shortfall is calculated, but whether to annualize income or accept the penalty is yours to decide.',
+            'The deduction is based on an estimate. A ready-to-send note for the client is drafted in the AI review — confirm the amount and upload the actual form when it arrives.',
         },
       ],
     },
@@ -378,12 +373,7 @@ function reviewerSections(
         {
           title: 'Form 1098 mortgage interest is still an estimate',
           detail:
-            'The deduction has not been confirmed with the client. Upload the actual form when it arrives and update the amount.',
-        },
-        {
-          title: 'Form 2210 penalty call is still open',
-          detail:
-            'The underpayment shortfall is calculated, but nobody has decided whether to annualize income or accept the penalty.',
+            'The deduction has not been confirmed with the client. A ready-to-send note is drafted in the AI review — upload the actual form when it arrives and update the amount.',
         },
         {
           title: 'Client e-file authorization is not signed',
@@ -412,8 +402,8 @@ export function buildDefaultHandoffNote(from: TeamMember, to: TeamMember | null)
     return `${from.name} completed initial prep and AI review. ${mention} verify the 1099-DIV qualified vs. ordinary split against the broker PDF. Everything else is reconciled and ready for review.`
   }
 
-  const mention = to ? `@${firstName(to)} — two items are still open: ` : 'Two items are still open: '
-  return `${from.name} completed the detail review and every source document is verified. ${mention}Form 1098 mortgage interest is still an estimate, and the Form 2210 penalty call has not been made.`
+  const mention = to ? `@${firstName(to)} — one item is still open: ` : 'One item is still open: '
+  return `${from.name} completed the detail review and every source document is verified. ${mention}Form 1098 mortgage interest is still an estimate, and a ready-to-send confirmation note is drafted in the AI review.`
 }
 
 /** Action label for the handoff modal's primary button. */

@@ -61,6 +61,7 @@ button.item:hover {
 }
 
 .iconSlot {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -69,6 +70,12 @@ button.item:hover {
   padding: 3px 6px 0;
   box-sizing: border-box;
   color: var(--color-icon-primary, #393a3d);
+}
+
+.iconBadge {
+  position: absolute;
+  top: -2px;
+  right: 0;
 }
 
 .itemActive .iconSlot {

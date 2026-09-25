@@ -2,10 +2,13 @@ import { useState, type ReactNode } from 'react'
 import { CircleCheck, CircleCheckFill, NewWindow } from '@design-systems/icons'
 import {
   CATCH_UP_FOOTER_QUESTION,
+  CTA_CLOSE_SUMMARY,
   CTA_VIEW_AI_REVIEW,
   getCatchUpContent,
   getCatchUpPriorNotes,
   CATCH_UP_REASONING_TITLE,
+  RETURN_SIGNED_OFF_BODY,
+  RETURN_SIGNED_OFF_TITLE,
   STARTER_PROMPT_CATCH_UP,
   catchUpReturnSummaryTitle,
   type CatchUpChecklistItem,
@@ -13,6 +16,7 @@ import {
   type CatchUpDocLink,
   type CatchUpListEntry,
 } from './agentIntelligenceCopy'
+import intuitIntelligenceLogo from '../../assets/icons/intuit-intelligence-logo-small.svg'
 import { getCurrentUser } from '../../lib/returnWorkflow'
 import {
   AgentIntelligenceReasoningLive,
@@ -157,6 +161,8 @@ export default function AgentCatchUpPane({
   const [checkedIds, setCheckedIds] = useState<Set<string>>(new Set())
   /** Read once — the summary narrates the handoff as it stood when the pane opened. */
   const [content] = useState(() => getCatchUpContent(getCurrentUser().role))
+  const isReviewer = getCurrentUser().role === 'reviewer'
+  const [signedOff, setSignedOff] = useState(false)
 
   const {
     isReasoning,
@@ -292,11 +298,29 @@ export default function AgentCatchUpPane({
                   </RevealBlock>
                 </article>
 
-                {showControls ? (
+                {showControls && signedOff ? (
+                  <div className={`${styles.signedOffCard} ${styles.revealIn}`} role="status">
+                    <span className={styles.signedOffTitleRow}>
+                      <img src={intuitIntelligenceLogo} alt="" className={styles.signedOffMark} />
+                      <span className={styles.signedOffTitle}>{RETURN_SIGNED_OFF_TITLE}</span>
+                    </span>
+                    <p className={styles.signedOffBody}>{RETURN_SIGNED_OFF_BODY}</p>
+                    <div className={styles.signedOffAction}>
+                      <AgentReviewSummaryFooter
+                        showPrompt={false}
+                        hideControlBar
+                        onPrimaryAction={onApproveReturn}
+                        primaryLabel={CTA_CLOSE_SUMMARY}
+                      />
+                    </div>
+                  </div>
+                ) : null}
+
+                {showControls && !signedOff ? (
                   <div className={styles.revealIn}>
                     <AgentReviewSummaryFooter
                       showPrompt={false}
-                      onPrimaryAction={onApproveReturn}
+                      onPrimaryAction={isReviewer ? () => setSignedOff(true) : onApproveReturn}
                       primaryLabel={content.primaryAction}
                       secondaryLabel={onViewAiReview ? CTA_VIEW_AI_REVIEW : undefined}
                       onSecondaryAction={onViewAiReview}

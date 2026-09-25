@@ -10,6 +10,9 @@ import {
   ViewList,
 } from '@design-systems/icons'
 import type { IconProps } from '@design-systems/icons'
+import { NumericBadge } from '@ids-ts/badge'
+import '@ids-ts/badge/dist/main.css'
+import { useReturnNotes } from '../hooks/useReturnNotes'
 import styles from '../styles/ReturnContextRail.module.css'
 
 export type ReturnContextRailItemId =
@@ -74,6 +77,8 @@ export default function ReturnContextRail({
   onItemClick,
 }: ReturnContextRailProps) {
   const navigate = useNavigate()
+  const { notes } = useReturnNotes()
+  const openCommentCount = notes.filter(note => note.status !== 'resolved').length
 
   const renderItem = (item: RailItem) => {
     const isActive = activeItem === item.id
@@ -98,7 +103,13 @@ export default function ReturnContextRail({
         key={item.id}
         type={isClickable ? 'button' : undefined}
         className={[styles.item, isActive ? styles.itemActive : ''].filter(Boolean).join(' ')}
-        aria-label={typeof item.label === 'string' ? item.label : item.id.replace('-', ' ')}
+        aria-label={
+          item.id === 'comments' && openCommentCount > 0
+            ? `Comments, ${openCommentCount} open`
+            : typeof item.label === 'string'
+              ? item.label
+              : item.id.replace('-', ' ')
+        }
         aria-current={isActive ? 'page' : undefined}
         aria-pressed={onItemClick && !item.route ? isActive : undefined}
         onClick={isClickable ? handleClick : undefined}
@@ -106,6 +117,11 @@ export default function ReturnContextRail({
         <div className={styles.iconLabelGroup}>
           <span className={styles.iconSlot}>
             <Icon size="medium" aria-hidden />
+            {item.id === 'comments' && openCommentCount > 0 && (
+              <span className={styles.iconBadge} aria-hidden>
+                <NumericBadge quantity={openCommentCount} maxLimit={99} />
+              </span>
+            )}
           </span>
           <span className={styles.label}>{item.label}</span>
         </div>

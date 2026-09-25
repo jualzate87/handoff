@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react'
-import { CircleCheckFill, NewWindow } from '@design-systems/icons'
+import { CircleCheckFill, Copy, NewWindow } from '@design-systems/icons'
 import Badge from '@ids-ts/badge'
 import '@ids-ts/badge/dist/main.css'
 import AgentDiagnosticExpandableCard from '../check-return/AgentDiagnosticExpandableCard'
@@ -12,7 +12,9 @@ import {
 } from '../../lib/prototypeRoutes'
 import {
   buildIntelligenceReviewModel,
+  CTA_COPY_NOTE,
   CTA_CONTINUE_NEXT_FIX,
+  CTA_NOTE_COPIED,
   getActiveIntelligenceIssues,
   INTELLIGENCE_ATTENTION_INTRO,
   INTELLIGENCE_FIX_PROGRESS_SECTIONS,
@@ -66,6 +68,32 @@ function openDocLink(link: {
     diagnostic: link.diagnostic,
   }
   openDocOrFormLink(dest)
+}
+
+/** Ready-to-send client message — copy it instead of chasing the client yourself. */
+function ClientNoteCopy({ note }: { note: string }) {
+  const [copied, setCopied] = useState(false)
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(note).catch(() => {})
+    setCopied(true)
+    window.setTimeout(() => setCopied(false), 2000)
+  }
+
+  return (
+    <div className={styles.clientNoteBlock}>
+      <p className={styles.clientNoteLabel}>Note for Tina</p>
+      <p className={styles.clientNoteText}>{note}</p>
+      <button
+        type="button"
+        className={`${styles.richDocLink} ${styles.clientNoteCopy}`}
+        onClick={handleCopy}
+      >
+        {copied ? CTA_NOTE_COPIED : CTA_COPY_NOTE}
+        <Copy size="small" className={styles.richDocLinkIcon} aria-hidden />
+      </button>
+    </div>
+  )
 }
 
 export default function AgentReviewProcessingPane({
@@ -340,6 +368,7 @@ export default function AgentReviewProcessingPane({
                             {item.linkLabel}
                             <NewWindow size="small" className={styles.richDocLinkIcon} aria-hidden />
                           </button>
+                          {item.clientNote ? <ClientNoteCopy note={item.clientNote} /> : null}
                         </li>
                       ))}
                     </ul>
