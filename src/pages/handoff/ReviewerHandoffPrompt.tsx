@@ -11,7 +11,7 @@ import ReviewerAiProactiveToast from './ReviewerAiProactiveToast'
 
 export type ReviewerPromptVariant = 'popover' | 'toast'
 
-/** Show proactive handoff nudge ~2s after Jake lands on Check return. */
+/** Show proactive handoff nudge ~2s after Jing lands on Check return. */
 const REVIEWER_PROMPT_DELAY_MS = 2000
 
 interface ReviewerHandoffPromptProps {
@@ -20,7 +20,7 @@ interface ReviewerHandoffPromptProps {
   onDismiss: () => void
 }
 
-/** Proactive Jake handoff nudge — Figma Proactive toast (default) or Dynamic popover. */
+/** Proactive Jing handoff nudge — Figma Proactive toast (default) or Dynamic popover. */
 export default function ReviewerHandoffPrompt({
   variant,
   anchorRef,

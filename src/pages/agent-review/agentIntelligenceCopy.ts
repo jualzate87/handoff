@@ -466,7 +466,7 @@ export const CATCH_UP_AI_REVIEW_ITEMS: CatchUpDetailItem[] = [
 ]
 
 export const CATCH_UP_AI_REVIEW_CALLOUT =
-  'All three items were flagged by Intuit Intelligence and resolved by Sarah during the initial review. No open flags remain.'
+  'All three items were flagged by Intuit Intelligence and resolved by Amanda during the initial review. No open flags remain.'
 
 export const CATCH_UP_DOCUMENTS_INTRO =
   `${CATCH_UP_PRIOR_PREPARER} imported and verified the following source documents:`
@@ -487,7 +487,7 @@ export const CATCH_UP_CALCULATIONS_BULLETS: CatchUpListEntry[] = [
 ]
 
 export const CATCH_UP_REVIEWER_FOCUS_INTRO =
-  "Sarah's note calls out the items below. Confirm each one before you sign off."
+  "Amanda's note calls out the items below. Confirm each one before you sign off."
 
 export const CATCH_UP_RETURN_STATUS_ITEMS = [
   'AI review: Complete — all items resolved by Amanda',
@@ -498,13 +498,13 @@ export const CATCH_UP_RETURN_STATUS_ITEMS = [
 ] as const
 
 export const CATCH_UP_RETURN_STATUS_CALLOUT =
-  "This return has been through initial prep and AI-assisted review. As the final reviewer, confirm Sarah's work is accurate and approve for filing."
+  "This return has been through initial prep and AI-assisted review. As the final reviewer, confirm Amanda's work is accurate and approve for filing."
 
 export const CATCH_UP_REVIEWER_CHECKLIST: CatchUpChecklistItem[] = [
   {
     id: '1099-div-split',
     title: '1099-DIV split verified against broker PDF',
-    note: 'Sarah flagged unusual broker formatting — double-check the split',
+    note: 'Amanda flagged unusual broker formatting — double-check the split',
     link: { docLabel: '1099-DIV (PDF)', popoutTab: '1099-divs', divPayer: 'tokenFinancial' },
   },
   {
@@ -545,7 +545,7 @@ export type CatchUpContent = {
   primaryAction: string
 }
 
-/** Jake picks up the return after Sarah's prep. */
+/** Jing picks up the return after Amanda's prep. */
 const CATCH_UP_FOR_REVIEWER: CatchUpContent = {
   fromName: CATCH_UP_PRIOR_PREPARER,
   notesHeading: `Notes from ${CATCH_UP_PRIOR_PREPARER} (prior preparer)`,
@@ -567,7 +567,7 @@ const CATCH_UP_FOR_REVIEWER: CatchUpContent = {
   primaryAction: CATCH_UP_APPROVE_RETURN,
 }
 
-/** Sarah picks the return back up after Jake's review. */
+/** Amanda picks the return back up after Jing's review. */
 const CATCH_UP_FOR_PREPARER: CatchUpContent = {
   fromName: CATCH_UP_PRIOR_REVIEWER,
   notesHeading: `Notes from ${CATCH_UP_PRIOR_REVIEWER} (reviewer)`,
@@ -589,7 +589,7 @@ const CATCH_UP_FOR_PREPARER: CatchUpContent = {
       body: 'Organizing what came back, what is already settled, and what you need to close out.',
     },
   ],
-  workHeading: '1. Review complete — what Jake confirmed',
+  workHeading: '1. Review complete — what Jing confirmed',
   workIntro: `${CATCH_UP_PRIOR_REVIEWER} verified the following during the detail review:`,
   workItems: [
     {

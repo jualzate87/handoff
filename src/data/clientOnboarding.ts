@@ -14,6 +14,46 @@ export const ONBOARDING_DOCUMENTS = [
   { name: 'Schedule K-1s', detail: 'Schedule K-1 from Easy Money' },
 ]
 
+/** Reasoning stream shown while the agent drafts the questionnaire and checklist. */
+export const ONBOARDING_LOADING_TITLE = 'Creating client questionnaire & checklist…'
+
+export const ONBOARDING_LOADING_STEPS = [
+  {
+    title: "Reading Tina Yuan's prior-year 1040",
+    body: 'Pulling filing status, income sources, and dependents from her 2024 return.',
+  },
+  {
+    title: 'Drafting the client questionnaire',
+    body: 'Writing year-over-year questions on filing status, digital assets, estimated payments, and charitable giving.',
+  },
+  {
+    title: 'Building the document checklist',
+    body: 'Matching last year’s W-2s, 1099s, and Schedule K-1s to what to request again this year.',
+  },
+  {
+    title: 'Preparing the engagement letter',
+    body: 'Filling in the standard 1040 engagement letter for Tina Yuan and Beasley & Howe Financials.',
+  },
+]
+
+/** Reasoning stream shown while the request is delivered to the client portal. */
+export const SENDING_TITLE = 'Sending to Tina Yuan…'
+
+export const SENDING_STEPS = [
+  {
+    title: 'Publishing to the client portal',
+    body: 'Posting the questionnaire, document checklist, and engagement letter to Tina’s Intuit Link account.',
+  },
+  {
+    title: 'Preparing the engagement letter for signature',
+    body: 'Adding signature fields so Tina can sign without printing anything.',
+  },
+  {
+    title: 'Notifying the client',
+    body: 'Emailing Tina a secure link and setting a reminder if she hasn’t responded in a week.',
+  },
+]
+
 /** Standard 1040 engagement letter, prefilled for the demo client and firm. */
 export const ENGAGEMENT_LETTER_PARAGRAPHS = [
   'Dear Tina Yuan:',

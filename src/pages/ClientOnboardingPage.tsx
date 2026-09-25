@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   Close,
@@ -35,15 +35,63 @@ import {
   ONBOARDING_QUESTIONS,
   ONBOARDING_DOCUMENTS,
   ENGAGEMENT_LETTER_PARAGRAPHS,
+  ONBOARDING_LOADING_TITLE,
+  ONBOARDING_LOADING_STEPS,
+  SENDING_TITLE,
+  SENDING_STEPS,
 } from '../data/clientOnboarding'
+import { AgentIntelligenceReasoningLive } from './agent-review/AgentIntelligenceReasoning'
 import prior1040 from '../assets/jessica-1040-2024-variant-1.png'
 import intuitSparkle from '../assets/icons/intuit-assist-sparkle.svg'
 import styles from '../styles/ClientOnboardingPage.module.css'
 
+const LOADING_HEADER_DELAY_MS = 150
+const LOADING_STEP_INTERVAL_MS = 800
+
+/**
+ * Reveals a reasoning stream one step at a time while `active`, then fires
+ * `onDone` a beat after the last step — the same cadence the Intelligence
+ * panes use.
+ */
+function useReasoningStream(active: boolean, stepCount: number, onDone: () => void) {
+  const [headerVisible, setHeaderVisible] = useState(false)
+  const [visibleSteps, setVisibleSteps] = useState(0)
+  const doneRef = useRef(onDone)
+  doneRef.current = onDone
+
+  useEffect(() => {
+    if (!active) {
+      setHeaderVisible(false)
+      setVisibleSteps(0)
+      return
+    }
+
+    const timers = [setTimeout(() => setHeaderVisible(true), LOADING_HEADER_DELAY_MS)]
+    for (let index = 0; index < stepCount; index += 1) {
+      timers.push(
+        setTimeout(
+          () => setVisibleSteps(index + 1),
+          LOADING_HEADER_DELAY_MS + (index + 1) * LOADING_STEP_INTERVAL_MS,
+        ),
+      )
+    }
+    timers.push(
+      setTimeout(
+        () => doneRef.current(),
+        LOADING_HEADER_DELAY_MS + (stepCount + 1) * LOADING_STEP_INTERVAL_MS,
+      ),
+    )
+
+    return () => timers.forEach(clearTimeout)
+  }, [active, stepCount])
+
+  return { headerVisible, visibleSteps }
+}
+
 type Section = 'questionnaire' | 'documents' | 'engagement'
 
-/** Chat states: the agent's greeting, then the generated client documents. */
-type ChatStage = 'welcome' | 'generated'
+/** Chat states: the assistant spinning up, its greeting, then the generated documents. */
+type ChatStage = 'booting' | 'welcome' | 'generated'
 
 function SectionHeader({
   icon,
@@ -71,9 +119,10 @@ export default function ClientOnboardingPage() {
   const navigate = useNavigate()
   // IDS Modal animates in from a closed state, so it must flip to open after mount.
   const [welcomeOpen, setWelcomeOpen] = useState(false)
-  const [stage, setStage] = useState<ChatStage>('welcome')
+  const [stage, setStage] = useState<ChatStage>('booting')
   const [generating, setGenerating] = useState(false)
   const [expanded, setExpanded] = useState<Section | null>('questionnaire')
+  const [sending, setSending] = useState(false)
   const [sent, setSent] = useState(false)
   const [handoffOpen, setHandoffOpen] = useState(false)
 
@@ -82,14 +131,35 @@ export default function ClientOnboardingPage() {
     return () => clearTimeout(timer)
   }, [])
 
+  // The assistant spins up only once the demo's welcome modal is dismissed.
+  const [booting, setBooting] = useState(false)
+
   useEffect(() => {
-    if (!generating) return
+    if (!booting) return
     const timer = setTimeout(() => {
+      setBooting(false)
+      setStage('welcome')
+    }, 1600)
+    return () => clearTimeout(timer)
+  }, [booting])
+
+  const generatingStream = useReasoningStream(
+    generating,
+    ONBOARDING_LOADING_STEPS.length,
+    useCallback(() => {
       setGenerating(false)
       setStage('generated')
-    }, 2200)
-    return () => clearTimeout(timer)
-  }, [generating])
+    }, []),
+  )
+
+  const sendingStream = useReasoningStream(
+    sending,
+    SENDING_STEPS.length,
+    useCallback(() => {
+      setSending(false)
+      setSent(true)
+    }, []),
+  )
 
   const toggle = (section: Section) =>
     setExpanded(current => (current === section ? null : section))
@@ -158,6 +228,16 @@ export default function ClientOnboardingPage() {
           {/* Right: agent chat */}
           <section className={styles.chatPane} aria-label="Intuit Assist">
             <div className={styles.chatScroll}>
+              {stage === 'booting' ? (
+                <div className={styles.welcome} role="status" aria-busy="true">
+                  <img
+                    src={intuitSparkle}
+                    alt=""
+                    className={`${styles.sparkle} ${styles.sparkleSpinning}`}
+                  />
+                </div>
+              ) : null}
+
               {stage === 'welcome' && !generating ? (
                 <div className={styles.welcome}>
                   <img src={intuitSparkle} alt="" className={styles.sparkle} />
@@ -185,12 +265,14 @@ export default function ClientOnboardingPage() {
               ) : null}
 
               {generating ? (
-                <div className={styles.generating} role="status" aria-live="polite">
-                  <img src={intuitSparkle} alt="" className={styles.sparkleSmall} />
-                  <B2 className={styles.generatingText}>
-                    Reading Tina Yuan&rsquo;s prior-year 1040 and drafting her questionnaire and
-                    document checklist&hellip;
-                  </B2>
+                <div className={styles.generating} role="status" aria-busy="true" aria-live="polite">
+                  <AgentIntelligenceReasoningLive
+                    title={ONBOARDING_LOADING_TITLE}
+                    steps={ONBOARDING_LOADING_STEPS}
+                    visibleSteps={generatingStream.visibleSteps}
+                    headerVisible={generatingStream.headerVisible}
+                    working
+                  />
                 </div>
               ) : null}
 
@@ -291,7 +373,7 @@ export default function ClientOnboardingPage() {
                     <ThumbDown size="small" aria-hidden />
                   </div>
 
-                  {sent ? null : (
+                  {!sent && !sending ? (
                     <div className={styles.quickActions}>
                       <button type="button" className={styles.quickAction}>
                         Draft email to client
@@ -299,13 +381,33 @@ export default function ClientOnboardingPage() {
                       <button
                         type="button"
                         className={`${styles.quickAction} ${styles.quickActionPrimary}`}
-                        onClick={() => setSent(true)}
+                        onClick={() => setSending(true)}
                       >
                         <Send size="small" aria-hidden />
                         Send to client
                       </button>
                     </div>
-                  )}
+                  ) : null}
+
+                  {sending ? (
+                    <>
+                      <div className={styles.userMessage}>Send to client</div>
+                      <div
+                        className={styles.generating}
+                        role="status"
+                        aria-busy="true"
+                        aria-live="polite"
+                      >
+                        <AgentIntelligenceReasoningLive
+                          title={SENDING_TITLE}
+                          steps={SENDING_STEPS}
+                          visibleSteps={sendingStream.visibleSteps}
+                          headerVisible={sendingStream.headerVisible}
+                          working
+                        />
+                      </div>
+                    </>
+                  ) : null}
 
                   {sent ? (
                     <>
@@ -369,7 +471,13 @@ export default function ClientOnboardingPage() {
           </B2>
         </ModalContent>
         <ModalActions alignment="center">
-          <Button priority="primary" onClick={() => setWelcomeOpen(false)}>
+          <Button
+            priority="primary"
+            onClick={() => {
+              setWelcomeOpen(false)
+              setBooting(true)
+            }}
+          >
             Get started
           </Button>
         </ModalActions>

@@ -20,17 +20,17 @@ export type LaunchPoint = {
 export const ROLE_SWITCH_POINTS: LaunchPoint[] = [
   {
     id: 'join-jake',
-    title: 'Switch to Jake',
+    title: 'Switch to Jing',
     status: 'live',
-    description: 'Join the return as Jake after Sarah hands it off',
+    description: 'Join the return as Jing after Amanda hands it off',
     route: '/check-return?handoff=reviewer',
     joinAs: 'jake',
   },
   {
     id: 'join-sarah',
-    title: 'Switch to Sarah',
+    title: 'Switch to Amanda',
     status: 'live',
-    description: 'Join the return as Sarah after Jake sends it back',
+    description: 'Join the return as Amanda after Jing sends it back',
     route: '/check-return?handoff=preparer',
     joinAs: 'sarah',
   },

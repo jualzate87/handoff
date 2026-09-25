@@ -17,7 +17,7 @@ export type ReturnStatus = {
 }
 
 export const TEAM_MEMBERS: TeamMember[] = [
-  { id: 'sarah', name: 'Amanda', initial: 'S', role: 'preparer', avatarColor: '#236cff' },
+  { id: 'sarah', name: 'Amanda', initial: 'A', role: 'preparer', avatarColor: '#236cff' },
   { id: 'jake', name: 'Jing', initial: 'J', role: 'reviewer', avatarColor: '#7c00f6' },
   { id: 'alex', name: 'Alex Rivera', initial: 'A', role: 'manager', avatarColor: '#00856d' },
 ]
@@ -114,7 +114,7 @@ export function resetReturnWorkflow(): void {
   sessionStorage.removeItem(OPEN_CATCH_UP_KEY)
   sessionStorage.removeItem(JOINED_AS_KEY)
   // Reset can land on the same hash route, so nothing reloads — tell the app
-  // to drop back to Sarah.
+  // to drop back to Amanda.
   window.dispatchEvent(new Event(WORKFLOW_CHANGED_EVENT))
 }
 
@@ -150,12 +150,12 @@ export function prepareHandoffLaunch(fromId: string, toId: string): ReturnWorkfl
   return state
 }
 
-/** Launch point: join the return as Jake after Sarah's handoff. */
+/** Launch point: join the return as Jing after Amanda's handoff. */
 export function prepareReviewerHandoffLaunch(): ReturnWorkflowState {
   return prepareHandoffLaunch('sarah', 'jake')
 }
 
-/** Launch point: join the return as Sarah after Jake sends it back. */
+/** Launch point: join the return as Amanda after Jing sends it back. */
 export function preparePreparerHandoffLaunch(): ReturnWorkflowState {
   return prepareHandoffLaunch('jake', 'sarah')
 }

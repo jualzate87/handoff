@@ -205,11 +205,21 @@
   object-fit: contain;
 }
 
-.sparkleSmall {
-  width: 24px;
-  height: 24px;
-  object-fit: contain;
-  flex-shrink: 0;
+/* Matches the Intelligence panes' working mark. */
+.sparkleSpinning {
+  animation: sparkleSpin 2.5s linear infinite;
+}
+
+@keyframes sparkleSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sparkleSpinning {
+    animation: none;
+  }
 }
 
 .welcomeTitle {
