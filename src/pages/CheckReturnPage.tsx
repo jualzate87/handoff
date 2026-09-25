@@ -216,7 +216,7 @@ export default function CheckReturnPage({ embeddedUnderlay = false }: CheckRetur
 
   return (
     <div className={styles.page} data-theme="intuit">
-      <IASShell>
+      <IASShell intelligenceActive={embeddedUnderlay}>
         <SmartReturnHeader
           activeTab="checkreturns"
           showViewSourceDocuments

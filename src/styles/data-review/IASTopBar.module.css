@@ -94,6 +94,11 @@
   background: var(--color-action-passive-hover, #f4f5f8);
 }
 
+.iconButtonActive,
+.iconButtonActive:hover {
+  background: var(--color-container-background-info, #d9effb);
+}
+
 .avatar {
   display: flex;
   align-items: center;

@@ -16,7 +16,12 @@
   top: 0;
   left: 0;
   z-index: 900;
-  width: 50vw;
+  /*
+   * Renders full width so its rail + top bar span the whole window and read
+   * as one continuous shell — the sidebar panel below sits on top of (and
+   * visually covers) this underlay's right half.
+   */
+  width: 100vw;
   height: 100vh;
   overflow: auto;
   background: var(--color-page-background-secondary, #f4f5f8);
@@ -26,14 +31,21 @@
   min-height: 100%;
 }
 
+/*
+ * Sits inside the ProConnect shell's own frame instead of floating on top of
+ * it: inset by the rail width + top bar height (+ shell padding) so that blue
+ * rail and top bar read as one continuous bar spanning both panels, matching
+ * the reference design, rather than the chat panel covering them.
+ */
 .shellSidebar {
   position: fixed;
-  top: 0;
-  right: 0;
+  top: 62px;
+  right: 6px;
+  bottom: 6px;
   z-index: 1000;
-  width: 50vw;
+  width: calc(50vw - 3px);
   min-width: 360px;
-  height: 100vh;
+  border-radius: 0 0 12px 0;
   box-shadow: -4px 0 24px rgba(33, 38, 42, 0.12);
 }
 
@@ -43,8 +55,12 @@
   }
 
   .shellSidebar {
+    top: 0;
+    right: 0;
+    bottom: 0;
     width: 100vw;
     min-width: 0;
+    border-radius: 0;
   }
 }
 

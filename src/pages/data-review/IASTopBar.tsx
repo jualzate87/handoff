@@ -5,9 +5,14 @@ import styles from '../../styles/data-review/IASTopBar.module.css'
 
 interface IASTopBarProps {
   firmName?: string
+  /** Highlights the Intelligence icon — the panel is already open (e.g. sidebar layout). */
+  intelligenceActive?: boolean
 }
 
-export default function IASTopBar({ firmName = 'Beasley & Howe Financials' }: IASTopBarProps) {
+export default function IASTopBar({
+  firmName = 'Beasley & Howe Financials',
+  intelligenceActive = false,
+}: IASTopBarProps) {
   const { currentUser } = useReturnWorkflow()
 
   return (
@@ -44,7 +49,12 @@ export default function IASTopBar({ firmName = 'Beasley & Howe Financials' }: IA
         >
           {currentUser.initial}
         </span>
-        <button type="button" className={styles.iconButton} aria-label="Intuit Intelligence">
+        <button
+          type="button"
+          className={`${styles.iconButton} ${intelligenceActive ? styles.iconButtonActive : ''}`}
+          aria-label="Intuit Intelligence"
+          aria-pressed={intelligenceActive}
+        >
           <img src={iaPropeller} alt="" className={styles.propeller} />
         </button>
       </div>

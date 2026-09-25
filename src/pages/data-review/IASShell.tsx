@@ -6,6 +6,8 @@ interface IASShellProps {
   children: React.ReactNode
   /** Firm name shown in the company switcher. */
   firmName?: string
+  /** Highlights the Intelligence icon in the top bar — the panel is already open. */
+  intelligenceActive?: boolean
 }
 
 /**
@@ -13,13 +15,13 @@ interface IASShellProps {
  * rail, the global top bar, and the rounded content panel they frame.
  * Page content (including the return header) renders as children.
  */
-export default function IASShell({ children, firmName }: IASShellProps) {
+export default function IASShell({ children, firmName, intelligenceActive }: IASShellProps) {
   return (
     <div className={styles.root}>
       <div className={styles.body}>
         <IASRail />
         <div className={styles.content}>
-          <IASTopBar firmName={firmName} />
+          <IASTopBar firmName={firmName} intelligenceActive={intelligenceActive} />
           <div className={styles.pageArea}>{children}</div>
         </div>
       </div>
