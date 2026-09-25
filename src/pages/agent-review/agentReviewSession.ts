@@ -38,8 +38,55 @@ export function saveAgentSession(session: AgentSession): void {
   if (!isResumableStep(session.step)) return
   try {
     sessionStorage.setItem(SESSION_KEY, JSON.stringify(session))
+    recordHistoryEntry(session.step)
   } catch {
     // ignore prototype storage errors
+  }
+}
+
+/* ── Conversation history ── */
+
+export type AgentHistoryEntry = {
+  step: AgentStep
+  /** Display label for the history list. */
+  label: string
+  /** Human-readable time the conversation was last open. */
+  at: string
+}
+
+const HISTORY_KEY = 'protoc3-agent-history'
+
+const HISTORY_LABELS: Partial<Record<AgentStep, string>> = {
+  diagnostics: 'Return review by Intuit Intelligence',
+  processing: 'Return review by Intuit Intelligence',
+  'catch-up': 'Reviewer summary',
+}
+
+function formatHistoryTime(): string {
+  return new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })
+}
+
+/** Keeps one entry per conversation kind, most recent first. */
+function recordHistoryEntry(step: AgentStep): void {
+  const label = HISTORY_LABELS[step]
+  if (!label) return
+  const entries = loadAgentHistory().filter(entry => entry.label !== label)
+  entries.unshift({ step, label, at: formatHistoryTime() })
+  try {
+    sessionStorage.setItem(HISTORY_KEY, JSON.stringify(entries.slice(0, 5)))
+  } catch {
+    // ignore prototype storage errors
+  }
+}
+
+export function loadAgentHistory(): AgentHistoryEntry[] {
+  try {
+    const raw = sessionStorage.getItem(HISTORY_KEY)
+    if (!raw) return []
+    const parsed = JSON.parse(raw) as AgentHistoryEntry[]
+    return Array.isArray(parsed) ? parsed.filter(entry => isResumableStep(entry.step)) : []
+  } catch {
+    return []
   }
 }
 

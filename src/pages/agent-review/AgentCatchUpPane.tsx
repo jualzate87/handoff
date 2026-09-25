@@ -2,6 +2,7 @@ import { useState, type ReactNode } from 'react'
 import { CircleCheck, CircleCheckFill, NewWindow } from '@design-systems/icons'
 import {
   CATCH_UP_FOOTER_QUESTION,
+  CTA_VIEW_AI_REVIEW,
   getCatchUpContent,
   getCatchUpPriorNotes,
   CATCH_UP_REASONING_TITLE,
@@ -24,6 +25,8 @@ import styles from '../../styles/agent-review/AgentCatchUpPane.module.css'
 
 interface AgentCatchUpPaneProps {
   onApproveReturn: () => void
+  /** Opens the completed AI review conversation from the summary. */
+  onViewAiReview?: () => void
   /** Reopening an existing conversation — show the finished summary without replaying it. */
   resumed?: boolean
 }
@@ -147,6 +150,7 @@ function RevealBlock({
 
 export default function AgentCatchUpPane({
   onApproveReturn,
+  onViewAiReview,
   resumed = false,
 }: AgentCatchUpPaneProps) {
   const [thinkingExpanded, setThinkingExpanded] = useState(false)
@@ -295,6 +299,8 @@ export default function AgentCatchUpPane({
                       onPrimaryAction={onApproveReturn}
                       primaryLabel={content.primaryAction}
                       actionVariant="button"
+                      secondaryLabel={onViewAiReview ? CTA_VIEW_AI_REVIEW : undefined}
+                      onSecondaryAction={onViewAiReview}
                     />
                   </div>
                 ) : null}

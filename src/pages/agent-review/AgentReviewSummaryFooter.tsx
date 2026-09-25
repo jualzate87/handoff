@@ -16,6 +16,9 @@ interface AgentReviewSummaryFooterProps {
    * a button so the weight matches the consequence.
    */
   actionVariant?: 'chip' | 'button'
+  /** Optional follow-up chip shown beside the primary action. */
+  secondaryLabel?: string
+  onSecondaryAction?: () => void
 }
 
 export default function AgentReviewSummaryFooter({
@@ -23,7 +26,13 @@ export default function AgentReviewSummaryFooter({
   primaryLabel = CTA_REVIEWER_SUMMARY,
   showPrompt = true,
   actionVariant = 'chip',
+  secondaryLabel,
+  onSecondaryAction,
 }: AgentReviewSummaryFooterProps) {
+  const secondary =
+    secondaryLabel && onSecondaryAction ? (
+      <SuggestionChip onClick={onSecondaryAction}>{secondaryLabel}</SuggestionChip>
+    ) : null
   return (
     <div className={styles.footer}>
       {showPrompt ? (
@@ -48,13 +57,17 @@ export default function AgentReviewSummaryFooter({
       {actionVariant === 'chip' ? (
         <AgentReviewSuggestionChips>
           <SuggestionChip onClick={onPrimaryAction}>{primaryLabel}</SuggestionChip>
+          {secondary}
         </AgentReviewSuggestionChips>
       ) : (
-        <div className={styles.ctaRow}>
-          <Button priority="secondary" size="medium" onClick={onPrimaryAction}>
-            {primaryLabel}
-          </Button>
-        </div>
+        <>
+          <div className={styles.ctaRow}>
+            <Button priority="secondary" size="medium" onClick={onPrimaryAction}>
+              {primaryLabel}
+            </Button>
+          </div>
+          {secondary ? <AgentReviewSuggestionChips>{secondary}</AgentReviewSuggestionChips> : null}
+        </>
       )}
     </div>
   )

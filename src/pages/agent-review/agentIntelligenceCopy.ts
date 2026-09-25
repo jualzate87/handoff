@@ -103,6 +103,9 @@ export const CATCH_UP_APPROVE_RETURN = 'Approve return'
 /** Follow-up chip shown after the fix run completes. */
 export const CTA_REVIEWER_SUMMARY = 'Get reviewer summary'
 
+/** Opens the finished AI review from the summary. */
+export const CTA_VIEW_AI_REVIEW = 'See what Intuit Intelligence fixed'
+
 export const CTA_SHOW_THINKING = 'Show thinking'
 
 export const LABEL_SUGGESTED_NEXT_STEPS = 'Recommended next steps'

@@ -190,3 +190,69 @@
 .shell[data-layout='sidebar'] :global([class*='inputBox']) {
   max-width: none;
 }
+
+/* ── Recent chats ── */
+
+.historyAnchor {
+  position: relative;
+}
+
+.historyMenu {
+  position: absolute;
+  top: 0;
+  left: calc(100% + 8px);
+  z-index: 30;
+  min-width: 260px;
+  padding: var(--space-x-small, 4px) 0 var(--space-component-padding-small, 8px);
+  border: 1px solid var(--color-container-border-primary, #d4d7dc);
+  border-radius: var(--radius-medium, 8px);
+  background: var(--color-container-background-primary, #ffffff);
+  box-shadow: 0 4px 16px rgba(33, 38, 42, 0.12);
+}
+
+.historyHeading {
+  margin: 0;
+  padding: var(--space-component-padding-small, 8px) var(--space-component-padding-large, 16px);
+  font-size: 12px;
+  font-weight: var(--font-weight-component-bold, 600);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-text-secondary, #6b6c72);
+}
+
+.historyItem {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  padding: var(--space-component-padding-small, 10px) var(--space-component-padding-large, 16px);
+  border: none;
+  background: none;
+  cursor: pointer;
+  text-align: left;
+  font-family: var(--font-family-component);
+  font-size: 14px;
+  color: var(--color-text-primary, #21262a);
+}
+
+.historyItem:hover {
+  background: var(--color-action-passive-subtle-hover, #f0f4f6);
+}
+
+.historyItemLabel {
+  min-width: 0;
+}
+
+.historyItemTime {
+  flex-shrink: 0;
+  font-size: 12px;
+  color: var(--color-text-secondary, #6b6c72);
+}
+
+.historyEmpty {
+  margin: 0;
+  padding: var(--space-component-padding-small, 8px) var(--space-component-padding-large, 16px);
+  font-size: 14px;
+  color: var(--color-text-secondary, #6b6c72);
+}

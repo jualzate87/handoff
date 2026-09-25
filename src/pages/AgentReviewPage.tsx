@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type ReactNode } from 'react'
+import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import {
   Close,
@@ -33,13 +33,18 @@ import type { ProcessingMode } from './agent-review/useAgentProcessingAnimation'
 import {
   clearAgentSession,
   isResumableStep,
+  loadAgentHistory,
   loadAgentSession,
   saveAgentSession,
+  type AgentHistoryEntry,
   type AgentStep,
 } from './agent-review/agentReviewSession'
 import AgentLoadingPane from './data-review/AgentLoadingPane'
 import ChatInput from './automated/ChatInput'
-import { useSyncedReviewState } from '../hooks/useSyncedReviewState'
+import {
+  hasAgentIntelligenceFixes,
+  useSyncedReviewState,
+} from '../hooks/useSyncedReviewState'
 import styles from '../styles/AgentReviewPage.module.css'
 
 const ASSESSING_MS = 3200
@@ -66,6 +71,12 @@ export default function AgentReviewPage() {
   const location = useLocation()
   const [searchParams] = useSearchParams()
   const [initialSession] = useState(resolveInitialSession)
+  const [historyOpen, setHistoryOpen] = useState(false)
+  // Read on open so the list reflects conversations saved during this session.
+  const historyEntries = useMemo(
+    () => (historyOpen ? loadAgentHistory() : []),
+    [historyOpen],
+  )
   const [step, setStep] = useState<AgentStep>(initialSession.step)
   /** The step restored from a past session — it renders finished instead of replaying. */
   const [resumedStep, setResumedStep] = useState<AgentStep | null>(
@@ -84,9 +95,11 @@ export default function AgentReviewPage() {
   const [footerChips, setFooterChips] = useState<ReactNode>(null)
   const assessTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const agentFixesAppliedRef = useRef(false)
-  const { applyAgentIntelligenceFixes } = useSyncedReviewState()
+  const { applyAgentIntelligenceFixes, reviewedFields } = useSyncedReviewState()
 
   const isSidebar = layoutMode === 'sidebar'
+  /** The review is only worth reopening once its fixes have landed on the return. */
+  const hasCompletedAiReview = hasAgentIntelligenceFixes(reviewedFields)
 
   useEffect(() => {
     persistLayoutMode(layoutMode)
@@ -167,7 +180,21 @@ export default function AgentReviewPage() {
     }
     setIsAssessing(false)
     setFooterChips(null)
+    setHistoryOpen(false)
     goToStep('welcome')
+  }
+
+  /** Reopening a past conversation shows its finished state, without replaying. */
+  const handleOpenHistoryEntry = (entry: AgentHistoryEntry) => {
+    if (assessTimerRef.current) {
+      clearTimeout(assessTimerRef.current)
+      assessTimerRef.current = null
+    }
+    setIsAssessing(false)
+    setFooterChips(null)
+    setHistoryOpen(false)
+    setResumedStep(entry.step)
+    goToStep(entry.step)
   }
 
   const persistAgentFixes = () => {
@@ -272,9 +299,39 @@ export default function AgentReviewPage() {
               >
                 <CommentPencil size="medium" />
               </button>
-              <button type="button" className={styles.railBtn} aria-label="Recent chats">
-                <ClockCounterclockwise size="medium" />
-              </button>
+              <div className={styles.historyAnchor}>
+                <button
+                  type="button"
+                  className={styles.railBtn}
+                  aria-label="Recent chats"
+                  aria-expanded={historyOpen}
+                  onClick={() => setHistoryOpen(open => !open)}
+                >
+                  <ClockCounterclockwise size="medium" />
+                </button>
+
+                {historyOpen ? (
+                  <div className={styles.historyMenu} role="menu" aria-label="Recent chats">
+                    <p className={styles.historyHeading}>Recent chats</p>
+                    {historyEntries.length ? (
+                      historyEntries.map(entry => (
+                        <button
+                          key={entry.label}
+                          type="button"
+                          role="menuitem"
+                          className={styles.historyItem}
+                          onClick={() => handleOpenHistoryEntry(entry)}
+                        >
+                          <span className={styles.historyItemLabel}>{entry.label}</span>
+                          <span className={styles.historyItemTime}>{entry.at}</span>
+                        </button>
+                      ))
+                    ) : (
+                      <p className={styles.historyEmpty}>No past conversations yet.</p>
+                    )}
+                  </div>
+                ) : null}
+              </div>
             </aside>
           ) : null}
 
@@ -300,6 +357,14 @@ export default function AgentReviewPage() {
               {step === 'catch-up' && (
                 <AgentCatchUpPane
                   onApproveReturn={() => openWorkspace()}
+                  onViewAiReview={
+                    hasCompletedAiReview
+                      ? () => {
+                          setResumedStep('processing')
+                          setStep('processing')
+                        }
+                      : undefined
+                  }
                   resumed={resumedStep === 'catch-up'}
                 />
               )}
