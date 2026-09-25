@@ -27,6 +27,10 @@
   align-items: center;
   gap: 8px;
   height: 100%;
+  min-width: 0;
+  /* Narrow shells: the left group gives up room first so the action cluster
+     on the right never gets pushed out of the header. */
+  overflow: hidden;
 }
 
 /* Client name */
@@ -114,6 +118,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
+  flex-shrink: 0;
 }
 
 /* Avatar stack - D (#236cff), H (#7c00f6), +1 (#eceef1) */
@@ -187,13 +192,21 @@
   align-items: stretch;
   height: 100%;
   gap: 0;
-  flex-shrink: 0;
+  min-width: 0;
+  /* Narrow shells (e.g. behind the Intelligence sidebar) scroll the tab strip
+     instead of pushing the right-hand cluster out of the row. */
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.tabsLeft::-webkit-scrollbar {
+  display: none;
 }
 
 /* Min space between tabs and right cluster */
 .tabRowSpacer {
   flex: 1 1 auto;
-  min-width: 24px;
+  min-width: 16px;
 }
 
 /* Tab labels — 14px component, inactive #5D686F */
@@ -215,6 +228,7 @@
   white-space: nowrap;
   position: relative;
   box-sizing: border-box;
+  flex-shrink: 0;
 }
 .tab:hover { color: #393a3d; }
 .tab svg { color: #5d686f; flex-shrink: 0; }

@@ -9,6 +9,7 @@ import { Button } from '@ids-ts/button'
 import '@ids-ts/button/dist/main.css'
 import intuitIntelligenceLogo from '../assets/icons/intuit-intelligence-logo-small.svg'
 import HeaderSelectMenu from '../components/HeaderSelectMenu'
+import HeaderOverflowMenu from '../components/HeaderOverflowMenu'
 import ReturnActionsMenu from '../components/ReturnActionsMenu'
 import { useReturnWorkflow } from '../contexts/ReturnWorkflowContext'
 import { RETURN_STATUSES, TEAM_MEMBERS } from '../lib/returnWorkflow'
@@ -32,6 +33,11 @@ interface SmartReturnHeaderProps {
   onAiReview?: () => void
   /** Anchor for proactive AI handoff popover */
   aiReviewButtonRef?: RefObject<HTMLButtonElement | null>
+  /**
+   * Narrow layout (e.g. behind the Intelligence sidebar): presence collapses to
+   * a single count chip and assignee/status move into the overflow menu.
+   */
+  compact?: boolean
 }
 
 export default function SmartReturnHeader({
@@ -43,6 +49,7 @@ export default function SmartReturnHeader({
   onViewSourceDocuments,
   onAiReview,
   aiReviewButtonRef,
+  compact = false,
 }: SmartReturnHeaderProps) {
   const navigate = useNavigate()
   const {
@@ -99,40 +106,65 @@ export default function SmartReturnHeader({
             >
               {assignee.initial}
             </div>
-            {otherCollaborators.slice(0, 1).map(member => (
-              <div
-                key={member.id}
-                className={styles.avatarH}
-                style={{ background: member.avatarColor }}
-                title={member.name}
-              >
-                {member.initial}
-              </div>
-            ))}
-            {otherCollaborators.length > 1 ? (
+            {compact
+              ? null
+              : otherCollaborators.slice(0, 1).map(member => (
+                  <div
+                    key={member.id}
+                    className={styles.avatarH}
+                    style={{ background: member.avatarColor }}
+                    title={member.name}
+                  >
+                    {member.initial}
+                  </div>
+                ))}
+            {(compact ? otherCollaborators.length : otherCollaborators.length - 1) > 0 ? (
               <div
                 className={styles.avatarPlus}
                 title={otherCollaborators
-                  .slice(1)
+                  .slice(compact ? 0 : 1)
                   .map(member => member.name)
                   .join(', ')}
               >
-                +{otherCollaborators.length - 1}
+                +{compact ? otherCollaborators.length : otherCollaborators.length - 1}
               </div>
             ) : null}
           </div>
-          <HeaderSelectMenu
-            ariaLabel="Select assignee"
-            value={assignee.id}
-            options={TEAM_MEMBERS.map(member => ({ id: member.id, label: member.name }))}
-            onChange={requestAssigneeChange}
-          />
-          <HeaderSelectMenu
-            ariaLabel="Select status"
-            value={status.id}
-            options={RETURN_STATUSES.map(item => ({ id: item.id, label: item.label }))}
-            onChange={id => requestStatusChange(id as typeof status.id)}
-          />
+          {compact ? (
+            <HeaderOverflowMenu
+              groups={[
+                {
+                  id: 'assignee',
+                  label: 'Assignee',
+                  value: assignee.id,
+                  options: TEAM_MEMBERS.map(member => ({ id: member.id, label: member.name })),
+                  onChange: requestAssigneeChange,
+                },
+                {
+                  id: 'status',
+                  label: 'Status',
+                  value: status.id,
+                  options: RETURN_STATUSES.map(item => ({ id: item.id, label: item.label })),
+                  onChange: id => requestStatusChange(id as typeof status.id),
+                },
+              ]}
+            />
+          ) : (
+            <>
+              <HeaderSelectMenu
+                ariaLabel="Select assignee"
+                value={assignee.id}
+                options={TEAM_MEMBERS.map(member => ({ id: member.id, label: member.name }))}
+                onChange={requestAssigneeChange}
+              />
+              <HeaderSelectMenu
+                ariaLabel="Select status"
+                value={status.id}
+                options={RETURN_STATUSES.map(item => ({ id: item.id, label: item.label }))}
+                onChange={id => requestStatusChange(id as typeof status.id)}
+              />
+            </>
+          )}
           <ReturnActionsMenu />
         </div>
       </div>
@@ -170,9 +202,11 @@ export default function SmartReturnHeader({
         </div>
         <div className={styles.tabRowSpacer} aria-hidden />
         <div className={styles.tabsRight}>
-          <span className={styles.tabMeta}>
-            <CloudUpload size="small" /> Saved at 11:34 AM
-          </span>
+          {compact ? null : (
+            <span className={styles.tabMeta}>
+              <CloudUpload size="small" /> Saved at 11:34 AM
+            </span>
+          )}
           {showReviewReturn && (
             <Button
               priority="secondary"

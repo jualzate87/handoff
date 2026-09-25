@@ -219,6 +219,7 @@ export default function CheckReturnPage({ embeddedUnderlay = false }: CheckRetur
       <IASShell intelligenceActive={embeddedUnderlay}>
         <SmartReturnHeader
           activeTab="checkreturns"
+          compact={embeddedUnderlay}
           showViewSourceDocuments
           aiReviewButtonRef={embeddedUnderlay ? undefined : aiReviewButtonRef}
           onViewSourceDocuments={() => openSourceDocumentReviewPopout()}

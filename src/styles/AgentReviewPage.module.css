@@ -11,19 +11,20 @@
   position: relative;
 }
 
+/*
+ * Sidebar layout: the ProConnect screen and the Intelligence panel sit
+ * side by side as two separate full-height panels, each inset 6px from the
+ * window with a 6px gutter between them (--sidebar-gutter).
+ */
+/* IASShell already pads 6px on its right edge, which forms half the gutter. */
 .proConnectUnderlay {
   position: fixed;
   top: 0;
   left: 0;
   z-index: 900;
-  /*
-   * Renders full width so its rail + top bar span the whole window and read
-   * as one continuous shell — the sidebar panel below sits on top of (and
-   * visually covers) this underlay's right half.
-   */
-  width: 100vw;
+  width: 54vw;
   height: 100vh;
-  overflow: auto;
+  overflow: hidden;
   background: var(--color-page-background-secondary, #f4f5f8);
 }
 
@@ -31,22 +32,19 @@
   min-height: 100%;
 }
 
-/*
- * Sits inside the ProConnect shell's own frame instead of floating on top of
- * it: inset by the rail width + top bar height (+ shell padding) so that blue
- * rail and top bar read as one continuous bar spanning both panels, matching
- * the reference design, rather than the chat panel covering them.
- */
 .shellSidebar {
+  --sidebar-inset: 6px;
+
   position: fixed;
-  top: 62px;
-  right: 6px;
-  bottom: 6px;
+  top: var(--sidebar-inset);
+  right: var(--sidebar-inset);
+  bottom: var(--sidebar-inset);
   z-index: 1000;
-  width: calc(50vw - 3px);
+  width: calc(46vw - var(--sidebar-inset));
   min-width: 360px;
-  border-radius: 0 0 12px 0;
-  box-shadow: -4px 0 24px rgba(33, 38, 42, 0.12);
+  height: auto;
+  border: 1px solid var(--color-container-border-primary, #d4d7dc);
+  border-radius: 12px;
 }
 
 @media (max-width: 900px) {
@@ -60,6 +58,7 @@
     bottom: 0;
     width: 100vw;
     min-width: 0;
+    border: none;
     border-radius: 0;
   }
 }
