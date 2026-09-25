@@ -466,7 +466,7 @@ export const CATCH_UP_AI_REVIEW_ITEMS: CatchUpDetailItem[] = [
 ]
 
 export const CATCH_UP_AI_REVIEW_CALLOUT =
-  'Every critical diagnostic Intuit Intelligence raised was resolved during the initial review. No corrections are outstanding.'
+  'The fatal, EF critical, and critical diagnostics Intuit Intelligence raised were all cleared during the initial review. No corrections are outstanding.'
 
 export const CATCH_UP_DOCUMENTS_INTRO =
   `${CATCH_UP_PRIOR_PREPARER} imported and verified the following source documents:`
@@ -487,18 +487,18 @@ export const CATCH_UP_CALCULATIONS_BULLETS: CatchUpListEntry[] = [
 ]
 
 export const CATCH_UP_REVIEWER_FOCUS_INTRO =
-  'Three items need your judgment. Clear them and this return is ready to file.'
+  'Two items need your judgment. Clear them and this return is ready to file.'
 
 export const CATCH_UP_RETURN_STATUS_ITEMS = [
-  'Critical diagnostics: Resolved — none open',
+  'Diagnostics: Fatal, EF critical, and critical all cleared',
   'Data entry: Complete — all documents imported and reconciled',
   'Calculations: Confirmed — federal and state tie out',
-  'Open items: 3, all awaiting judgment rather than correction',
+  'Open items: 2, both awaiting judgment rather than correction',
   'Ready for: Your sign-off, then filing',
 ] as const
 
 export const CATCH_UP_RETURN_STATUS_CALLOUT =
-  'Prep and AI-assisted review are done and the return calculates clean. Confirm the three items below and it is ready to file.'
+  'Prep and AI-assisted review are done and the return calculates clean. Confirm the two items below and it is ready to file.'
 
 export const CATCH_UP_REVIEWER_CHECKLIST: CatchUpChecklistItem[] = [
   {
@@ -802,7 +802,7 @@ export type IntelligenceAttentionItem = {
 export const INTELLIGENCE_ATTENTION_TITLE = 'Needs your attention'
 
 export const INTELLIGENCE_ATTENTION_INTRO =
-  'These three need a person: one client confirmation and two calls only you can make. ' +
+  'These two need a person: one confirmation from Tina and one call only you can make. ' +
   'Clear them and the return is ready to file.'
 
 export const INTELLIGENCE_CHECKED_TITLE = 'Checked and OK'
@@ -815,16 +815,6 @@ export const INTELLIGENCE_NEEDS_ATTENTION_ITEMS: readonly IntelligenceAttentionI
       'The deduction is based on an estimated amount. Confirm it with the client and upload the actual form before filing.',
     linkLabel: 'Review Form 1098',
     formId: 'schA',
-  },
-  {
-    id: 'div-split',
-    title: '1099-DIV qualified vs. ordinary split needs a second look',
-    detail:
-      'The broker statement formatting was unusual, so the split is worth verifying against the source PDF.',
-    linkLabel: 'Review 1099-DIV',
-    popoutTab: '1099-divs',
-    divPayer: 'tokenFinancial',
-    field: 'qualifiedDivs',
   },
   {
     id: 'form-2210-penalty',
@@ -861,8 +851,8 @@ export function intelligenceFinalStepSubtitle(count: number): string {
 export function intelligenceFixCompleteMessage(fixedCount: number, total: number): string {
   if (fixedCount >= total) {
     return (
-      `I've resolved all ${total} critical diagnostics — the return now calculates clean. ` +
-      `What's left is judgment, not corrections.`
+      'The fatal, EF critical, and critical diagnostics are all cleared — the return now ' +
+      "calculates clean. What's left is judgment, not corrections."
     )
   }
   if (fixedCount === 1) {
