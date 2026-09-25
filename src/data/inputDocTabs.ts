@@ -98,9 +98,7 @@ export function applySourceDocumentPopoutContext(
     handlers.setActiveIntPayer(context.intPayer as IntPayer)
   }
 
-  if (context.field) {
-    handlers.setSelectedField(context.field)
-  }
+  handlers.setSelectedField(context.field ?? null)
 }
 
 export function applyInputDocKey(

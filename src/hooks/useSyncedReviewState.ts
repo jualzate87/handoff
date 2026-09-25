@@ -785,6 +785,15 @@ export function useSyncedReviewState() {
     publish({ ...stateRef.current, ...patch })
   }
 
+  // Stable identities (via stateRef, not `state`) so consumers that memoize on
+  // these setters - e.g. the source-doc popout's nav-context effect - don't see
+  // a new function every render and re-run on every keystroke.
+  const setActiveTopTab = useCallback((tab: TopTab) => update({ activeTopTab: tab }), [])
+  const setActiveSubTab = useCallback((tab: W2Employer) => update({ activeSubTab: tab }), [])
+  const setSelectedField = useCallback((field: string | null) => update({ selectedField: field }), [])
+  const setActiveDivPayer = useCallback((payer: DivPayer) => update({ activeDivPayer: payer }), [])
+  const setActiveIntPayer = useCallback((payer: IntPayer) => update({ activeIntPayer: payer }), [])
+
   const reviewedFields = new Map(state.reviewedFieldsList)
   const editedFields = new Map(state.editedFieldsList)
   const editedFieldKeys = new Set(state.editedFieldsList.map(([k]) => k))
@@ -1274,11 +1283,11 @@ export function useSyncedReviewState() {
 
   return {
     activeTopTab: state.activeTopTab,
-    setActiveTopTab: (tab: TopTab) => update({ activeTopTab: tab }),
+    setActiveTopTab,
     activeSubTab: state.activeSubTab,
-    setActiveSubTab: (tab: W2Employer) => update({ activeSubTab: tab }),
+    setActiveSubTab,
     selectedField: state.selectedField,
-    setSelectedField: (field: string | null) => update({ selectedField: field }),
+    setSelectedField,
     amounts,
     updateAmounts,
     wages,
@@ -1299,9 +1308,9 @@ export function useSyncedReviewState() {
     fieldOverrides: state.fieldOverrides,
     setFieldOverride,
     activeDivPayer: state.activeDivPayer,
-    setActiveDivPayer: (payer: DivPayer) => update({ activeDivPayer: payer }),
+    setActiveDivPayer,
     activeIntPayer: state.activeIntPayer,
-    setActiveIntPayer: (payer: IntPayer) => update({ activeIntPayer: payer }),
+    setActiveIntPayer,
     markReviewed,
     markReviewedBulk,
     clearReviewedForKeys,

@@ -159,15 +159,16 @@ function postPopoutNavigation(context?: SourceDocumentPopoutContext): void {
   } catch {
     // ignore - hash update still applies on reload
   }
-  if (sourceDocPopoutWindow && !sourceDocPopoutWindow.closed) {
-    sourceDocPopoutWindow.postMessage(
-      { type: 'source-doc-popout-nav', context: context ?? {} },
-      window.location.origin,
-    )
-  }
 }
 
-/** Open source document review - reuses one popout window when already open. */
+/**
+ * Open source document review - reuses one popout window when already open.
+ *
+ * When reusing an existing window, navigation is delivered via BroadcastChannel
+ * only (not also via location.replace + postMessage) so the popout applies the
+ * new context exactly once - delivering it through multiple channels caused the
+ * popout to re-apply (and fight over) navigation state on every click.
+ */
 export function openSourceDocumentReviewPopout(
   context?: SourceDocumentPopoutContext,
 ): Window | null {
@@ -175,13 +176,6 @@ export function openSourceDocumentReviewPopout(
 
   if (sourceDocPopoutWindow && !sourceDocPopoutWindow.closed) {
     sourceDocPopoutWindow.focus()
-    try {
-      const hashRoute = buildSourceDocumentPopoutRoute(context)
-      const base = getPrototypeBaseUrl()
-      sourceDocPopoutWindow.location.replace(`${base}#${hashRoute}`)
-    } catch {
-      sourceDocPopoutWindow.location.href = url
-    }
     postPopoutNavigation(context)
     return sourceDocPopoutWindow
   }
