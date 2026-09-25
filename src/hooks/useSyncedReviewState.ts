@@ -279,7 +279,7 @@ export function isCurrentReviewerActor(): boolean {
 }
 
 export function isCurrentManagerActor(): boolean {
-  if (currentActorName === 'Alex Rivera') return true
+  if (currentActorName === 'Marcus Webb') return true
   try {
     const raw = localStorage.getItem(WORKFLOW_STORAGE_KEY)
     if (!raw) return false

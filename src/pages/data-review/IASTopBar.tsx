@@ -1,16 +1,15 @@
 import { Search, Notification, Settings, CircleQuestion, ChevronDown } from '@design-systems/icons'
+import { useReturnWorkflow } from '../../contexts/ReturnWorkflowContext'
 import iaPropeller from '../../assets/icons/intuit-intelligence-logo-small.svg'
 import styles from '../../styles/data-review/IASTopBar.module.css'
 
 interface IASTopBarProps {
   firmName?: string
-  userInitial?: string
 }
 
-export default function IASTopBar({
-  firmName = 'Beasley & Howe Financials',
-  userInitial = 'A',
-}: IASTopBarProps) {
+export default function IASTopBar({ firmName = 'Beasley & Howe Financials' }: IASTopBarProps) {
+  const { currentUser } = useReturnWorkflow()
+
   return (
     <div className={styles.topBar}>
       <button type="button" className={styles.companySwitcher}>
@@ -37,7 +36,14 @@ export default function IASTopBar({
         <button type="button" className={styles.iconButton} aria-label="Help">
           <CircleQuestion size="small" />
         </button>
-        <span className={styles.avatar}>{userInitial}</span>
+        <span
+          className={styles.avatar}
+          style={{ background: currentUser.avatarColor }}
+          title={`Signed in as ${currentUser.name}`}
+          aria-label={`Signed in as ${currentUser.name}`}
+        >
+          {currentUser.initial}
+        </span>
         <button type="button" className={styles.iconButton} aria-label="Intuit Intelligence">
           <img src={iaPropeller} alt="" className={styles.propeller} />
         </button>

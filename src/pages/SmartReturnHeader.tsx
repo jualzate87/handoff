@@ -110,7 +110,15 @@ export default function SmartReturnHeader({
               </div>
             ))}
             {otherCollaborators.length > 1 ? (
-              <div className={styles.avatarPlus}>+{otherCollaborators.length - 1}</div>
+              <div
+                className={styles.avatarPlus}
+                title={otherCollaborators
+                  .slice(1)
+                  .map(member => member.name)
+                  .join(', ')}
+              >
+                +{otherCollaborators.length - 1}
+              </div>
             ) : null}
           </div>
           <HeaderSelectMenu
