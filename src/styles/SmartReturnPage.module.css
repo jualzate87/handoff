@@ -116,7 +116,7 @@
 }
 
 .checkIcon {
-  color: #1a8254;
+  color: var(--color-ui-positive, #108000);
   width: 56px !important;
   height: 56px !important;
 }
@@ -149,7 +149,7 @@
 .progressFill {
   width: 100%;
   height: 100%;
-  background: #1a8254;
+  background: var(--color-ui-positive, #108000);
   border-radius: 100px;
 }
 

@@ -59,7 +59,7 @@
 }
 
 .checkIcon {
-  color: #1a8254;
+  color: var(--color-ui-positive, #108000);
   width: 56px !important;
   height: 56px !important;
 }

@@ -150,7 +150,7 @@
   gap: 4px;
   font-size: 12px;
   font-weight: 500;
-  color: #1a8254;
+  color: var(--color-ui-positive, #108000);
 }
 
 /* ── Import button ── */

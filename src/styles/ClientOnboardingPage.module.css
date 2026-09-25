@@ -430,7 +430,7 @@
 }
 
 .sentIcon {
-  color: #1a8254;
+  color: var(--color-ui-positive, #108000);
   flex-shrink: 0;
   margin-top: 2px;
 }

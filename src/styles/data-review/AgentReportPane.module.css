@@ -468,7 +468,7 @@
 .badgeRed    { background: #db334d; }
 .badgeOrange { background: #d68000; }
 .badgeBlue   { background: #205ea3; }
-.badgeGreen  { background: #1a8254; }
+.badgeGreen  { background: var(--color-ui-positive, #108000); }
 
 /* Active card state */
 .cardActive {
@@ -592,8 +592,8 @@
 
 .findingMarkReviewedBtnActive {
   color: #ffffff;
-  background: #1a8254;
-  border-color: #1a8254;
+  background: var(--color-ui-positive, #108000);
+  border-color: var(--color-ui-positive, #108000);
 }
 
 .findingMarkReviewedBtnActive:hover {
@@ -608,7 +608,7 @@
 .findingCheckIcon {
   display: flex;
   align-items: center;
-  color: #1a8254;
+  color: var(--color-ui-positive, #108000);
   flex-shrink: 0;
   margin-top: 2px;
 }
@@ -618,10 +618,10 @@
   display: inline-flex;
   align-items: center;
   padding: 2px 8px;
-  border: 1px solid #1a8254;
+  border: 1px solid var(--color-ui-positive, #108000);
   border-radius: 4px;
   background: #e6f6ef;
-  color: #1a8254;
+  color: var(--color-ui-positive, #108000);
   font-family: var(--font-family-component) !important;
   font-size: 12px;
   font-weight: 600;
@@ -698,7 +698,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  color: #1a8254;
+  color: var(--color-ui-positive, #108000);
 }
 
 .completionCheckIcon {
