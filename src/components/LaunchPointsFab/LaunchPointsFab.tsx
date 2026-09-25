@@ -21,6 +21,9 @@ import {
   prepareReviewerHandoffLaunch,
   resetReturnWorkflow,
 } from '../../lib/returnWorkflow'
+import { Switch } from '@ids-ts/switch'
+import '@ids-ts/switch/dist/main.css'
+import { isGuidedTourEnabled, setGuidedTourEnabled } from '../GuidedTour/GuidedTour'
 import { OTHER_FLOWS, ROLE_SWITCH_POINTS, type LaunchPoint } from './launchPointsData'
 import styles from './LaunchPointsFab.module.css'
 
@@ -54,8 +57,14 @@ function prepareAgentLaunch(): void {
   setStoredDemoRole('preparer')
 }
 
-export default function LaunchPointsFab() {
+interface LaunchPointsFabProps {
+  /** Notifies the app so the pointer can mount or unmount immediately. */
+  onGuidedTourChange?: (enabled: boolean) => void
+}
+
+export default function LaunchPointsFab({ onGuidedTourChange }: LaunchPointsFabProps = {}) {
   const navigate = useNavigate()
+  const [tourOn, setTourOn] = useState(isGuidedTourEnabled)
   const location = useLocation()
   const rootRef = useRef<HTMLDivElement>(null)
   const [open, setOpen] = useState(false)
@@ -171,15 +180,34 @@ export default function LaunchPointsFab() {
         <span className={styles.triggerIcon} aria-hidden>
           <Lightning size="small" />
         </span>
-        Launch points
+        Prototype settings
       </button>
 
       {open && (
         <div className={styles.menuCluster}>
-          <div className={styles.panel} role="dialog" aria-label="Launch points">
+          <div className={styles.panel} role="dialog" aria-label="Prototype settings">
             <div className={styles.panelHeader}>
-              <h2 className={styles.panelTitle}>Launch points</h2>
-              <p className={styles.panelSubtitle}>Switch roles or open another demo flow</p>
+              <h2 className={styles.panelTitle}>Prototype settings</h2>
+              <p className={styles.panelSubtitle}>Guide the walkthrough, switch roles, or open another flow</p>
+            </div>
+
+            <div className={styles.settingRow}>
+              <span className={styles.settingBody}>
+                <span className={styles.settingTitle}>Guided pointer</span>
+                <span className={styles.settingDescription}>
+                  Highlights the next thing to click, all the way through the demo
+                </span>
+              </span>
+              <Switch
+                checked={tourOn}
+                aria-label="Guided pointer"
+                onChange={() => {
+                  const next = !tourOn
+                  setTourOn(next)
+                  setGuidedTourEnabled(next)
+                  onGuidedTourChange?.(next)
+                }}
+              />
             </div>
 
             <ul className={styles.list}>

@@ -207,3 +207,33 @@
   font-size: var(--font-size-component-x-small, 12px);
   color: var(--color-text-secondary, #5d686f);
 }
+
+/* ── Guided pointer toggle ── */
+
+.settingRow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--color-divider-tertiary, #e3e5e8);
+}
+
+.settingBody {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.settingTitle {
+  font-size: 14px;
+  font-weight: var(--font-weight-component-bold, 600);
+  color: var(--color-text-primary, #21262a);
+}
+
+.settingDescription {
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--color-text-secondary, #6b6c72);
+}

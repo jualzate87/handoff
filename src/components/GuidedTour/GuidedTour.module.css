@@ -1,0 +1,80 @@
+/* Guided-tour pointer — a magenta cue that sits beside the next thing to click.
+   Purely decorative: it never covers the target or intercepts the click. */
+
+.pointer {
+  position: fixed;
+  z-index: 9999;
+  pointer-events: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50% 50% 50% 2px;
+  background: var(--tour-accent, #d72792);
+  box-shadow: 0 2px 8px rgba(215, 39, 146, 0.45);
+}
+
+/* Rotate so the pointed corner faces the target. */
+.right {
+  transform: translateY(-50%) rotate(45deg);
+  animation: tourNudgeRight 1.4s ease-in-out infinite;
+}
+
+.left {
+  transform: translate(-100%, -50%) rotate(225deg);
+  animation: tourNudgeLeft 1.4s ease-in-out infinite;
+}
+
+.top {
+  transform: translate(-50%, -100%) rotate(135deg);
+  animation: tourNudgeUp 1.4s ease-in-out infinite;
+}
+
+.bottom {
+  transform: translate(-50%, 0) rotate(315deg);
+  animation: tourNudgeDown 1.4s ease-in-out infinite;
+}
+
+@keyframes tourNudgeRight {
+  0%,
+  100% {
+    transform: translateY(-50%) rotate(45deg);
+  }
+  50% {
+    transform: translate(4px, -50%) rotate(45deg);
+  }
+}
+
+@keyframes tourNudgeLeft {
+  0%,
+  100% {
+    transform: translate(-100%, -50%) rotate(225deg);
+  }
+  50% {
+    transform: translate(calc(-100% - 4px), -50%) rotate(225deg);
+  }
+}
+
+@keyframes tourNudgeUp {
+  0%,
+  100% {
+    transform: translate(-50%, -100%) rotate(135deg);
+  }
+  50% {
+    transform: translate(-50%, calc(-100% - 4px)) rotate(135deg);
+  }
+}
+
+@keyframes tourNudgeDown {
+  0%,
+  100% {
+    transform: translate(-50%, 0) rotate(315deg);
+  }
+  50% {
+    transform: translate(-50%, 4px) rotate(315deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pointer {
+    animation: none;
+  }
+}
