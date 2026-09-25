@@ -5,7 +5,7 @@
   gap: 6px;
   margin: 0 0 var(--space-component-gap-large, 16px);
   padding: 14px 20px;
-  border: 1px solid var(--color-action-standard, #205ea3);
+  border: 1px solid #0566ff;
   border-radius: var(--radius-large, 12px);
   background: var(--color-container-background-primary, #ffffff);
   overflow: hidden;

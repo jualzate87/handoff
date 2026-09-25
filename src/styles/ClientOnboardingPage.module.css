@@ -546,7 +546,7 @@
 
 .welcomeModalIllustration {
   display: block;
-  height: 96px;
-  width: auto;
-  margin: 0 auto var(--space-component-gap-medium, 12px);
+  height: 44px;
+  width: 44px;
+  margin: 0 auto 16px;
 }
