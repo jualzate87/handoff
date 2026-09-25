@@ -17,8 +17,8 @@ export default function ReturnReadyMessage() {
         </B2>
       </span>
       <B3 className={styles.body}>
-        All critical issues are cleared and calculations are accurate. It&rsquo;s ready to share
-        with Tina.
+        All critical issues are cleared and calculations look good. You&rsquo;re ready to take the
+        next step.
       </B3>
     </div>
   )
