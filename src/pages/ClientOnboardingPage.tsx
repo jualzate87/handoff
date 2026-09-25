@@ -467,7 +467,8 @@ export default function ClientOnboardingPage() {
         </ModalHeader>
         <ModalContent alignment="center">
           <B2 className={styles.welcomeModalBody}>
-            As Beasley &amp; Howe, you&rsquo;ll work on Tina&rsquo;s taxes today.
+            You&rsquo;re Amanda at Beasley &amp; Howe. Today you&rsquo;ll work on Tina&rsquo;s taxes
+            using a new experience designed for tax prep and strategy.
           </B2>
         </ModalContent>
         <ModalActions alignment="center">
