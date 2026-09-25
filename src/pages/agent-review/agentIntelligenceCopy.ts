@@ -466,7 +466,7 @@ export const CATCH_UP_AI_REVIEW_ITEMS: CatchUpDetailItem[] = [
 ]
 
 export const CATCH_UP_AI_REVIEW_CALLOUT =
-  'All three items were flagged by Intuit Intelligence and resolved by Amanda during the initial review. No open flags remain.'
+  'Every critical diagnostic Intuit Intelligence raised was resolved during the initial review. No corrections are outstanding.'
 
 export const CATCH_UP_DOCUMENTS_INTRO =
   `${CATCH_UP_PRIOR_PREPARER} imported and verified the following source documents:`
@@ -487,18 +487,18 @@ export const CATCH_UP_CALCULATIONS_BULLETS: CatchUpListEntry[] = [
 ]
 
 export const CATCH_UP_REVIEWER_FOCUS_INTRO =
-  "Amanda's note calls out the items below. Confirm each one before you sign off."
+  'Three items need your judgment. Clear them and this return is ready to file.'
 
 export const CATCH_UP_RETURN_STATUS_ITEMS = [
-  'AI review: Complete — all items resolved by Amanda',
+  'Critical diagnostics: Resolved — none open',
   'Data entry: Complete — all documents imported and reconciled',
   'Calculations: Confirmed — federal and state tie out',
-  'Open items: None',
-  'Ready for: Final reviewer sign-off',
+  'Open items: 3, all awaiting judgment rather than correction',
+  'Ready for: Your sign-off, then filing',
 ] as const
 
 export const CATCH_UP_RETURN_STATUS_CALLOUT =
-  "This return has been through initial prep and AI-assisted review. As the final reviewer, confirm Amanda's work is accurate and approve for filing."
+  'Prep and AI-assisted review are done and the return calculates clean. Confirm the three items below and it is ready to file.'
 
 export const CATCH_UP_REVIEWER_CHECKLIST: CatchUpChecklistItem[] = [
   {
@@ -578,7 +578,7 @@ const CATCH_UP_FOR_PREPARER: CatchUpContent = {
   reasoningSteps: [
     {
       title: 'Reviewing reviewer notes',
-      body: `Reading ${CATCH_UP_PRIOR_REVIEWER}'s notes, what he confirmed, and what he sent back to you.`,
+      body: `Reading ${CATCH_UP_PRIOR_REVIEWER}'s notes, what they confirmed, and what they sent back to you.`,
     },
     {
       title: 'Checking documents and calculations',
@@ -802,7 +802,8 @@ export type IntelligenceAttentionItem = {
 export const INTELLIGENCE_ATTENTION_TITLE = 'Needs your attention'
 
 export const INTELLIGENCE_ATTENTION_INTRO =
-  "I couldn't confirm these on my own. Review each one before you sign off."
+  'These three need a person: one client confirmation and two calls only you can make. ' +
+  'Clear them and the return is ready to file.'
 
 export const INTELLIGENCE_CHECKED_TITLE = 'Checked and OK'
 
@@ -842,7 +843,9 @@ export function intelligenceAttentionCountLabel(count: number): string {
 
 /** Card title carries the count, so the header needs no separate count on the right. */
 export function intelligenceAttentionTitle(count: number): string {
-  return count === 1 ? '1 item needs your attention' : `${count} items need your attention`
+  return count === 1
+    ? 'Last item before this return can be filed'
+    : `${count} items left before this return can be filed`
 }
 
 /**
@@ -850,12 +853,17 @@ export function intelligenceAttentionTitle(count: number): string {
  * agent fixed; this one reports what is now waiting on the reviewer.
  */
 export function intelligenceFinalStepSubtitle(count: number): string {
-  return count === 1 ? '1 item needs your review' : `${count} items need your review`
+  return count === 1
+    ? 'Last item before filing'
+    : `${count} items left before filing`
 }
 
 export function intelligenceFixCompleteMessage(fixedCount: number, total: number): string {
   if (fixedCount >= total) {
-    return `I've resolved all ${total} diagnostics. Here's the progress summary.`
+    return (
+      `I've resolved all ${total} critical diagnostics — the return now calculates clean. ` +
+      `What's left is judgment, not corrections.`
+    )
   }
   if (fixedCount === 1) {
     return 'First diagnostic is fixed. Review the changes below, then continue when you\'re ready.'

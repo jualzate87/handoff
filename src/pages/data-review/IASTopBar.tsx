@@ -38,7 +38,7 @@ export default function IASTopBar({
           <CircleQuestion size="small" />
         </button>
         <span className={styles.avatar}>{userInitial}</span>
-        <button type="button" className={styles.iconButton} aria-label="Intuit Assist">
+        <button type="button" className={styles.iconButton} aria-label="Intuit Intelligence">
           <img src={iaPropeller} alt="" className={styles.propeller} />
         </button>
       </div>

@@ -42,7 +42,7 @@ import {
 } from '../data/clientOnboarding'
 import { AgentIntelligenceReasoningLive } from './agent-review/AgentIntelligenceReasoning'
 import prior1040 from '../assets/jessica-1040-2024-variant-1.png'
-import intuitSparkle from '../assets/icons/intuit-assist-sparkle.svg'
+import intuitSparkle from '../assets/icons/intuit-intelligence-logo-small.svg'
 import styles from '../styles/ClientOnboardingPage.module.css'
 
 const LOADING_HEADER_DELAY_MS = 150
@@ -226,7 +226,7 @@ export default function ClientOnboardingPage() {
           </section>
 
           {/* Right: agent chat */}
-          <section className={styles.chatPane} aria-label="Intuit Assist">
+          <section className={styles.chatPane} aria-label="Intuit Intelligence">
             <div className={styles.chatScroll}>
               {stage === 'booting' ? (
                 <div className={styles.welcome} role="status" aria-busy="true">
@@ -437,7 +437,7 @@ export default function ClientOnboardingPage() {
             </div>
 
             <div className={styles.inputBar}>
-              <span className={styles.inputPlaceholder}>Ask Intuit Assist</span>
+              <span className={styles.inputPlaceholder}>Ask Intuit Intelligence</span>
               <span className={styles.inputIcons}>
                 <Plus size="small" aria-hidden />
                 <Send size="small" aria-hidden />
