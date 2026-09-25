@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom'
 import {
   Close,
   CommentPencil,
+  CircleCheckFill,
+  Edit,
   ChevronDown,
   ChevronUp,
   List,
@@ -29,7 +31,11 @@ import { Modal, ModalHeader, ModalTitle, ModalContent, ModalActions } from '@ids
 import '@ids-ts/modal-dialog/dist/main.css'
 import { H5, B2, B3 } from '@ids-ts/typography'
 import '@ids-ts/typography/dist/main.css'
-import { ONBOARDING_QUESTIONS, ONBOARDING_DOCUMENTS } from '../data/clientOnboarding'
+import {
+  ONBOARDING_QUESTIONS,
+  ONBOARDING_DOCUMENTS,
+  ENGAGEMENT_LETTER_PARAGRAPHS,
+} from '../data/clientOnboarding'
 import prior1040 from '../assets/jessica-1040-2024-variant-1.png'
 import intuitSparkle from '../assets/icons/intuit-assist-sparkle.svg'
 import styles from '../styles/ClientOnboardingPage.module.css'
@@ -68,7 +74,8 @@ export default function ClientOnboardingPage() {
   const [stage, setStage] = useState<ChatStage>('welcome')
   const [generating, setGenerating] = useState(false)
   const [expanded, setExpanded] = useState<Section | null>('questionnaire')
-  const [confirmOpen, setConfirmOpen] = useState(false)
+  const [sent, setSent] = useState(false)
+  const [handoffOpen, setHandoffOpen] = useState(false)
 
   useEffect(() => {
     const timer = setTimeout(() => setWelcomeOpen(true), 50)
@@ -260,10 +267,19 @@ export default function ClientOnboardingPage() {
                     />
                     {expanded === 'engagement' ? (
                       <div className={styles.sectionBody}>
-                        <B3 className={styles.engagementText}>
-                          Standard 1040 engagement letter for tax year 2025, prefilled for Tina
-                          Yuan and ready for e-signature.
-                        </B3>
+                        <div className={styles.letterToolbar}>
+                          <button type="button" className={styles.letterEdit}>
+                            <Edit size="small" aria-hidden />
+                            Edit
+                          </button>
+                        </div>
+                        <div className={styles.letterBody}>
+                          {ENGAGEMENT_LETTER_PARAGRAPHS.map(paragraph => (
+                            <p key={paragraph.slice(0, 40)} className={styles.letterParagraph}>
+                              {paragraph}
+                            </p>
+                          ))}
+                        </div>
                       </div>
                     ) : null}
                   </div>
@@ -275,19 +291,45 @@ export default function ClientOnboardingPage() {
                     <ThumbDown size="small" aria-hidden />
                   </div>
 
-                  <div className={styles.quickActions}>
-                    <button type="button" className={styles.quickAction}>
-                      Draft email to client
-                    </button>
-                    <button
-                      type="button"
-                      className={`${styles.quickAction} ${styles.quickActionPrimary}`}
-                      onClick={() => setConfirmOpen(true)}
-                    >
-                      <Send size="small" aria-hidden />
-                      Send to client
-                    </button>
-                  </div>
+                  {sent ? null : (
+                    <div className={styles.quickActions}>
+                      <button type="button" className={styles.quickAction}>
+                        Draft email to client
+                      </button>
+                      <button
+                        type="button"
+                        className={`${styles.quickAction} ${styles.quickActionPrimary}`}
+                        onClick={() => setSent(true)}
+                      >
+                        <Send size="small" aria-hidden />
+                        Send to client
+                      </button>
+                    </div>
+                  )}
+
+                  {sent ? (
+                    <>
+                      <div className={styles.userMessage}>Send to client</div>
+
+                      <div className={styles.sentRow} role="status" aria-live="polite">
+                        <CircleCheckFill size="small" className={styles.sentIcon} aria-hidden />
+                        <B3 className={styles.agentText}>
+                          I sent the request to Tina. She&rsquo;ll get a link to her client portal
+                          to answer the questionnaire, sign the engagement letter, and upload her
+                          documents. What would you like to do next?
+                        </B3>
+                      </div>
+
+                      <div className={styles.quickActions}>
+                        <button type="button" className={styles.quickAction}>
+                          Create billing estimate
+                        </button>
+                        <button type="button" className={styles.quickAction}>
+                          Summarize last year&rsquo;s 1040
+                        </button>
+                      </div>
+                    </>
+                  ) : null}
                 </div>
               ) : null}
             </div>
@@ -307,7 +349,10 @@ export default function ClientOnboardingPage() {
           <Button priority="tertiary" onClick={() => navigate('/smart-return')}>
             Cancel
           </Button>
-          <Button priority="primary" onClick={() => navigate('/smart-return')}>
+          <Button
+            priority="primary"
+            onClick={() => (sent ? setHandoffOpen(true) : navigate('/smart-return'))}
+          >
             Open return
           </Button>
         </footer>
@@ -330,23 +375,20 @@ export default function ClientOnboardingPage() {
         </ModalActions>
       </Modal>
 
-      {/* Send to client confirmation. */}
-      <Modal open={confirmOpen} onClose={() => setConfirmOpen(false)} size="small" dismissible>
-        <ModalHeader alignment="center" transparentBackground onClose={() => setConfirmOpen(false)}>
-          <ModalTitle title="Send to Tina Yuan?" />
+      {/* Opening the return jumps the clock forward to Tina's reply. */}
+      <Modal open={handoffOpen} onClose={() => setHandoffOpen(false)} size="small" dismissible>
+        <ModalHeader alignment="center" transparentBackground onClose={() => setHandoffOpen(false)}>
+          <ModalTitle title="Tina sent her documents" />
         </ModalHeader>
         <ModalContent alignment="center">
           <B2 className={styles.welcomeModalBody}>
-            She&rsquo;ll get the questionnaire, document checklist, and engagement letter in her
-            client portal.
+            A few days later — she answered the questionnaire, signed the engagement letter, and
+            uploaded everything on the checklist through her client portal.
           </B2>
         </ModalContent>
-        <ModalActions alignment="right">
-          <Button priority="tertiary" onClick={() => setConfirmOpen(false)}>
-            Cancel
-          </Button>
-          <Button priority="primary" onClick={() => navigate('/client-portal-handoff')}>
-            Send to client
+        <ModalActions alignment="center">
+          <Button priority="primary" onClick={() => navigate('/smart-return')}>
+            Pick up the return
           </Button>
         </ModalActions>
       </Modal>

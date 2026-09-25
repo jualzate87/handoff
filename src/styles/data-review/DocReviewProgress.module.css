@@ -74,7 +74,7 @@
 
 .cardNum {
   font-size: 20px;
-  font-weight: var(--font-weight-heading-bold, 800);
+  font-weight: var(--font-weight-heading, 600);
   color: var(--color-action-standard, #205ea3);
 }
 

@@ -65,11 +65,6 @@ export default function BooksFoundPage() {
             </div>
           </div>
 
-          <div className={styles.bottomBar}>
-            <Button priority="tertiary" onClick={() => navigate('/smart-return')}>
-              Back
-            </Button>
-          </div>
         </div>
       </IASShell>
     </div>

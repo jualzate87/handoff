@@ -1,6 +1,5 @@
 import { useCallback, useState } from 'react'
 import {
-  actorInitials,
   getReviewActor,
   isCurrentReviewerActor,
   REVIEWER_NAME,
@@ -53,7 +52,7 @@ function ApprovalMark({
   const content = (
     <>
       <CircleCheckFill size="x-small" className={styles.approvalCheck} aria-hidden />
-      <span>{actorInitials(entry.by)}</span>
+      <span>Verified ({entry.by})</span>
       {own && <ChevronDown size="x-small" aria-hidden />}
     </>
   )

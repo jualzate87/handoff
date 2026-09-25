@@ -24,7 +24,6 @@ import BooksFoundPage from './pages/BooksFoundPage'
 import BooksAdjustmentsPage from './pages/BooksAdjustmentsPage'
 import BooksImportingPage from './pages/BooksImportingPage'
 import ClientOnboardingPage from './pages/ClientOnboardingPage'
-import ClientPortalHandoffPage from './pages/ClientPortalHandoffPage'
 import WorkspacePage from './pages/WorkspacePage'
 import HomePage from './pages/HomePage'
 import NotFoundPage from './pages/NotFoundPage'
@@ -77,7 +76,6 @@ export default function App() {
             {/* The demo opens on client onboarding; SmartReturn stays reachable directly. */}
             <Route path="/" element={<Navigate to="/client-onboarding" replace />} />
             <Route path="/client-onboarding" element={<ClientOnboardingPage />} />
-            <Route path="/client-portal-handoff" element={<ClientPortalHandoffPage />} />
             <Route path="/import-hub" element={<Navigate to="/smart-return" replace />} />
             <Route path="/smart-return" element={<SmartReturnPage />} />
             <Route path="/import-confirmation" element={<ImportConfirmationPage />} />

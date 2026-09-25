@@ -1,4 +1,6 @@
-import { ChevronLeft, Search } from '@design-systems/icons'
+import { PanelArrowLeft, PanelArrowRight, Search } from '@design-systems/icons'
+import { IconControl } from '@ids-ts/icon-control'
+import '@ids-ts/icon-control/dist/main.css'
 import {
   INPUT_NAV_CATEGORIES,
   type InputNavItemId,
@@ -27,14 +29,13 @@ export default function InputMenuNav({
   if (collapsed) {
     return (
       <aside className={styles.menuPanelCollapsed} aria-label="Input menu">
-        <button
-          type="button"
-          className={styles.menuCollapseBtn}
+        <IconControl
+          size="small"
           aria-label="Expand input menu"
           onClick={() => onCollapsedChange(false)}
         >
-          <ChevronLeft size="small" aria-hidden />
-        </button>
+          <PanelArrowRight size="small" aria-hidden />
+        </IconControl>
       </aside>
     )
   }
@@ -43,14 +44,13 @@ export default function InputMenuNav({
     <aside className={styles.menuPanel} aria-label="Input menu">
       <div className={styles.menuHeader}>
         <span className={styles.menuTitle}>Input menu</span>
-        <button
-          type="button"
-          className={styles.menuCollapseBtn}
+        <IconControl
+          size="small"
           aria-label="Collapse input menu"
           onClick={() => onCollapsedChange(true)}
         >
-          <ChevronLeft size="small" aria-hidden />
-        </button>
+          <PanelArrowLeft size="small" aria-hidden />
+        </IconControl>
       </div>
 
       <label className={styles.searchWrap}>

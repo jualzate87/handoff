@@ -2112,7 +2112,7 @@
 .irsFormCode {
   font-family: var(--font-family-component);
   font-size: var(--font-size-component-x-large);
-  font-weight: var(--font-weight-heading-bold);
+  font-weight: var(--font-weight-heading, 600);
   color: var(--color-text-primary);
   line-height: 1.2;
 }
@@ -2175,7 +2175,7 @@
   display: block;
   font-family: var(--font-family-component);
   font-size: var(--font-size-heading-3);
-  font-weight: var(--font-weight-heading-bold);
+  font-weight: var(--font-weight-heading, 600);
   color: var(--color-text-primary);
   letter-spacing: -0.03em;
   line-height: 1;

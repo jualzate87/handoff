@@ -42,23 +42,6 @@
   color: var(--color-text-primary, #21262a);
 }
 
-.menuCollapseBtn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 24px;
-  height: 24px;
-  border: none;
-  border-radius: var(--radius-small, 4px);
-  background: var(--color-text-primary, #21262a);
-  color: var(--color-text-inverse, #ffffff);
-  cursor: pointer;
-  flex-shrink: 0;
-}
-
-.menuCollapseBtn:hover {
-  background: var(--color-text-secondary, #393a3d);
-}
 
 .menuNavScroll {
   flex: 1;

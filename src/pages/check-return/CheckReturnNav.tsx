@@ -1,7 +1,16 @@
 import { useMemo, useState, useEffect } from 'react'
-import { ChevronDown, ChevronLeft, ChevronRight, ChevronUp, Search } from '@design-systems/icons'
+import {
+  ChevronDown,
+  ChevronRight,
+  ChevronUp,
+  PanelArrowLeft,
+  PanelArrowRight,
+  Search,
+} from '@design-systems/icons'
 import { NumericBadge } from '@ids-ts/badge'
 import '@ids-ts/badge/dist/main.css'
+import { IconControl } from '@ids-ts/icon-control'
+import '@ids-ts/icon-control/dist/main.css'
 import { AI_DIAGNOSTIC_CATEGORIES } from './aiDiagnosticCategories'
 import intuitIntelligenceLogo from '../../assets/icons/intuit-intelligence-logo-small.svg'
 import { INTELLIGENCE_NAV_LABEL } from '../agent-review/agentIntelligenceCopy'
@@ -293,26 +302,24 @@ export default function CheckReturnNav({
   return (
     <aside className={collapsed ? styles.menuPanelCollapsed : styles.menuPanel} aria-label="Check return navigation">
       {collapsed ? (
-        <button
-          type="button"
-          className={styles.menuCollapseBtn}
+        <IconControl
+          size="small"
           aria-label="Expand check menu"
           onClick={() => setCollapsed(false)}
         >
-          <ChevronLeft size="small" aria-hidden />
-        </button>
+          <PanelArrowRight size="small" aria-hidden />
+        </IconControl>
       ) : (
         <>
           <div className={styles.menuHeader}>
             <span className={styles.menuTitle}>{focused ? 'Review return' : 'Check menu'}</span>
-            <button
-              type="button"
-              className={styles.menuCollapseBtn}
+            <IconControl
+              size="small"
               aria-label="Collapse check menu"
               onClick={() => setCollapsed(true)}
             >
-              <ChevronLeft size="small" aria-hidden />
-            </button>
+              <PanelArrowLeft size="small" aria-hidden />
+            </IconControl>
           </div>
 
           <div className={styles.menuNavScroll}>

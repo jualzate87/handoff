@@ -97,11 +97,6 @@ export default function ImportConfirmationPage() {
             </B3>
           </div>
 
-          <div className={styles.bottomBar}>
-            <Button priority="borderless" onClick={handleBackToSmartReturn}>
-              Back
-            </Button>
-          </div>
         </div>
       </IASShell>
     </div>

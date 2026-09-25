@@ -28,7 +28,7 @@
 .title {
   font-family: var(--font-family-heading);
   font-size: 20px;
-  font-weight: var(--font-weight-heading-bold, 600);
+  font-weight: var(--font-weight-heading, 600);
   color: var(--color-text-primary, #21262a);
   margin: 0;
 }
@@ -376,12 +376,53 @@
   color: var(--color-action-standard, #205ea3);
 }
 
-.engagementText {
-  padding: 14px 16px;
-  margin: 0;
-  color: var(--color-text-primary, #21262a);
+.letterToolbar {
+  display: flex;
+  justify-content: flex-end;
+  padding: 10px 16px 0;
   border-top: 1px solid var(--color-divider-tertiary, #e3e5e8);
-  line-height: 1.5;
+}
+
+.letterEdit {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: var(--font-weight-component-bold, 600);
+  color: var(--color-action-standard, #205ea3);
+}
+
+.letterBody {
+  max-height: 320px;
+  overflow-y: auto;
+  padding: 8px 16px 16px;
+}
+
+.letterParagraph {
+  color: var(--color-text-primary, #21262a);
+  line-height: 1.6;
+  margin: 0 0 16px;
+}
+
+.letterParagraph:last-child {
+  margin-bottom: 0;
+}
+
+.sentRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.sentIcon {
+  color: #1a8254;
+  flex-shrink: 0;
+  margin-top: 2px;
 }
 
 .cardControls {
