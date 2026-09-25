@@ -13,7 +13,7 @@ import ReturnActionsMenu from '../components/ReturnActionsMenu'
 import { useReturnWorkflow } from '../contexts/ReturnWorkflowContext'
 import { RETURN_STATUSES, TEAM_MEMBERS } from '../lib/returnWorkflow'
 import { INTELLIGENCE_SUBHEADER_CTA } from './agent-review/agentIntelligenceCopy'
-import { openReviewReturnPopout } from '../lib/prototypeRoutes'
+import { OUTPUT_REVIEW_PATH } from '../lib/prototypeRoutes'
 import styles from '../styles/SmartReturnHeader.module.css'
 
 export type ReturnHeaderTab = 'profile' | 'smartreturn' | 'inputreturn' | 'checkreturns' | 'filereturn'
@@ -58,7 +58,7 @@ export default function SmartReturnHeader({
       onReviewReturn()
       return
     }
-    openReviewReturnPopout('1040')
+    navigate(OUTPUT_REVIEW_PATH)
   }
 
   const otherCollaborators = TEAM_MEMBERS.filter(

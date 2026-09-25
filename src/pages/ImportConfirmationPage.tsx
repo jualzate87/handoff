@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { CircleCheckFill, ChevronLeft, ChevronRight } from '@design-systems/icons'
+import { OUTPUT_REVIEW_PATH } from '../lib/prototypeRoutes'
 import { Button } from '@ids-ts/button'
 import '@ids-ts/button/dist/main.css'
 import { Link } from '@ids-ts/link'
@@ -13,7 +14,6 @@ import SmartReturnHeader from './SmartReturnHeader'
 import IASShell from './data-review/IASShell'
 import styles from '../styles/ImportConfirmationPage.module.css'
 import { completeDocumentImport } from '../hooks/useSyncedReviewState'
-import { openReviewReturnPopout } from '../lib/prototypeRoutes'
 
 export default function ImportConfirmationPage() {
   const navigate = useNavigate()
@@ -42,7 +42,7 @@ export default function ImportConfirmationPage() {
   }
 
   const handleReviewReturn = () => {
-    openReviewReturnPopout('1040')
+    navigate(OUTPUT_REVIEW_PATH)
   }
 
   return (
@@ -68,7 +68,7 @@ export default function ImportConfirmationPage() {
               The return is ready for review
             </H5>
             <B2 className={styles.cardBody}>
-              Your review starts in a <strong>new tab</strong>, showing output forms first
+              Your review starts on the <strong>1040</strong>, right where you left off
             </B2>
 
             <ProgressBar

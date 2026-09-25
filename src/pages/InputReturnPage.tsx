@@ -7,8 +7,8 @@ import type { ReturnContextRailItemId } from '../components/ReturnContextRail'
 import IASShell from './data-review/IASShell'
 import InputMenuNav from './input-return/InputMenuNav'
 import { useNavigate } from 'react-router-dom'
-import { openReviewReturnPopout } from '../lib/prototypeRoutes'
 import InputFormPanel from './input-return/InputFormPanel'
+import { OUTPUT_REVIEW_PATH } from '../lib/prototypeRoutes'
 import {
   inputNavItemById,
   isScheduleAInterestNavItem,
@@ -158,7 +158,7 @@ export default function InputReturnPage() {
         <SmartReturnHeader
           activeTab="inputreturn"
           showReviewReturn
-          onReviewReturn={() => openReviewReturnPopout('1040')}
+          onReviewReturn={() => navigate(OUTPUT_REVIEW_PATH)}
         />
 
         <div className={styles.contentArea}>

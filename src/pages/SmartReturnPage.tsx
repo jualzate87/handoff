@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import SmartReturnHeader from './SmartReturnHeader'
 import SmartReturnDocumentHub from './SmartReturnDocumentHub'
 import IASShell from './data-review/IASShell'
 import styles from '../styles/SmartReturnPage.module.css'
-import { openReviewReturnPopout, setStoredDemoRole } from '../lib/prototypeRoutes'
+import { OUTPUT_REVIEW_PATH, setStoredDemoRole } from '../lib/prototypeRoutes'
 
 export default function SmartReturnPage() {
+  const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const roleParam = searchParams.get('role')
   const [reviewRole, setReviewRole] = useState<'preparer' | 'reviewer'>(() =>
@@ -37,7 +38,7 @@ export default function SmartReturnPage() {
   }, [])
 
   const handleReviewReturn = () => {
-    openReviewReturnPopout('1040')
+    navigate(OUTPUT_REVIEW_PATH)
   }
 
   const isReviewer = reviewRole === 'reviewer'
