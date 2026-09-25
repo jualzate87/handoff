@@ -466,7 +466,7 @@ export default function ClientOnboardingPage() {
       </div>
 
       {/* Demo welcome — first thing the audience sees. */}
-      <Modal open={welcomeOpen} onClose={() => setWelcomeOpen(false)} size="small" dismissible>
+      <Modal open={welcomeOpen} onClose={() => setWelcomeOpen(false)} size="medium" dismissible>
         <ModalHeader alignment="center" transparentBackground onClose={() => setWelcomeOpen(false)}>
           <ModalTitle title="Welcome to our tax demo" />
         </ModalHeader>
