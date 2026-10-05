@@ -109,17 +109,32 @@ export default function LaunchPointsFab({ onGuidedTourChange }: LaunchPointsFabP
 
   const handleResetDemo = useCallback(() => {
     resetPersistedReviewState()
+    resetReturnWorkflow()
+    // Belt-and-suspenders sweep: every prototype key, in both storages, by
+    // prefix rather than by name. The explicit removals below double as a
+    // readable record of what's being cleared and don't depend on this sweep,
+    // but the sweep is what actually prevents a key added later (or an old
+    // one a past edit missed) from quietly surviving "Reset demo" and
+    // reappearing as stale checkmarks/verifications in a new session.
     try {
-      localStorage.removeItem('protoc3-notes')
+      for (const storage of [localStorage, sessionStorage]) {
+        const staleKeys: string[] = []
+        for (let i = 0; i < storage.length; i++) {
+          const key = storage.key(i)
+          if (key && (key.startsWith('protoc3-') || key.startsWith('smartReviewProtoC:'))) {
+            staleKeys.push(key)
+          }
+        }
+        staleKeys.forEach(key => storage.removeItem(key))
+      }
     } catch {
-      // ignore
+      // ignore quota / private mode
     }
     sessionStorage.removeItem('protoc3-session-started')
     sessionStorage.removeItem('protoc3-imports-started')
     sessionStorage.removeItem('protoc3-phase')
     sessionStorage.removeItem('agentLoaded')
     sessionStorage.removeItem(AGENT_MODE_SESSION_KEY)
-    resetReturnWorkflow()
     setStoredDemoRole('preparer')
     setOpen(false)
     window.location.assign(buildHashRouteUrl('/smart-return'))

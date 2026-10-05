@@ -109,17 +109,18 @@ function createSyncTabId(): string {
 }
 // Bump whenever DEFAULT_STATE shape or seed values change so stale sessions reset.
 const STATE_VERSION = 35
-const STORAGE_KEY = 'protoc3-data-review-state-v' + STATE_VERSION
-/** Prior keys - sessionStorage (tab-scoped) and older localStorage versions */
-const LEGACY_STORAGE_KEYS = [
-  STORAGE_KEY,
-  'protoc3-data-review-state-v29',
-  'protoc3-data-review-state-v34',
-  'protoc3-data-review-state-v32',
-  'protoc3-data-review-state-v28',
-  'protoc3-data-review-state-v27',
-  'protoc3-data-review-state-v26',
-] as const
+const STORAGE_KEY_PREFIX = 'protoc3-data-review-state-v'
+const STORAGE_KEY = STORAGE_KEY_PREFIX + STATE_VERSION
+/**
+ * Prior keys - sessionStorage (tab-scoped) and older localStorage versions.
+ * Generated instead of hand-maintained so a version bump can't silently leave
+ * an old version out of the reset/migration sweep (it previously did, which
+ * let stale sessionStorage data get migrated back in after "Reset demo").
+ */
+const LEGACY_STORAGE_KEYS = Array.from(
+  { length: STATE_VERSION },
+  (_, i) => STORAGE_KEY_PREFIX + (i + 1),
+)
 
 function readPersistedRaw(): string | null {
   for (const key of LEGACY_STORAGE_KEYS) {
@@ -699,13 +700,19 @@ export function applyAgentIntelligenceFixesToState(state: SyncedState): SyncedSt
   })
 }
 
-/** Clear persisted review state (localStorage + in-memory). Reviewer handoff uses the same store. */
+/**
+ * Clear persisted review state - every current and legacy version key, in both
+ * localStorage and sessionStorage. Reviewer handoff uses the same store.
+ * Sweeping sessionStorage too matters: readPersistedRaw() migrates a legacy
+ * sessionStorage entry into the live localStorage key on next load, so a
+ * leftover there would silently undo the reset on the next new session.
+ */
 export function resetPersistedReviewState(): SyncedState {
   const fresh = createDefaultReviewState()
   try {
-    localStorage.removeItem(STORAGE_KEY)
     for (const key of LEGACY_STORAGE_KEYS) {
-      if (key !== STORAGE_KEY) localStorage.removeItem(key)
+      localStorage.removeItem(key)
+      sessionStorage.removeItem(key)
     }
   } catch {
     // ignore quota / private mode
