@@ -36,3 +36,4 @@ temp/*
 
 # Playwright visual QA output
 qa-shots/
+scratch/

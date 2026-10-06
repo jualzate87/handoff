@@ -137,7 +137,8 @@ export default function LaunchPointsFab({ onGuidedTourChange }: LaunchPointsFabP
     sessionStorage.removeItem(AGENT_MODE_SESSION_KEY)
     setStoredDemoRole('preparer')
     setOpen(false)
-    window.location.assign(buildHashRouteUrl('/smart-return'))
+    // Back to the very start of the demo, not mid-flow.
+    window.location.assign(buildHashRouteUrl('/client-onboarding'))
   }, [])
 
   if (hideOnPopout) {
@@ -228,7 +229,7 @@ export default function LaunchPointsFab({ onGuidedTourChange }: LaunchPointsFabP
                 </span>
                 <span>
                   <p className={styles.resetTitle}>Reset demo</p>
-                  <p className={styles.resetSubtitle}>back to &apos;Send client request&apos;</p>
+                  <p className={styles.resetSubtitle}>back to &apos;Welcome&apos;</p>
                 </span>
               </button>
             </div>
