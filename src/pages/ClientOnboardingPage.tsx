@@ -39,7 +39,6 @@ import {
   ONBOARDING_LOADING_STEPS,
   SENDING_TITLE,
   SENDING_STEPS,
-  CLIENT_DOCS_ARRIVED_KEY,
 } from '../data/clientOnboarding'
 import { AgentIntelligenceReasoningLive } from './agent-review/AgentIntelligenceReasoning'
 import prior1040 from '../assets/jessica-1040-2024-variant-1.png'
@@ -419,17 +418,8 @@ export default function ClientOnboardingPage() {
                         <B3 className={styles.agentText}>
                           I sent the request to Tina. She&rsquo;ll get a link to her client portal
                           to answer the questionnaire, sign the engagement letter, and upload her
-                          documents. What would you like to do next?
+                          documents.
                         </B3>
-                      </div>
-
-                      <div className={styles.quickActions}>
-                        <button type="button" className={styles.quickAction}>
-                          Create billing estimate
-                        </button>
-                        <button type="button" className={styles.quickAction}>
-                          Summarize last year&rsquo;s 1040
-                        </button>
                       </div>
                     </>
                   ) : null}
@@ -452,14 +442,7 @@ export default function ClientOnboardingPage() {
           <Button priority="tertiary" onClick={() => navigate('/smart-return')}>
             Cancel
           </Button>
-          <Button
-            priority="primary"
-            onClick={() => {
-              // The time-jump modal belongs to the return, so it opens there.
-              if (sent) sessionStorage.setItem(CLIENT_DOCS_ARRIVED_KEY, '1')
-              navigate('/smart-return')
-            }}
-          >
+          <Button priority="primary" onClick={() => navigate('/smart-return')}>
             Open return
           </Button>
         </footer>

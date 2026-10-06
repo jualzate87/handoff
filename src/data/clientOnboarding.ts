@@ -14,12 +14,6 @@ export const ONBOARDING_DOCUMENTS = [
   { name: 'Schedule K-1s', detail: 'Schedule K-1 from Easy Money' },
 ]
 
-/**
- * Set when the onboarding request is sent, so the return can open with the
- * time-jump modal announcing that Tina's documents arrived.
- */
-export const CLIENT_DOCS_ARRIVED_KEY = 'protoc3-client-docs-arrived'
-
 /** Reasoning stream shown while the agent drafts the questionnaire and checklist. */
 export const ONBOARDING_LOADING_TITLE = 'Creating client questionnaire & checklist…'
 
