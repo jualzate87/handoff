@@ -1,10 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { ChevronRight, CircleCheck, CircleCheckFill, Close, DotsSix } from '@design-systems/icons'
+import { CircleCheckFill, Close, DotsSix } from '@design-systems/icons'
 import { Button } from '@ids-ts/button'
 import '@ids-ts/button/dist/main.css'
-import ToastMessage from '@ids-ts/toast-message'
-import '@ids-ts/toast-message/dist/main.css'
 import { IconControl } from '@ids-ts/icon-control'
 import '@ids-ts/icon-control/dist/main.css'
 import ReviewTab from './data-review/ReviewTab'
@@ -77,7 +75,6 @@ import {
   SOURCE_DOC_POPOUT_NAV_CHANNEL,
   type SourceDocumentPopoutContext,
 } from '../lib/prototypeRoutes'
-import toastHostStyles from '../components/PrototypeToastHost/PrototypeToastHost.module.css'
 import dragStyles from '../styles/data-review/DragHandle.module.css'
 import styles from '../styles/data-review/DataReviewPopout.module.css'
 
@@ -136,8 +133,6 @@ export default function DataReviewPopout() {
   const [sessionDirty, setSessionDirty] = useState(false)
   const [unsavedModalOpen, setUnsavedModalOpen] = useState(false)
   const [recalculatedFields, setRecalculatedFields] = useState<Set<string>>(new Set())
-  const [saveStatusVisible, setSaveStatusVisible] = useState(false)
-  const [saveToastOpen, setSaveToastOpen] = useState(false)
 
   const { currentUser } = useReturnWorkflow()
 
@@ -178,7 +173,6 @@ export default function DataReviewPopout() {
 
   const touchDirty = useCallback(() => {
     setSessionDirty(true)
-    setSaveStatusVisible(false)
   }, [])
 
   const markFieldEdited = useCallback((fieldKey: string) => {
@@ -291,15 +285,14 @@ export default function DataReviewPopout() {
     window.close()
   }, [restoreSyncedSnapshot])
 
-  const handleSaveAndRecalculate = useCallback(() => {
-    const committed = commitUnsavedEdits()
-    flashRecalculatedFields(committed)
+  /** Primary footer action: saves and closes in one click — no separate close step after. */
+  const handleSaveAndClose = useCallback(() => {
+    commitUnsavedEdits()
     baselineRef.current = getSyncedSnapshot()
     setSessionDirty(false)
     setUnsavedModalOpen(false)
-    setSaveStatusVisible(true)
-    setSaveToastOpen(true)
-  }, [commitUnsavedEdits, flashRecalculatedFields, getSyncedSnapshot])
+    window.close()
+  }, [commitUnsavedEdits, getSyncedSnapshot])
 
   useEffect(() => {
     const onBeforeUnload = (event: BeforeUnloadEvent) => {
@@ -437,6 +430,7 @@ export default function DataReviewPopout() {
     reviewerConfirmedDocs,
     isReviewer: isReviewerConfirmMode,
   })
+  const allDocsVerified = totalDocCount > 0 && verifiedDocCount >= totalDocCount
   const flagsCleared = phase1Remaining === 0
   const showPreparerImportPhase = true
   const tabReviewCounts = buildTabReviewCounts({
@@ -548,12 +542,12 @@ export default function DataReviewPopout() {
       <header className={styles.titleBar}>
         <h1 className={styles.titleBarHeading}>Source document review</h1>
         <div className={styles.titleBarActions}>
-          {saveStatusVisible && (
-            <span className={styles.savedStatus} role="status" aria-live="polite">
-              <CircleCheck size="small" className={styles.savedStatusIcon} aria-hidden />
-              All changes saved
-            </span>
-          )}
+          <DocReviewProgress
+            variant="compact"
+            className={styles.titleBarProgress}
+            verified={verifiedDocCount}
+            total={totalDocCount}
+          />
           <IconControl
             aria-label="Close source document review"
             size="medium"
@@ -565,24 +559,12 @@ export default function DataReviewPopout() {
         </div>
       </header>
 
-      <div className={styles.walkNav}>
-        <DocReviewProgress
-          variant="compact"
-          className={styles.walkProgress}
-          verified={verifiedDocCount}
-          total={totalDocCount}
-        />
-        {showPreparerImportPhase && (
-          <Button
-            priority="primary"
-            size="small"
-            onClick={onReviewNextDocument}
-          >
-            Next document
-            <ChevronRight size="small" />
-          </Button>
-        )}
-      </div>
+      {allDocsVerified && (
+        <div className={styles.allVerifiedBanner} role="status">
+          <CircleCheckFill size="small" className={styles.allVerifiedIcon} aria-hidden />
+          Well done. Now you can review diagnostics and run a full AI review.
+        </div>
+      )}
 
       <div className={styles.bodyArea}>
       <div className={styles.headerStack}>
@@ -596,7 +578,8 @@ export default function DataReviewPopout() {
           tabConfirmStatus={undefined}
           tabConfirmCounts={undefined}
           showAddItem={false}
-          showNextDocument={false}
+          showNextDocument={showPreparerImportPhase}
+          onNextDocumentClick={onReviewNextDocument}
           unreviewedDocCount={unreviewedDocCount}
           onTopTabChange={onTopTabChange}
         />
@@ -942,8 +925,8 @@ export default function DataReviewPopout() {
           Cancel
         </Button>
         <div className={styles.footerActions}>
-          <Button priority="primary" onClick={handleSaveAndRecalculate}>
-            Save and recalculate return
+          <Button priority="primary" onClick={handleSaveAndClose}>
+            Save and close
           </Button>
         </div>
       </footer>
@@ -953,27 +936,6 @@ export default function DataReviewPopout() {
         onStay={handleStayEditing}
         onLeaveWithoutSaving={handleLeaveWithoutSaving}
       />
-
-      <div className={toastHostStyles.host} aria-live="polite">
-        <ToastMessage
-          open={saveToastOpen}
-          dismissible
-          showIcon
-          duration={6000}
-          actionLabel="Dismiss"
-          icon={
-            <CircleCheckFill
-              focusable={false}
-              data-testid="circleCheckIcon"
-              className={toastHostStyles.toastSuccessIcon}
-            />
-          }
-          onClose={() => setSaveToastOpen(false)}
-          onActionClick={() => setSaveToastOpen(false)}
-        >
-          Return recalculated. All changes saved.
-        </ToastMessage>
-      </div>
     </div>
   )
 }
