@@ -1,5 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
+import { CircleCheckFill } from '@design-systems/icons'
+import ToastMessage from '@ids-ts/toast-message'
+import '@ids-ts/toast-message/dist/main.css'
 import IASShell from './data-review/IASShell'
 import SmartReturnHeader from './SmartReturnHeader'
 import ReturnContextRail from '../components/ReturnContextRail'
@@ -22,10 +25,14 @@ import ReviewerHandoffPrompt, { type ReviewerPromptVariant } from './handoff/Rev
 import { JOINED_AS_EVENT, REVIEWER_WELCOME_KEY } from '../lib/returnWorkflow'
 import { navigateToActivityTarget } from './check-return/activityNavigation'
 import type { ActivityDeepLink } from './check-return/activityTypes'
-import { openSourceDocumentReviewPopout } from '../lib/prototypeRoutes'
+import {
+  openSourceDocumentReviewPopout,
+  SOURCE_DOC_POPOUT_SAVED_CHANNEL,
+} from '../lib/prototypeRoutes'
 import type { ReturnContextRailItemId } from '../components/ReturnContextRail'
 import { RETURN_NOTES_EVENT } from '../hooks/useReturnNotes'
 import styles from '../styles/CheckReturnPage.module.css'
+import toastHostStyles from '../components/PrototypeToastHost/PrototypeToastHost.module.css'
 
 function resolveInitialOutputForm(searchParams: URLSearchParams): OutputFormId {
   const formParam = searchParams.get('form')
@@ -77,6 +84,7 @@ export default function CheckReturnPage({
   const [selectedAiDiagnosticSubId, setSelectedAiDiagnosticSubId] = useState<string | null>(null)
   const [reviewLogOpen, setReviewLogOpen] = useState(false)
   const [commentsOpen, setCommentsOpen] = useState(false)
+  const [saveToastOpen, setSaveToastOpen] = useState(false)
   const aiReviewButtonRef = useRef<HTMLButtonElement | null>(null)
   const [showReviewerWelcome, setShowReviewerWelcome] = useState(
     () => sessionStorage.getItem(REVIEWER_WELCOME_KEY) === '1',
@@ -123,6 +131,15 @@ export default function CheckReturnPage({
     }
     window.addEventListener(RETURN_NOTES_EVENT, onNotesChanged)
     return () => window.removeEventListener(RETURN_NOTES_EVENT, onNotesChanged)
+  }, [])
+
+  // The source-doc popout closes itself right after "Save and close", so the
+  // confirmation has to land here instead - this is the screen the user
+  // actually ends up looking at.
+  useEffect(() => {
+    const channel = new BroadcastChannel(SOURCE_DOC_POPOUT_SAVED_CHANNEL)
+    channel.onmessage = () => setSaveToastOpen(true)
+    return () => channel.close()
   }, [])
 
   useEffect(() => {
@@ -287,6 +304,27 @@ export default function CheckReturnPage({
           />
         </div>
       </IASShell>
+
+      <div className={toastHostStyles.host} aria-live="polite">
+        <ToastMessage
+          open={saveToastOpen}
+          dismissible
+          showIcon
+          duration={6000}
+          actionLabel="Dismiss"
+          icon={
+            <CircleCheckFill
+              focusable={false}
+              data-testid="circleCheckIcon"
+              className={toastHostStyles.toastSuccessIcon}
+            />
+          }
+          onClose={() => setSaveToastOpen(false)}
+          onActionClick={() => setSaveToastOpen(false)}
+        >
+          Return recalculated. All changes saved.
+        </ToastMessage>
+      </div>
     </div>
   )
 }

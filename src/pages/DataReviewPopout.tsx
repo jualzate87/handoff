@@ -1,8 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { CircleCheckFill, Close, DotsSix } from '@design-systems/icons'
+import { Close, DotsSix } from '@design-systems/icons'
 import { Button } from '@ids-ts/button'
 import '@ids-ts/button/dist/main.css'
+import { Badge, InfoBadgeIcon, SuccessBadgeIcon } from '@ids-ts/badge'
+import '@ids-ts/badge/dist/main.css'
 import { IconControl } from '@ids-ts/icon-control'
 import '@ids-ts/icon-control/dist/main.css'
 import ReviewTab from './data-review/ReviewTab'
@@ -73,6 +75,7 @@ import { applySourceDocumentPopoutContext } from '../data/inputDocTabs'
 import {
   SOURCE_DOCUMENT_REVIEW_POPOUT_PATH,
   SOURCE_DOC_POPOUT_NAV_CHANNEL,
+  announceSourceDocPopoutSaved,
   type SourceDocumentPopoutContext,
 } from '../lib/prototypeRoutes'
 import dragStyles from '../styles/data-review/DragHandle.module.css'
@@ -291,6 +294,9 @@ export default function DataReviewPopout() {
     baselineRef.current = getSyncedSnapshot()
     setSessionDirty(false)
     setUnsavedModalOpen(false)
+    // The window is about to disappear, so the confirmation has to surface on
+    // the opener instead of in here.
+    announceSourceDocPopoutSaved()
     window.close()
   }, [commitUnsavedEdits, getSyncedSnapshot])
 
@@ -542,12 +548,6 @@ export default function DataReviewPopout() {
       <header className={styles.titleBar}>
         <h1 className={styles.titleBarHeading}>Source document review</h1>
         <div className={styles.titleBarActions}>
-          <DocReviewProgress
-            variant="compact"
-            className={styles.titleBarProgress}
-            verified={verifiedDocCount}
-            total={totalDocCount}
-          />
           <IconControl
             aria-label="Close source document review"
             size="medium"
@@ -559,12 +559,29 @@ export default function DataReviewPopout() {
         </div>
       </header>
 
-      {allDocsVerified && (
-        <div className={styles.allVerifiedBanner} role="status">
-          <CircleCheckFill size="small" className={styles.allVerifiedIcon} aria-hidden />
-          Well done. Now you can review diagnostics and run a full AI review.
+      <div className={styles.statusBar} role="status">
+        <div className={styles.statusBarLeft}>
+          <Badge
+            className={styles.statusBarBadge}
+            shape="round"
+            status={allDocsVerified ? 'success' : 'info'}
+            aria-hidden
+          >
+            {allDocsVerified ? <SuccessBadgeIcon /> : <InfoBadgeIcon />}
+          </Badge>
+          <span className={styles.statusBarText}>
+            {allDocsVerified
+              ? 'Well done. Now you can review diagnostics and run a full AI review.'
+              : 'Verify all fields in every document. Confirm accuracy against the source before marking as verified.'}
+          </span>
         </div>
-      )}
+        <DocReviewProgress
+          variant="compact"
+          className={styles.statusBarProgress}
+          verified={verifiedDocCount}
+          total={totalDocCount}
+        />
+      </div>
 
       <div className={styles.bodyArea}>
       <div className={styles.headerStack}>
@@ -666,6 +683,7 @@ export default function DataReviewPopout() {
           <ImportSourceBadge docKey={activeVerifyDocKey} />
         </div>
       )}
+
 
       <div ref={rightRef} className={styles.splitPane}>
           {activeTopTab !== 'questionnaire' && (

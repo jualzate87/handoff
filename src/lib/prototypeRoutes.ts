@@ -78,6 +78,25 @@ export const SOURCE_DOCUMENT_REVIEW_POPOUT_PATH = '/data-review-popout'
 /** BroadcastChannel for navigating an already-open source-doc popout. */
 export const SOURCE_DOC_POPOUT_NAV_CHANNEL = 'protoc3-source-doc-popout-nav'
 
+/**
+ * BroadcastChannel announcing a "Save and close" from the source-doc popout.
+ * The popout closes itself immediately, so any confirmation has to show on
+ * the opener instead — this is how the opener learns a save actually happened
+ * (as opposed to Cancel/X, which closes with nothing to confirm).
+ */
+export const SOURCE_DOC_POPOUT_SAVED_CHANNEL = 'protoc3-source-doc-popout-saved'
+
+/** Tell the opener a save-and-close just happened, so it can show the confirmation. */
+export function announceSourceDocPopoutSaved(): void {
+  try {
+    const channel = new BroadcastChannel(SOURCE_DOC_POPOUT_SAVED_CHANNEL)
+    channel.postMessage({ at: Date.now() })
+    channel.close()
+  } catch {
+    // ignore - BroadcastChannel unsupported
+  }
+}
+
 const SOURCE_DOC_POPOUT_WINDOW_NAME = 'smartreview-source-doc-review'
 
 /** Shared popout window chrome - matches source document review dimensions. */
@@ -100,6 +119,16 @@ export type SourceDocumentPopoutContext = {
   intPayer?: string
   /** Detail field to focus in the input panel (View input). */
   field?: string
+}
+
+/**
+ * Where "Source documents" lands when opened with no specific context (e.g.
+ * the header button) - the very first document, not wherever the popout was
+ * last left (it stays open and reuses the same window across visits).
+ */
+const FIRST_SOURCE_DOCUMENT_CONTEXT: SourceDocumentPopoutContext = {
+  tab: 'w2s',
+  subTab: 'techCircle',
 }
 
 /** Copy sometimes uses singular form names; the popout tabs are plural. */
@@ -172,11 +201,15 @@ function postPopoutNavigation(context?: SourceDocumentPopoutContext): void {
 export function openSourceDocumentReviewPopout(
   context?: SourceDocumentPopoutContext,
 ): Window | null {
-  const url = buildHashRouteUrl(buildSourceDocumentPopoutRoute(context))
+  // No caller-supplied context means "just open source documents" (the header
+  // button) - land on the first document instead of wherever an already-open
+  // popout happens to be parked.
+  const resolvedContext = context ?? FIRST_SOURCE_DOCUMENT_CONTEXT
+  const url = buildHashRouteUrl(buildSourceDocumentPopoutRoute(resolvedContext))
 
   if (sourceDocPopoutWindow && !sourceDocPopoutWindow.closed) {
     sourceDocPopoutWindow.focus()
-    postPopoutNavigation(context)
+    postPopoutNavigation(resolvedContext)
     return sourceDocPopoutWindow
   }
 

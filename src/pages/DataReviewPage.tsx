@@ -1577,7 +1577,15 @@ export default function DataReviewPage() {
 
   const handlePopOutSourcePanel = useCallback(() => {
     setPoppedOut(true)
-    const popoutWindow = openSourceDocumentReviewPopout()
+    // Carry over wherever this embedded panel already is, rather than the
+    // header button's "jump to the first document" default.
+    const popoutWindow = openSourceDocumentReviewPopout({
+      tab: activeTopTab,
+      subTab: activeSubTab,
+      divPayer: activeDivPayer,
+      intPayer: activeIntPayer,
+      field: selectedField ?? undefined,
+    })
     if (popoutWindow) {
       const checkClosed = window.setInterval(() => {
         if (popoutWindow.closed) {
@@ -1586,7 +1594,7 @@ export default function DataReviewPage() {
         }
       }, 500)
     }
-  }, [])
+  }, [activeTopTab, activeSubTab, activeDivPayer, activeIntPayer, selectedField])
 
 
   const outstandingOpenCount = getOutstandingOpenCount(buildSnapshot('signoff-review'))
