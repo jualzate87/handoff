@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   CloudUpload, Upload, OverflowWeb, ChevronDown, ChevronUp, Download, Copy,
-  CommentDots, Flag,
+  CommentDots, Flag, CircleCheckFill,
 } from '@design-systems/icons'
 import { Button } from '@ids-ts/button'
 import '@ids-ts/button/dist/main.css'
@@ -58,6 +58,7 @@ export default function SmartReturnDocumentHub({ readOnly = false }: SmartReturn
   const [step, setStep] = useState<HubStep>('hub')
   const [progress, setProgress] = useState(2)
   const [checklistOpen, setChecklistOpen] = useState(true)
+  const [checklistTab, setChecklistTab] = useState<'received' | 'needed'>('received')
   const [lastYearOpen, setLastYearOpen] = useState(false)
   const [isDragging, setIsDragging] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -205,13 +206,21 @@ export default function SmartReturnDocumentHub({ readOnly = false }: SmartReturn
                 {checklistOpen && (
                   <>
                     <div className={styles.checklistTabs}>
-                      <span className={`${styles.checklistTab} ${styles.checklistTabActive}`}>
+                      <span
+                        className={`${styles.checklistTab} ${checklistTab === 'received' ? styles.checklistTabActive : ''}`}
+                        onClick={() => setChecklistTab('received')}
+                      >
                         Received <span className={styles.tabBadge}>{RECEIVED_DOCS.length}</span>
                       </span>
-                      <span className={styles.checklistTab}>
+                      <span
+                        className={`${styles.checklistTab} ${checklistTab === 'needed' ? styles.checklistTabActive : ''}`}
+                        onClick={() => setChecklistTab('needed')}
+                        data-tour="checklist-needed-tab"
+                      >
                         Needed <span className={styles.tabBadge}>0</span>
                       </span>
                     </div>
+                    {checklistTab === 'received' ? (
                     <div className={styles.checklistBody}>
                       <div className={styles.tableScroll}>
                         <div className={styles.tableHeader}>
@@ -269,6 +278,24 @@ export default function SmartReturnDocumentHub({ readOnly = false }: SmartReturn
                         </div>
                       </div>
                     </div>
+                    ) : (
+                    <div className={styles.checklistBody}>
+                      <p className={styles.checklistDescription}>
+                        We&rsquo;ve pre-filled this checklist based on last year&rsquo;s return. Review the checklist and add or remove items as needed.
+                      </p>
+                      <div className={styles.neededEmptyState}>
+                        <CircleCheckFill size="xlarge" className={styles.neededEmptyIcon} />
+                        <p className={styles.neededEmptyTitle}>No more documents needed</p>
+                        <p className={styles.neededEmptyHint}>Import received documents or request more to continue</p>
+                      </div>
+                      <div className={styles.tableFooter}>
+                        <div className={styles.tableFooterLeft} />
+                        <div className={styles.tableFooterRight}>
+                          <Button priority="tertiary" onClick={() => {}}>Edit checklist</Button>
+                        </div>
+                      </div>
+                    </div>
+                    )}
                   </>
                 )}
               </div>

@@ -128,9 +128,9 @@ export default function GuidedTour({ enabled }: GuidedTourProps) {
     return () => document.removeEventListener('click', onClick, true)
   }, [advance, enabled, step])
 
-  if (!enabled || !rect) return null
+  if (!enabled || !rect || !step) return null
 
-  const placement = step?.placement ?? 'right'
+  const placement = step.placement ?? 'right'
   const style: React.CSSProperties =
     placement === 'right'
       ? { top: rect.top + rect.height / 2, left: rect.right + 8 }
@@ -139,6 +139,15 @@ export default function GuidedTour({ enabled }: GuidedTourProps) {
         : placement === 'top'
           ? { top: rect.top - 8, left: rect.left + rect.width / 2 }
           : { top: rect.bottom + 8, left: rect.left + rect.width / 2 }
+
+  const cardStyle: React.CSSProperties =
+    placement === 'right'
+      ? { top: rect.top + rect.height / 2, left: rect.right + 26, transform: 'translateY(-50%)' }
+      : placement === 'left'
+        ? { top: rect.top + rect.height / 2, left: rect.left - 26, transform: 'translate(-100%, -50%)' }
+        : placement === 'top'
+          ? { top: rect.top - 26, left: rect.left + rect.width / 2, transform: 'translate(-50%, -100%)' }
+          : { top: rect.bottom + 26, left: rect.left + rect.width / 2, transform: 'translateX(-50%)' }
 
   return (
     <>
@@ -153,6 +162,14 @@ export default function GuidedTour({ enabled }: GuidedTourProps) {
         aria-hidden
       />
       <div className={`${styles.pointer} ${styles[placement]}`} style={style} aria-hidden />
+      <div className={styles.card} style={cardStyle} role="status">
+        <p className={styles.cardNote}>{step.note}</p>
+        {step.infoOnly && (
+          <button type="button" className={styles.cardDismiss} onClick={advance}>
+            Got it
+          </button>
+        )}
+      </div>
     </>
   )
 }

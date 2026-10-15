@@ -24,11 +24,6 @@
   white-space: nowrap;
 }
 
-.compactCheck {
-  flex-shrink: 0;
-  color: var(--color-icon-primary, #393a3d);
-}
-
 .compactNum {
   font-weight: var(--font-weight-component-bold, 600);
   color: var(--color-text-primary, #393a3d);

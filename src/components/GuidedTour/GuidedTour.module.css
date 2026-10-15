@@ -100,3 +100,37 @@
     animation: none;
   }
 }
+
+.card {
+  position: fixed;
+  z-index: 9999;
+  max-width: 260px;
+  padding: 12px 14px;
+  background: #21262a;
+  color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+  font-family: var(--font-family-component, sans-serif);
+  pointer-events: none;
+}
+
+.cardNote {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 18px;
+}
+
+.cardDismiss {
+  display: inline-flex;
+  margin-top: 10px;
+  padding: 4px 10px;
+  background: var(--tour-accent, #d72792);
+  color: #ffffff;
+  border: none;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  pointer-events: auto;
+}

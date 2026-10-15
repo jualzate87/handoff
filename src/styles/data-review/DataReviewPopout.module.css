@@ -129,14 +129,6 @@
   overflow: hidden;
 }
 
-.importSourceRow {
-  display: flex;
-  align-items: center;
-  flex-shrink: 0;
-  padding: var(--space-component-inline-padding-small, 6px) var(--space-container-padding-medium, 20px);
-  border-bottom: 1px solid var(--color-divider-tertiary, #d4d7dc);
-}
-
 .footer {
   display: flex;
   align-items: center;

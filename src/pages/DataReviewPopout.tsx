@@ -9,7 +9,6 @@ import { IconControl } from '@ids-ts/icon-control'
 import '@ids-ts/icon-control/dist/main.css'
 import ReviewTab from './data-review/ReviewTab'
 import type { TopTab } from './data-review/ReviewTab'
-import ImportSourceBadge from '../components/ImportSourceBadge/ImportSourceBadge'
 import Phase1IssueBanner from './data-review/Phase1IssueBanner'
 import {
   countPhase1Remaining,
@@ -677,13 +676,6 @@ export default function DataReviewPopout() {
       )}
 
       </div>
-
-      {activeTopTab !== 'questionnaire' && activeVerifyDocKey && (
-        <div className={styles.importSourceRow}>
-          <ImportSourceBadge docKey={activeVerifyDocKey} />
-        </div>
-      )}
-
 
       <div ref={rightRef} className={styles.splitPane}>
           {activeTopTab !== 'questionnaire' && (

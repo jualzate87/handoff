@@ -1,4 +1,3 @@
-import { CircleCheck } from '@design-systems/icons'
 import { ProgressBar } from '@ids-ts/progress-bar'
 import '@ids-ts/progress-bar/dist/main.css'
 import styles from '../../styles/data-review/DocReviewProgress.module.css'
@@ -34,13 +33,6 @@ export default function DocReviewProgress({
         aria-live="polite"
       >
         <p className={styles.compactLabel}>
-          {complete && (
-            <CircleCheck
-              size="small"
-              className={styles.compactCheck}
-              aria-hidden
-            />
-          )}
           <strong className={styles.compactNum}>{verified}</strong>
           <span className={styles.compactOf}> / {total} Documents verified</span>
         </p>
