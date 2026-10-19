@@ -24,7 +24,7 @@ import {
 import { Switch } from '@ids-ts/switch'
 import '@ids-ts/switch/dist/main.css'
 import { isGuidedTourEnabled, setGuidedTourEnabled } from '../GuidedTour/GuidedTour'
-import { ROLE_SWITCH_POINTS, type LaunchPoint } from './launchPointsData'
+import { DEMO_ENTRY_POINTS, ROLE_SWITCH_POINTS, type LaunchPoint } from './launchPointsData'
 import styles from './LaunchPointsFab.module.css'
 
 const REVIEWER_HANDOFF_PATH = '/check-return?handoff=reviewer'
@@ -219,7 +219,8 @@ export default function LaunchPointsFab({ onGuidedTourChange }: LaunchPointsFabP
             </div>
 
             <ul className={styles.list}>
-              {roleSwitch ? renderPoint(roleSwitch, 0) : null}
+              {DEMO_ENTRY_POINTS.map((point, index) => renderPoint(point, index))}
+              {roleSwitch ? renderPoint(roleSwitch, DEMO_ENTRY_POINTS.length) : null}
             </ul>
 
             <div className={styles.panelFooter}>

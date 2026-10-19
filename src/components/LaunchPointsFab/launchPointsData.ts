@@ -11,6 +11,16 @@ export type LaunchPoint = {
   joinAs?: string
 }
 
+export const DEMO_ENTRY_POINTS: LaunchPoint[] = [
+  {
+    id: 'start-smart-return',
+    title: 'Start at SmartReturn',
+    status: 'live',
+    description: 'Skip the 1040 import flow and start on the SmartReturn screen, with the welcome intro',
+    route: '/smart-return?welcome=1',
+  },
+]
+
 export const ROLE_SWITCH_POINTS: LaunchPoint[] = [
   {
     id: 'join-jake',

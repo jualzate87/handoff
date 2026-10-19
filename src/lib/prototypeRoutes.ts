@@ -19,6 +19,9 @@ export const PREPARER_AGENT_DIAGNOSTICS_PATH = '/check-return/agent'
 /** Launch point - earlier embedded AI diagnostics experience inside Check return. */
 export const EMBEDDED_AI_DIAGNOSTICS_PATH = '/check-return?experience=ai-diags'
 
+/** Launch point - start directly on SmartReturn with the welcome modal, skipping the 1040 import flow. */
+export const SMART_RETURN_WELCOME_PATH = '/smart-return?welcome=1'
+
 /** sessionStorage key — set only from Launch Points agent entry. */
 export const AGENT_MODE_SESSION_KEY = 'protoc3-agent-mode'
 
