@@ -17,6 +17,7 @@ export default function SmartReturnPage() {
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const roleParam = searchParams.get('role')
+  const skipBooksFlow = searchParams.get('skipBooks') === '1'
   const [reviewRole, setReviewRole] = useState<'preparer' | 'reviewer'>(() =>
     roleParam === 'reviewer' ? 'reviewer' : 'preparer',
   )
@@ -67,7 +68,7 @@ export default function SmartReturnPage() {
           onReviewReturn={handleReviewReturn}
         />
 
-        <SmartReturnDocumentHub readOnly={isReviewer} />
+        <SmartReturnDocumentHub readOnly={isReviewer} skipBooksFlow={skipBooksFlow} />
       </IASShell>
 
       {/* Demo shortcut — starts straight on SmartReturn, skipping the 1040 import flow. */}

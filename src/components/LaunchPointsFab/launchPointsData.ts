@@ -23,8 +23,8 @@ export const DEMO_ENTRY_POINTS: LaunchPoint[] = [
     id: 'skip-to-return-ready',
     title: 'Skip straight to return ready',
     status: 'live',
-    description: 'Import from SmartReturn and land directly on "The return is ready for review" — no QuickBooks books screens',
-    route: '/import-confirmation',
+    description: 'Start at SmartReturn and import as usual, but skip the QuickBooks books screens afterward',
+    route: '/smart-return?skipBooks=1',
   },
 ]
 

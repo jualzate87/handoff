@@ -51,9 +51,11 @@ const RECEIVED_DOCS = [
 interface SmartReturnDocumentHubProps {
   /** Reviewer sees checklist/docs but cannot upload or import */
   readOnly?: boolean
+  /** Demo shortcut — after import, skip the QuickBooks books-found/adjustments/importing screens and land directly on import-confirmation. */
+  skipBooksFlow?: boolean
 }
 
-export default function SmartReturnDocumentHub({ readOnly = false }: SmartReturnDocumentHubProps) {
+export default function SmartReturnDocumentHub({ readOnly = false, skipBooksFlow = false }: SmartReturnDocumentHubProps) {
   const navigate = useNavigate()
   const [step, setStep] = useState<HubStep>('hub')
   const [progress, setProgress] = useState(2)
@@ -74,7 +76,7 @@ export default function SmartReturnDocumentHub({ readOnly = false }: SmartReturn
           clearInterval(interval)
           timerRef.current = setTimeout(() => {
             completeDocumentImport()
-            navigate('/books-found')
+            navigate(skipBooksFlow ? '/import-confirmation' : '/books-found')
           }, 400)
           return 100
         }
@@ -85,7 +87,7 @@ export default function SmartReturnDocumentHub({ readOnly = false }: SmartReturn
       clearInterval(interval)
       if (timerRef.current) clearTimeout(timerRef.current)
     }
-  }, [step, navigate])
+  }, [step, navigate, skipBooksFlow])
 
   const handleUploadClick = () => {
     if (readOnly) return
