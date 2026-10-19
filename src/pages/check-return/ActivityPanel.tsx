@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { Close, OverflowWeb, Refresh } from '@design-systems/icons'
+import { ChevronDown, ChevronRight, Close, OverflowWeb, Refresh } from '@design-systems/icons'
 import { Dropdown, MenuItem } from '@ids-ts/dropdown'
 import '@ids-ts/dropdown/dist/main.css'
 import { IconControl } from '@ids-ts/icon-control'
@@ -23,9 +23,27 @@ import {
   type AuthorFilterValue,
   type DateFilterValue,
 } from './activityFeedData'
+import { entryTypeToReviewLogKind, type ReviewLogKind } from './activityTypes'
 import styles from '../../styles/check-return/ActivityPanel.module.css'
 
 type ActivitySegment = 'data-entry' | 'review' | 'client'
+
+type ActivityGroupBy = 'type' | 'day'
+
+/** Grouped view: section order and headings, most review-relevant first. */
+const KIND_SECTION_ORDER: ReviewLogKind[] = ['document', 'edit', 'form-check', 'diagnostic']
+
+const KIND_SECTION_LABEL: Record<ReviewLogKind, string> = {
+  document: 'Documents verified',
+  edit: 'Fields edited',
+  'form-check': 'Form lines checked',
+  diagnostic: 'Diagnostics resolved',
+}
+
+const GROUP_BY_OPTIONS: { id: ActivityGroupBy; label: string }[] = [
+  { id: 'type', label: 'By type' },
+  { id: 'day', label: 'By day' },
+]
 
 type ActivityPanelProps = {
   isOpen: boolean
@@ -161,46 +179,113 @@ function ReviewFeed({
   dateFilter,
   authorFilter,
   activityTypeFilter,
+  groupBy,
   onNavigate,
 }: {
   searchQuery: string
   dateFilter: DateFilterValue
   authorFilter: AuthorFilterValue
   activityTypeFilter: ActivityTypeFilterValue
+  groupBy: ActivityGroupBy
   onNavigate?: (link: ActivityDeepLink) => void
 }) {
-  const filteredDays = useMemo(() => {
-    const filtered = filterActivityEntries(ACTIVITY_FEED_ENTRIES, {
-      date: dateFilter,
-      author: authorFilter,
-      activityType: activityTypeFilter,
-      search: searchQuery,
-    })
-    return groupActivityEntriesByDay(filtered)
-  }, [searchQuery, dateFilter, authorFilter, activityTypeFilter])
+  const [expandedKinds, setExpandedKinds] = useState<Set<ReviewLogKind>>(new Set())
 
-  if (filteredDays.length === 0) {
+  const filtered = useMemo(
+    () =>
+      filterActivityEntries(ACTIVITY_FEED_ENTRIES, {
+        date: dateFilter,
+        author: authorFilter,
+        activityType: activityTypeFilter,
+        search: searchQuery,
+      }),
+    [searchQuery, dateFilter, authorFilter, activityTypeFilter],
+  )
+
+  const filteredDays = useMemo(() => groupActivityEntriesByDay(filtered), [filtered])
+
+  /**
+   * One bucket per activity kind. A flat chronological stream of everything is
+   * hard to scan, so the default view is a few collapsed counts instead.
+   */
+  const groupedKinds = useMemo(() => {
+    const buckets = new Map<ReviewLogKind, typeof filtered>()
+    for (const entry of filtered) {
+      const kind = entryTypeToReviewLogKind(entry.entryType)
+      const bucket = buckets.get(kind)
+      if (bucket) bucket.push(entry)
+      else buckets.set(kind, [entry])
+    }
+    return KIND_SECTION_ORDER.flatMap(kind => {
+      const entries = buckets.get(kind)
+      return entries?.length ? [{ kind, entries }] : []
+    })
+  }, [filtered])
+
+  const toggleKind = (kind: ReviewLogKind) => {
+    setExpandedKinds(prev => {
+      const next = new Set(prev)
+      if (next.has(kind)) next.delete(kind)
+      else next.add(kind)
+      return next
+    })
+  }
+
+  if (filtered.length === 0) {
     return <p className={styles.emptyState}>No activity matches your filters.</p>
+  }
+
+  if (groupBy === 'day') {
+    return (
+      <>
+        {filteredDays.map(day => (
+          <section
+            key={day.id}
+            className={styles.dayGroup}
+            aria-labelledby={`activity-day-${day.id}`}
+          >
+            <h3 id={`activity-day-${day.id}`} className={styles.dayLabel}>
+              {day.label}
+            </h3>
+            <ul className={styles.entryList}>
+              {day.entries.map(entry => (
+                <ActivityEntryRow key={entry.id} entry={entry} onNavigate={onNavigate} />
+              ))}
+            </ul>
+          </section>
+        ))}
+      </>
+    )
   }
 
   return (
     <>
-      {filteredDays.map(day => (
-        <section
-          key={day.id}
-          className={styles.dayGroup}
-          aria-labelledby={`activity-day-${day.id}`}
-        >
-          <h3 id={`activity-day-${day.id}`} className={styles.dayLabel}>
-            {day.label}
-          </h3>
-          <ul className={styles.entryList}>
-            {day.entries.map(entry => (
-              <ActivityEntryRow key={entry.id} entry={entry} onNavigate={onNavigate} />
-            ))}
-          </ul>
-        </section>
-      ))}
+      {groupedKinds.map(({ kind, entries }) => {
+        const expanded = expandedKinds.has(kind)
+        return (
+          <section key={kind} className={styles.kindGroup}>
+            <button
+              type="button"
+              className={styles.kindHeader}
+              aria-expanded={expanded}
+              onClick={() => toggleKind(kind)}
+            >
+              <span className={styles.kindLabel}>{KIND_SECTION_LABEL[kind]}</span>
+              <span className={styles.kindCount}>{entries.length}</span>
+              <span className={styles.kindChevron} aria-hidden>
+                {expanded ? <ChevronDown size="small" /> : <ChevronRight size="small" />}
+              </span>
+            </button>
+            {expanded ? (
+              <ul className={styles.entryList}>
+                {entries.map(entry => (
+                  <ActivityEntryRow key={entry.id} entry={entry} onNavigate={onNavigate} />
+                ))}
+              </ul>
+            ) : null}
+          </section>
+        )
+      })}
     </>
   )
 }
@@ -221,6 +306,7 @@ export default function ActivityPanel({ isOpen, onToggle, onNavigate }: Activity
   const [authorFilter, setAuthorFilter] = useState<AuthorFilterValue>('any')
   const [activityTypeFilter, setActivityTypeFilter] =
     useState<ActivityTypeFilterValue>('any')
+  const [groupBy, setGroupBy] = useState<ActivityGroupBy>('type')
 
   const filteredCount = useMemo(() => {
     if (segment !== 'review') return 0
@@ -383,6 +469,28 @@ export default function ActivityPanel({ isOpen, onToggle, onNavigate }: Activity
         </div>
       </div>
 
+      {segment === 'review' ? (
+        <div className={styles.groupByRow} role="tablist" aria-label="Group activity by">
+          {GROUP_BY_OPTIONS.map(option => {
+            const isActive = groupBy === option.id
+            return (
+              <button
+                key={option.id}
+                type="button"
+                role="tab"
+                aria-selected={isActive}
+                className={[styles.groupByChip, isActive ? styles.groupByChipActive : '']
+                  .filter(Boolean)
+                  .join(' ')}
+                onClick={() => setGroupBy(option.id)}
+              >
+                {option.label}
+              </button>
+            )
+          })}
+        </div>
+      ) : null}
+
       <div className={styles.scroll}>
         {segment === 'review' ? (
           <ReviewFeed
@@ -390,6 +498,7 @@ export default function ActivityPanel({ isOpen, onToggle, onNavigate }: Activity
             dateFilter={dateFilter}
             authorFilter={authorFilter}
             activityTypeFilter={activityTypeFilter}
+            groupBy={groupBy}
             onNavigate={onNavigate}
           />
         ) : null}

@@ -77,10 +77,15 @@ export default function AgentReviewPage() {
   const [searchParams] = useSearchParams()
   const [initialSession] = useState(resolveInitialSession)
   const [historyOpen, setHistoryOpen] = useState(false)
+  /**
+   * The reviewer lands here to catch up on work already done, so the history
+   * rail opens expanded for them — the prior reviews are the point.
+   */
+  const [railExpanded, setRailExpanded] = useState(() => currentUser.role === 'reviewer')
   // Read on open so the list reflects conversations saved during this session.
   const historyEntries = useMemo(
-    () => (historyOpen ? loadAgentHistory() : []),
-    [historyOpen],
+    () => (historyOpen || railExpanded ? loadAgentHistory() : []),
+    [historyOpen, railExpanded],
   )
   const [step, setStep] = useState<AgentStep>(initialSession.step)
   /** The step restored from a past session — it renders finished instead of replaying. */
@@ -314,9 +319,21 @@ export default function AgentReviewPage() {
 
         <div className={styles.body}>
           {!isSidebar ? (
-            <aside className={styles.threadRail} aria-label="Chat navigation">
-              <button type="button" className={styles.railBtn} aria-label="Hide chat history">
+            <aside
+              className={`${styles.threadRail} ${railExpanded ? styles.threadRailExpanded : ''}`}
+              aria-label="Chat navigation"
+            >
+              <button
+                type="button"
+                className={styles.railBtn}
+                aria-label={railExpanded ? 'Hide chat history' : 'Show chat history'}
+                aria-expanded={railExpanded}
+                onClick={() => setRailExpanded(open => !open)}
+              >
                 <MenuExpand size="medium" />
+                {railExpanded ? (
+                  <span className={styles.railBtnLabel}>Hide chat history</span>
+                ) : null}
               </button>
               <button
                 type="button"
@@ -325,19 +342,43 @@ export default function AgentReviewPage() {
                 onClick={handleNewChat}
               >
                 <CommentPencil size="medium" />
+                {railExpanded ? <span className={styles.railBtnLabel}>New chat</span> : null}
               </button>
               <div className={styles.historyAnchor}>
                 <button
                   type="button"
                   className={styles.railBtn}
                   aria-label="Recent chats"
-                  aria-expanded={historyOpen}
-                  onClick={() => setHistoryOpen(open => !open)}
+                  aria-expanded={railExpanded ? undefined : historyOpen}
+                  onClick={railExpanded ? undefined : () => setHistoryOpen(open => !open)}
                 >
                   <ClockCounterclockwise size="medium" />
+                  {railExpanded ? <span className={styles.railBtnLabel}>Recent</span> : null}
                 </button>
 
-                {historyOpen ? (
+                {/* Expanded: the history reads inline. Collapsed: it needs a popover. */}
+                {railExpanded ? (
+                  <div className={styles.historyInline} role="menu" aria-label="Recent chats">
+                    {historyEntries.length ? (
+                      historyEntries.map(entry => (
+                        <button
+                          key={entry.label}
+                          type="button"
+                          role="menuitem"
+                          className={styles.historyItem}
+                          onClick={() => handleOpenHistoryEntry(entry)}
+                        >
+                          <span className={styles.historyItemLabel}>{entry.label}</span>
+                          <span className={styles.historyItemTime}>{entry.at}</span>
+                        </button>
+                      ))
+                    ) : (
+                      <p className={styles.historyEmpty}>
+                        Start a conversation to see your chat history here
+                      </p>
+                    )}
+                  </div>
+                ) : historyOpen ? (
                   <div className={styles.historyMenu} role="menu" aria-label="Recent chats">
                     <p className={styles.historyHeading}>Recent chats</p>
                     {historyEntries.length ? (

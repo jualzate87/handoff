@@ -498,3 +498,86 @@
     flex: 1 1 calc(50% - 4px);
   }
 }
+
+/* ── Group-by toggle ── */
+.groupByRow {
+  display: flex;
+  gap: var(--space-component-gap-x-small, 4px);
+  padding: 0 var(--space-container-padding-small, 16px)
+    var(--space-component-gap-small, 8px);
+}
+
+.groupByChip {
+  padding: var(--space-component-padding-x-small, 4px)
+    var(--space-component-padding-small, 8px);
+  border: 1px solid var(--color-container-border-primary, #d4d7dc);
+  border-radius: var(--radius-small, 4px);
+  background: var(--color-container-background-primary, #ffffff);
+  color: var(--color-text-secondary, #6b6c72);
+  font-family: var(--font-family-component, sans-serif);
+  font-size: var(--font-size-component-x-small, 12px);
+  line-height: 1.3;
+  cursor: pointer;
+}
+
+.groupByChip:hover {
+  background: var(--color-page-background-secondary, #f4f5f8);
+  color: var(--color-text-primary, #393a3d);
+}
+
+.groupByChipActive {
+  border-color: var(--color-action-standard, #205ea3);
+  background: var(--color-container-background-info, #d9effb);
+  color: var(--color-action-standard, #205ea3);
+  font-weight: var(--font-weight-component-bold, 600);
+}
+
+/* ── Grouped-by-type sections ── */
+.kindGroup + .kindGroup {
+  margin-top: var(--space-component-gap-small, 8px);
+}
+
+.kindHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--space-component-gap-small, 8px);
+  width: 100%;
+  padding: var(--space-component-padding-small, 8px) 0;
+  border: none;
+  border-bottom: 1px solid var(--color-divider-tertiary, #d4d7dc);
+  background: none;
+  cursor: pointer;
+  text-align: left;
+}
+
+.kindHeader:hover .kindLabel {
+  color: var(--color-action-standard, #205ea3);
+}
+
+.kindLabel {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-family: var(--font-family-component, sans-serif);
+  font-size: var(--font-size-component-small, 14px);
+  font-weight: var(--font-weight-component-bold, 600);
+  line-height: 1.3;
+  color: var(--color-text-primary, #393a3d);
+}
+
+.kindCount {
+  flex-shrink: 0;
+  padding: 0 var(--space-component-padding-x-small, 6px);
+  border-radius: var(--radius-small, 4px);
+  background: var(--color-page-background-secondary, #f4f5f8);
+  font-family: var(--font-family-component, sans-serif);
+  font-size: var(--font-size-component-x-small, 12px);
+  font-weight: var(--font-weight-component-bold, 600);
+  line-height: 1.6;
+  color: var(--color-text-secondary, #6b6c72);
+}
+
+.kindChevron {
+  display: inline-flex;
+  flex-shrink: 0;
+  color: var(--color-text-secondary, #6b6c72);
+}
