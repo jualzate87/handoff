@@ -4,6 +4,7 @@ import { ChevronRight, Lightning, Undo } from '@design-systems/icons'
 import { Badge } from '@ids-ts/badge'
 import '@ids-ts/badge/dist/main.css'
 import {
+  completeDocumentImport,
   resetAgentDemoReviewState,
   resetPersistedReviewState,
 } from '../../hooks/useSyncedReviewState'
@@ -85,7 +86,9 @@ export default function LaunchPointsFab({ onGuidedTourChange }: LaunchPointsFabP
     (point: LaunchPoint) => {
       if (!point.route) return
       setOpen(false)
-      if (point.route === PREPARER_DIAGNOSTICS_PATH) {
+      if (point.id === 'skip-to-return-ready') {
+        completeDocumentImport()
+      } else if (point.route === PREPARER_DIAGNOSTICS_PATH) {
         prepareDiagnosticsLaunch()
       } else if (point.route === PREPARER_AGENT_DIAGNOSTICS_PATH) {
         prepareAgentLaunch()

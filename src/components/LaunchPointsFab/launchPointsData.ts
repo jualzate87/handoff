@@ -19,6 +19,13 @@ export const DEMO_ENTRY_POINTS: LaunchPoint[] = [
     description: 'Skip the 1040 import flow and start on the SmartReturn screen, with the welcome intro',
     route: '/smart-return?welcome=1',
   },
+  {
+    id: 'skip-to-return-ready',
+    title: 'Skip straight to return ready',
+    status: 'live',
+    description: 'Import from SmartReturn and land directly on "The return is ready for review" — no QuickBooks books screens',
+    route: '/import-confirmation',
+  },
 ]
 
 export const ROLE_SWITCH_POINTS: LaunchPoint[] = [
