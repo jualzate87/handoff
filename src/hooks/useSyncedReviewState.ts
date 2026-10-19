@@ -10,7 +10,12 @@ import {
   AGENT_SCOPED_ISSUE_KEYS,
 } from '../pages/check-return/aiDiagnosticCategories'
 import { canVerifyDoc } from '../pages/data-review/docReviewStatus'
-import { normalizeVerifiedDocEntries, normalizeVerifiedDocKey } from '../data/verifiedDocKeys'
+import {
+  normalizeVerifiedDocEntries,
+  normalizeVerifiedDocKey,
+  PACKET_VERIFY_DOC_KEYS,
+} from '../data/verifiedDocKeys'
+import { PHASE1_FLAG_KEYS } from '../pages/data-review/phase1FieldSync'
 import type { MilestoneCompletion } from '../data/reviewMilestones'
 import {
   AGENT_INTELLIGENCE_ACTOR,
@@ -718,6 +723,65 @@ export function resetPersistedReviewState(): SyncedState {
     // ignore quota / private mode
   }
   return fresh
+}
+
+/**
+ * Documents Amanda leaves unverified at handoff, so the reviewer still has real
+ * work to do and the AI review has something left to surface.
+ */
+const PREPARER_HANDOFF_UNVERIFIED_DOCS = new Set<string>([
+  '1099-int-cascadeFederal',
+  '1099-nec',
+])
+
+/** Import flags Amanda leaves unresolved — the reviewer picks these up. */
+const PREPARER_HANDOFF_UNREVIEWED_FLAGS = new Set<string>([
+  'nec-box1',
+  'grossDistrib-meridian',
+])
+
+/**
+ * Seed the preparer's pass so a reviewer joining mid-flow sees Amanda's work
+ * already in place across the summary, source documents and the 1040 — no
+ * matter what was (or wasn't) clicked as Amanda beforehand.
+ *
+ * Deliberately partial: a couple of documents and import flags stay open, since
+ * a reviewer with nothing left to check can't demonstrate reviewing. Existing
+ * entries are preserved — real work done as Amanda always wins over the seed.
+ */
+export function seedPreparerHandoffWork(): SyncedState {
+  const raw = readPersistedRaw()
+  const current = raw ? hydrateSyncedState(raw) : createDefaultReviewState()
+
+  const seededEntry: ActivityEntry = { by: PREPARER_NAME, at: 'earlier' }
+
+  const verifiedDocs = new Map(current.verifiedDocsList)
+  for (const docKey of PACKET_VERIFY_DOC_KEYS) {
+    if (PREPARER_HANDOFF_UNVERIFIED_DOCS.has(docKey)) continue
+    if (!verifiedDocs.has(docKey)) verifiedDocs.set(docKey, seededEntry)
+  }
+
+  const reviewedFields = new Map(current.reviewedFieldsList)
+  for (const flagKey of PHASE1_FLAG_KEYS) {
+    if (PREPARER_HANDOFF_UNREVIEWED_FLAGS.has(flagKey)) continue
+    if (!reviewedFields.has(flagKey)) reviewedFields.set(flagKey, seededEntry)
+  }
+
+  const next = sanitizeSyncedState({
+    ...current,
+    verifiedDocsList: Array.from(verifiedDocs.entries()),
+    reviewedFieldsList: Array.from(reviewedFields.entries()),
+  })
+
+  writePersisted(next)
+  try {
+    const channel = new BroadcastChannel(CHANNEL_NAME)
+    channel.postMessage(next)
+    channel.close()
+  } catch {
+    // ignore - other tabs will pick up via storage event
+  }
+  return next
 }
 
 /**

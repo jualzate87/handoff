@@ -191,6 +191,74 @@ export function seedHandoffNoteIfMissing(fromId = 'sarah', toId = 'jake'): void 
   }
 }
 
+/**
+ * Comments and notes Amanda left behind while preparing, so a reviewer joining
+ * mid-flow sees her reasoning on the fields she touched — not just that a box
+ * got checked. Contexts match the comment-marker keys the 1040 and Return
+ * Summary rows look up, so each one surfaces on its field.
+ */
+const PREPARER_SEEDED_COMMENTS: { id: string; text: string; context: string }[] = [
+  {
+    id: 'amanda-seed-wages',
+    text: 'Tech Circle W-2 reissued a corrected copy — Box 1 here matches the corrected version, not the original import.',
+    context: 'Form 1040 · W-2 wages',
+  },
+  {
+    id: 'amanda-seed-interest',
+    text: 'Cascade Federal 1099-INT still outstanding. Taxable interest will move once it lands.',
+    context: 'Form 1040 · Taxable interest',
+  },
+  {
+    id: 'amanda-seed-divs',
+    text: 'Northmark reports collectibles gain separately — split out of ordinary dividends so Schedule D picks it up.',
+    context: 'Form 1040 · Ordinary dividends',
+  },
+  {
+    id: 'amanda-seed-ira',
+    text: 'Meridian 1099-R Box 2a is blank. Used Box 1 pending confirmation that no basis applies.',
+    context: 'Form 1040 · IRA distributions',
+  },
+  {
+    id: 'amanda-seed-withholding',
+    text: 'Confirmed 1099 withholding against both the DIV and R forms — totals tie out.',
+    context: 'Form 1040 · Federal tax withheld (1099)',
+  },
+]
+
+/**
+ * Seed Amanda's field comments for a reviewer launch point. Skips any comment
+ * already present (by id), so re-launching never duplicates them and a real
+ * comment left as Amanda is untouched.
+ */
+export function seedPreparerHandoffComments(): void {
+  try {
+    const raw = localStorage.getItem(RETURN_NOTES_KEY)
+    const notes = raw ? (JSON.parse(raw) as { id?: string }[]) : []
+    const existing = new Set(notes.map(note => note.id).filter(Boolean))
+
+    const amanda = getTeamMember('sarah')
+    const seeded = PREPARER_SEEDED_COMMENTS.filter(
+      comment => !existing.has(comment.id),
+    ).map(comment => ({
+      id: comment.id,
+      text: comment.text,
+      author: amanda.name,
+      at: 'earlier',
+      context: comment.context,
+      role: 'preparer' as const,
+      status: 'open' as const,
+    }))
+
+    if (!seeded.length) return
+    localStorage.setItem(RETURN_NOTES_KEY, JSON.stringify([...seeded, ...notes]))
+    window.dispatchEvent(
+      new CustomEvent('protoc3-notes-changed', { detail: { openComments: false } }),
+    )
+  } catch {
+    // ignore prototype storage errors
+  }
+}
+
 /** Who is using the prototype right now — drives handoff-aware copy. */
 export function getCurrentUser(): TeamMember {
   return getTeamMember(loadReturnWorkflow().currentUserId)

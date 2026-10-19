@@ -4,8 +4,11 @@ import { ChevronRight, Lightning, Undo } from '@design-systems/icons'
 import { Badge } from '@ids-ts/badge'
 import '@ids-ts/badge/dist/main.css'
 import {
+  REVIEWER_NAME,
   resetAgentDemoReviewState,
   resetPersistedReviewState,
+  seedPreparerHandoffWork,
+  setReviewActor,
 } from '../../hooks/useSyncedReviewState'
 import {
   AGENT_MODE_SESSION_KEY,
@@ -20,6 +23,7 @@ import {
   preparePreparerHandoffLaunch,
   prepareReviewerHandoffLaunch,
   resetReturnWorkflow,
+  seedPreparerHandoffComments,
 } from '../../lib/returnWorkflow'
 import { Switch } from '@ids-ts/switch'
 import '@ids-ts/switch/dist/main.css'
@@ -91,6 +95,11 @@ export default function LaunchPointsFab({ onGuidedTourChange }: LaunchPointsFabP
         prepareAgentLaunch()
       } else if (point.route === REVIEWER_HANDOFF_PATH) {
         prepareReviewerHandoffLaunch()
+        // The reviewer must always arrive to Amanda's work already done, whatever
+        // was or wasn't clicked as Amanda first.
+        seedPreparerHandoffWork()
+        seedPreparerHandoffComments()
+        setReviewActor(REVIEWER_NAME)
         setStoredDemoRole('reviewer')
         announceJoinedAs('jake')
         navigate(REVIEWER_HANDOFF_PATH)

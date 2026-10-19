@@ -12,6 +12,7 @@ import '@ids-ts/badge/dist/main.css'
 import { IconControl } from '@ids-ts/icon-control'
 import {
   hasAgentIntelligenceFixes,
+  isCurrentReviewerActor,
   useSyncedReviewState,
 } from '../../hooks/useSyncedReviewState'
 import '@ids-ts/icon-control/dist/main.css'
@@ -266,9 +267,12 @@ export default function CheckReturnNav({
 }: CheckReturnNavProps) {
   const focused = variant === 'focused'
   const { reviewedFields } = useSyncedReviewState()
-  const diagnosticCategoryItems = hasAgentIntelligenceFixes(reviewedFields)
-    ? CLEARED_DIAGNOSTIC_CATEGORY_ITEMS
-    : DIAGNOSTIC_CATEGORY_ITEMS
+  // The reviewer inherits a return the preparer already worked: preparer-facing
+  // diagnostic counts aren't theirs to clear, so the rows stay without badges.
+  const diagnosticCategoryItems =
+    hasAgentIntelligenceFixes(reviewedFields) || isCurrentReviewerActor()
+      ? CLEARED_DIAGNOSTIC_CATEGORY_ITEMS
+      : DIAGNOSTIC_CATEGORY_ITEMS
   const [expandedCategory, setExpandedCategory] = useState<ExpandedCategory | null>(null)
 
   const toggleCategory = (category: ExpandedCategory) => {
