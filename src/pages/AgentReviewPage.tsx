@@ -397,6 +397,7 @@ export default function AgentReviewPage() {
                         }
                       : undefined
                   }
+                  onConductAiReview={beginDiagnostics}
                   resumed={resumedStep === 'catch-up'}
                 />
               )}

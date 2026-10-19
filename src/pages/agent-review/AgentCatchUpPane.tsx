@@ -3,6 +3,7 @@ import { CircleCheck, CircleCheckFill, NewWindow } from '@design-systems/icons'
 import {
   CATCH_UP_FOOTER_QUESTION,
   CTA_CLOSE_SUMMARY,
+  CTA_CONDUCT_AI_REVIEW,
   CTA_VIEW_AI_REVIEW,
   getCatchUpContent,
   getCatchUpPriorNotes,
@@ -31,6 +32,8 @@ interface AgentCatchUpPaneProps {
   onApproveReturn: () => void
   /** Opens the completed AI review conversation from the summary. */
   onViewAiReview?: () => void
+  /** Runs a fresh AI review from the summary to surface anything still open. */
+  onConductAiReview?: () => void
   /** Reopening an existing conversation — show the finished summary without replaying it. */
   resumed?: boolean
   /** Closes this panel — used by the signed-off card's "Close" action. */
@@ -157,6 +160,7 @@ function RevealBlock({
 export default function AgentCatchUpPane({
   onApproveReturn,
   onViewAiReview,
+  onConductAiReview,
   resumed = false,
   onClose,
 }: AgentCatchUpPaneProps) {
@@ -336,6 +340,11 @@ export default function AgentCatchUpPane({
                       primaryLabel={content.primaryAction}
                       secondaryLabel={onViewAiReview ? CTA_VIEW_AI_REVIEW : undefined}
                       onSecondaryAction={onViewAiReview}
+                      extraActions={
+                        onConductAiReview
+                          ? [{ label: CTA_CONDUCT_AI_REVIEW, onClick: onConductAiReview }]
+                          : undefined
+                      }
                     />
                   </div>
                 ) : null}

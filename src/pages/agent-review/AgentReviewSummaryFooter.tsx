@@ -12,6 +12,8 @@ interface AgentReviewSummaryFooterProps {
   /** Optional follow-up chip shown beside the primary action. */
   secondaryLabel?: string
   onSecondaryAction?: () => void
+  /** Further follow-up chips, rendered after the secondary one. */
+  extraActions?: { label: string; onClick: () => void }[]
   /** Hides the copy/download/like/dislike row — not relevant to a confirmation card. */
   hideControlBar?: boolean
 }
@@ -22,6 +24,7 @@ export default function AgentReviewSummaryFooter({
   showPrompt = true,
   secondaryLabel,
   onSecondaryAction,
+  extraActions,
   hideControlBar = false,
 }: AgentReviewSummaryFooterProps) {
   const secondary =
@@ -54,6 +57,11 @@ export default function AgentReviewSummaryFooter({
       <AgentReviewSuggestionChips layout="column">
         <SuggestionChip onClick={onPrimaryAction}>{primaryLabel}</SuggestionChip>
         {secondary}
+        {extraActions?.map(action => (
+          <SuggestionChip key={action.label} onClick={action.onClick}>
+            {action.label}
+          </SuggestionChip>
+        ))}
       </AgentReviewSuggestionChips>
     </div>
   )

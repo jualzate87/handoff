@@ -66,11 +66,22 @@ function formatHistoryTime(): string {
   return new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })
 }
 
+/** Conversations from this session only — what actually gets persisted. */
+function loadSessionHistory(): AgentHistoryEntry[] {
+  try {
+    const raw = sessionStorage.getItem(HISTORY_KEY)
+    const parsed = raw ? (JSON.parse(raw) as AgentHistoryEntry[]) : []
+    return Array.isArray(parsed) ? parsed.filter(entry => isResumableStep(entry.step)) : []
+  } catch {
+    return []
+  }
+}
+
 /** Keeps one entry per conversation kind, most recent first. */
 function recordHistoryEntry(step: AgentStep): void {
   const label = HISTORY_LABELS[step]
   if (!label) return
-  const entries = loadAgentHistory().filter(entry => entry.label !== label)
+  const entries = loadSessionHistory().filter(entry => entry.label !== label)
   entries.unshift({ step, label, at: formatHistoryTime() })
   try {
     sessionStorage.setItem(HISTORY_KEY, JSON.stringify(entries.slice(0, 5)))
@@ -79,15 +90,18 @@ function recordHistoryEntry(step: AgentStep): void {
   }
 }
 
+/**
+ * Earlier AI reviews on this same return. A return is reviewed more than once
+ * over its life, so the history rail shows those prior passes alongside this
+ * session's conversations — each one reopens the reviewer summary.
+ */
+const PRIOR_REVIEW_ENTRIES: AgentHistoryEntry[] = [
+  { step: 'catch-up', label: 'Return review · after books import', at: 'Mar 8' },
+  { step: 'catch-up', label: 'Return review · initial import check', at: 'Mar 5' },
+]
+
 export function loadAgentHistory(): AgentHistoryEntry[] {
-  try {
-    const raw = sessionStorage.getItem(HISTORY_KEY)
-    if (!raw) return []
-    const parsed = JSON.parse(raw) as AgentHistoryEntry[]
-    return Array.isArray(parsed) ? parsed.filter(entry => isResumableStep(entry.step)) : []
-  } catch {
-    return []
-  }
+  return [...loadSessionHistory(), ...PRIOR_REVIEW_ENTRIES]
 }
 
 /** Starting a new chat drops the conversation so the panel opens on the welcome screen. */

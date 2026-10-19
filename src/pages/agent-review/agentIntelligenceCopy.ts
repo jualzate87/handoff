@@ -112,6 +112,9 @@ export const CTA_REVIEWER_SUMMARY = 'Get reviewer summary'
 /** Opens the finished AI review from the summary. */
 export const CTA_VIEW_AI_REVIEW = 'See the AI review'
 
+/** Runs a fresh AI review from the summary, to surface anything still open. */
+export const CTA_CONDUCT_AI_REVIEW = 'Conduct an AI review'
+
 export const CTA_SHOW_THINKING = 'Show thinking'
 
 export const LABEL_SUGGESTED_NEXT_STEPS = 'Recommended next steps'
