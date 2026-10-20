@@ -55,14 +55,21 @@ const KNOWN_HASH_ROUTES = [
   '/smart-return',
 ] as const
 
-/** Origin + Vite base path (trailing slash). */
+/**
+ * Origin + the prototype's real deployed path (trailing slash).
+ *
+ * import.meta.env.BASE_URL is baked in at build time and is useless here: a
+ * relative build (base: "./", used for hosts like Ship-It that assign the
+ * subpath only at publish time) resolves to "/" in the bundle no matter where
+ * the files end up, so reading it back drops the actual subpath entirely and
+ * a popout opens at the bare origin instead of the prototype's real address.
+ * window.location.pathname is the one source that always reflects where this
+ * exact file is actually being served from, under any host.
+ */
 export function getPrototypeBaseUrl(): string {
-  const basePath = import.meta.env.BASE_URL || '/'
-  if (basePath === '/') {
-    return `${window.location.origin}/`
-  }
-  const normalized = basePath.endsWith('/') ? basePath : `${basePath}/`
-  return `${window.location.origin}${normalized}`
+  const path = window.location.pathname || '/'
+  const normalized = path.endsWith('/') ? path : `${path.slice(0, path.lastIndexOf('/') + 1)}`
+  return `${window.location.origin}${normalized || '/'}`
 }
 
 /**
