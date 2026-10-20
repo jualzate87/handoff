@@ -35,7 +35,6 @@
 .table {
   width: 100%;
   border-collapse: collapse;
-  table-layout: fixed;
   background: var(--color-container-background-primary, #ffffff);
 }
 
@@ -56,8 +55,10 @@
   border-left: 1px solid var(--color-divider-tertiary);
 }
 
+/* Auto layout: the value columns size to their content and the label column
+   takes the rest, so the change column is never clipped at narrow widths. */
 .colLabel {
-  width: 50%;
+  width: auto;
   padding: 17px 8px 16px;
   font-family: var(--font-family-component) !important;
   font-size: var(--font-size-component-small);
@@ -70,7 +71,7 @@
 
 .colValue,
 .colChange {
-  width: 16%;
+  width: 1%;
   padding: 17px 8px 16px;
   white-space: nowrap;
   font-family: var(--font-family-component) !important;
@@ -85,7 +86,7 @@
 
 /* Change column also carries the expand chevron, pinned to the right edge. */
 .colChange {
-  width: 20%;
+  padding-right: var(--space-component-gap-small, 8px);
 }
 
 /* Inner flex row puts the chevron at the right edge without overlapping the value. */

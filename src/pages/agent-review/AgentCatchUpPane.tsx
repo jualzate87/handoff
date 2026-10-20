@@ -7,6 +7,7 @@ import {
   CTA_VIEW_AI_REVIEW,
   getCatchUpContent,
   getCatchUpPriorNotes,
+  getPriorFieldNotes,
   CATCH_UP_REASONING_TITLE,
   RETURN_SIGNED_OFF_BODY,
   RETURN_SIGNED_OFF_TITLE,
@@ -180,6 +181,8 @@ export default function AgentCatchUpPane({
   const [content] = useState(() => getCatchUpContent(getCurrentUser().role))
   const isReviewer = getCurrentUser().role === 'reviewer'
   const [signedOff, setSignedOff] = useState(false)
+  /** Read once, so the summary narrates the handoff as it stood when it opened. */
+  const [priorFieldNotes] = useState(getPriorFieldNotes)
   const { amounts, verifiedDocs, verifiedDocsMeta } = useSyncedReviewState()
   const reviewerSummary = useMemo(
     () => buildReviewerSummary({ amounts, verifiedDocs, verifiedDocsMeta }),
@@ -246,8 +249,26 @@ export default function AgentCatchUpPane({
                         <blockquote className={styles.handoffQuote}>
                           {getCatchUpPriorNotes()}
                         </blockquote>
-                        <p className={styles.bodyText}>{content.handoffParagraph}</p>
+                        {isReviewer && priorFieldNotes.length ? null : (
+                          <p className={styles.bodyText}>{content.handoffParagraph}</p>
+                        )}
                       </div>
+                      {isReviewer && priorFieldNotes.length ? (
+                        <div className={styles.fieldNotes}>
+                          <p className={styles.subheading}>
+                            Comments {content.fromName} left on specific fields
+                          </p>
+                          <ul className={styles.fieldNoteList}>
+                            {priorFieldNotes.map(note => (
+                              <li key={note.id} className={styles.fieldNote}>
+                                <p className={styles.fieldNoteContext}>{note.context}</p>
+                                <p className={styles.fieldNoteText}>{note.text}</p>
+                              </li>
+                            ))}
+                          </ul>
+                          <p className={styles.bodyText}>{content.handoffParagraph}</p>
+                        </div>
+                      ) : null}
                       {isReviewer ? <SummaryOverview summary={reviewerSummary} /> : null}
                     </section>
                   </RevealBlock>

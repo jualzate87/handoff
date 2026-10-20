@@ -452,6 +452,45 @@ export function getCatchUpPriorNotes(): string {
   return CATCH_UP_PRIOR_NOTES_DEFAULT
 }
 
+export type PriorFieldNote = { id: string; context: string; text: string }
+
+/**
+ * The comments the prior preparer left on individual fields, shown alongside
+ * their handoff note. These are the notes a reviewer actually wants: they say
+ * why a figure is what it is, not just that the return is ready.
+ */
+export function getPriorFieldNotes(): PriorFieldNote[] {
+  try {
+    const raw = localStorage.getItem('protoc3-notes')
+    if (!raw) return []
+    const notes = JSON.parse(raw) as {
+      id?: string
+      text?: string
+      context?: string
+      author?: string
+      status?: string
+    }[]
+    return notes
+      .filter(
+        note =>
+          note.id &&
+          note.text &&
+          note.context &&
+          note.author === CATCH_UP_PRIOR_PREPARER &&
+          note.status !== 'resolved' &&
+          !note.context.toLowerCase().includes('handoff') &&
+          !note.id.startsWith('handoff-'),
+      )
+      .map(note => ({
+        id: note.id as string,
+        context: note.context as string,
+        text: note.text as string,
+      }))
+  } catch {
+    return []
+  }
+}
+
 export const CATCH_UP_HANDOFF_PARAGRAPH =
   `${CATCH_UP_PRIOR_PREPARER} completed data entry and ran the AI-assisted review before handing off. Income includes W-2 wages, three 1099-INTs, three 1099-DIVs, a 1099-R, and a 1099-NEC. Below is what was entered, what each line ties to, how each diagnostic was cleared, and the decisions on this return.`
 
