@@ -256,12 +256,14 @@ export default function AgentCatchUpPane({
                       {isReviewer && priorFieldNotes.length ? (
                         <div className={styles.fieldNotes}>
                           <p className={styles.subheading}>
-                            Comments {content.fromName} left on specific fields
+                            {content.fromName}&rsquo;s field notes
                           </p>
                           <ul className={styles.fieldNoteList}>
                             {priorFieldNotes.map(note => (
                               <li key={note.id} className={styles.fieldNote}>
-                                <p className={styles.fieldNoteContext}>{note.context}</p>
+                                <p className={styles.fieldNoteContext}>
+                                  {note.context.replace(/^Form 1040 · /, '')}
+                                </p>
                                 <p className={styles.fieldNoteText}>{note.text}</p>
                               </li>
                             ))}

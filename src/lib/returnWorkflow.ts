@@ -200,27 +200,27 @@ export function seedHandoffNoteIfMissing(fromId = 'sarah', toId = 'jake'): void 
 const PREPARER_SEEDED_COMMENTS: { id: string; text: string; context: string }[] = [
   {
     id: 'amanda-seed-wages',
-    text: 'Import read $118,940 for Tech Circle Box 1. The W-2 shows $148,940, same as Boxes 3 and 5, so I corrected it. Tina says the jump from last year is a mid-year raise.',
+    text: 'import had box 1 at 118,940, W-2 actually says 148,940 (matches box 3/5 too). fixed. Tina said she got a raise mid-year, checks out',
     context: 'Form 1040 · W-2 wages',
   },
   {
     id: 'amanda-seed-interest',
-    text: 'Cascade Federal 1099-INT is in, but I haven’t checked it against the PDF yet.',
+    text: 'Cascade 1099-INT came in late, haven’t matched it to the PDF yet - don’t forget',
     context: 'Form 1040 · Taxable interest',
   },
   {
     id: 'amanda-seed-divs',
-    text: 'Token Financial qualified dividends imported as $331,250. Box 1b on the 1099-DIV is $187,500, so I corrected it. Broker formatting was unusual, worth a second look.',
+    text: 'qual divs imported wrong (331,250 vs 187,500 on box 1b) - Token’s broker statement is formatted weird, double check my read on this one',
     context: 'Form 1040 · Ordinary dividends',
   },
   {
     id: 'amanda-seed-ira',
-    text: 'Import read $100,000 taxable on the Meridian 1099-R. Box 2a is $150,000, so I corrected it. 20% was withheld, so I’ve asked Tina whether any of it was rolled over.',
+    text: '1099-R box 2a is 150k not 100k like it imported. fixed. 20% fed w/h - need to ask Tina if any of this was a rollover',
     context: 'Form 1040 · IRA distributions',
   },
   {
     id: 'amanda-seed-withholding',
-    text: 'Confirmed 1099 withholding against both the DIV and R forms — totals tie out.',
+    text: 'w/h ties out btwn DIV + R, good',
     context: 'Form 1040 · Federal tax withheld (1099)',
   },
 ]
