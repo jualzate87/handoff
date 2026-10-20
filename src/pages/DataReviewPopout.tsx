@@ -299,16 +299,6 @@ export default function DataReviewPopout() {
     window.close()
   }, [commitUnsavedEdits, getSyncedSnapshot])
 
-  useEffect(() => {
-    const onBeforeUnload = (event: BeforeUnloadEvent) => {
-      if (!sessionDirty) return
-      event.preventDefault()
-      event.returnValue = ''
-    }
-    window.addEventListener('beforeunload', onBeforeUnload)
-    return () => window.removeEventListener('beforeunload', onBeforeUnload)
-  }, [sessionDirty])
-
   const liveTotals = computeLiveReturn(amounts)
   const totalWithholding = liveTotals.totalWithholding
   const updateField = (key: keyof typeof fieldValues, value: number | { techCircle: number }) =>
