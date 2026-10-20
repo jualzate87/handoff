@@ -65,10 +65,20 @@ export function getPrototypeBaseUrl(): string {
   return `${window.location.origin}${normalized}`
 }
 
-/** Full URL for a hash route, e.g. origin + base + #/data-review?… */
+/**
+ * The page's own query string (e.g. "?l=…"), carried forward into every
+ * popout/new-tab URL this prototype opens. Hosts like Ship-It gate every
+ * request on a share token in the query string - a popout built from origin
+ * + hash alone drops it and the new window 404s with "Prototype not found."
+ */
+function getHostQueryString(): string {
+  return window.location.search || ''
+}
+
+/** Full URL for a hash route, e.g. origin + base + ?l=… + #/data-review?… */
 export function buildHashRouteUrl(route: string): string {
   const normalized = route.startsWith('/') ? route : `/${route}`
-  return `${getPrototypeBaseUrl()}#${normalized}`
+  return `${getPrototypeBaseUrl()}${getHostQueryString()}#${normalized}`
 }
 
 /** Open a hash route in a new tab - preserves repo subpath on GitHub Pages. */
