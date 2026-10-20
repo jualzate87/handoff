@@ -120,7 +120,13 @@ function originBreakdown(
   if (!origin) return {}
   const fromSources = origin.sources?.map(s => {
     const label = `${s.label} · ${s.box}`
-    return { label, amount: s.amount, prior: PRIOR_COMPONENTS[label] ?? 0 }
+    return {
+      // The form type is already clear from the parent line, so drop it from
+      // the payer name to keep these on one row.
+      label: label.replace(/ \((?:W-2|1099-[A-Z]+)\)/, '').replace(/ Co\./, ''),
+      amount: s.amount,
+      prior: PRIOR_COMPONENTS[label] ?? 0,
+    }
   })
   const fromCalc = origin.calc?.components.map(c => ({
     label: c.label,
@@ -200,7 +206,7 @@ function buildRows(live: LiveReturnTotals, amounts: LiveAmounts): SummaryRow[] {
         },
       ],
     }),
-    line('deduction', 'Larger of itemized or standard deduction', live.deductionTaken, PRIOR.deductionSum, undefined, {
+    line('deduction', 'Deduction taken', live.deductionTaken, PRIOR.deductionSum, undefined, {
       note:
         live.deductionMethod === 'itemized'
           ? 'Itemized deductions are larger, so the return itemizes.'

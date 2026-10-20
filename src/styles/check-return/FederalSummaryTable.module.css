@@ -29,6 +29,12 @@
   vertical-align: bottom;
 }
 
+/* Year and change headers sit over right-aligned amounts. */
+.headerRow th.colValue,
+.headerRow th.colChange {
+  text-align: right;
+}
+
 .headerRow th:not(:first-child) {
   border-left: 1px solid var(--color-divider-tertiary);
 }
@@ -47,10 +53,12 @@
   vertical-align: top;
 }
 
+/* Wide gutters and right alignment: amounts read by place value, and the
+   columns need air between them to stay scannable. */
 .colValue,
 .colChange {
   width: 1%;
-  padding: 17px 8px 16px;
+  padding: 17px var(--space-component-gap-large, 16px) 16px;
   white-space: nowrap;
   font-family: var(--font-family-component) !important;
   font-size: var(--font-size-component-small);
@@ -58,21 +66,22 @@
   font-variant-numeric: tabular-nums;
   line-height: 20px;
   color: var(--color-text-primary);
-  text-align: left;
+  text-align: right;
   vertical-align: top;
 }
 
 /* Change column also carries the expand chevron, pinned to the right edge. */
+/* The chevron is pinned to the right so the change amounts stay aligned with
+   each other rather than shifting with the chevron's presence. */
 .colChange {
-  padding-right: var(--space-component-gap-small, 8px);
+  position: relative;
+  padding-right: 32px;
 }
 
-/* Inner flex row puts the chevron at the right edge without overlapping the value. */
 .changeInner {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-component-gap-small, 8px);
+  display: block;
+  width: 100%;
+  text-align: right;
 }
 
 .sectionRow th {
@@ -136,7 +145,9 @@
 }
 
 .chevron {
-  flex-shrink: 0;
+  position: absolute;
+  top: 17px;
+  right: 8px;
   color: var(--color-icon-secondary, #6b6c72);
   transition: transform var(--duration-transform-fast, 200ms) var(--ease-transform, ease);
 }
@@ -163,7 +174,7 @@
 
 .breakdownLabel {
   display: inline-block;
-  padding-left: 24px;
+  padding-left: 16px;
 }
 
 .noteRow td {
