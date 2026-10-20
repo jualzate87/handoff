@@ -6,28 +6,6 @@
   flex-direction: column;
 }
 
-.toolbar {
-  display: flex;
-  justify-content: flex-end;
-  margin-bottom: var(--space-component-gap-small, 8px);
-}
-
-.expandAll {
-  padding: var(--space-component-padding-x-small, 4px) 0;
-  border: none;
-  background: none;
-  font-family: var(--font-family-component);
-  font-size: var(--font-size-component-small, 14px);
-  font-weight: var(--font-weight-component-bold, 600);
-  line-height: 20px;
-  color: var(--color-link-text, #0365ac);
-  cursor: pointer;
-}
-
-.expandAll:hover {
-  text-decoration: underline;
-}
-
 .tableScroll {
   overflow-x: auto;
 }
@@ -110,17 +88,31 @@
   text-align: left;
 }
 
+/* Every cell in the row needs the border, or the divider stops short of the
+   table edge where the change column begins. */
 .dataRow .colLabel,
-.dataRow .colValue {
+.dataRow .colValue,
+.dataRow .colChange {
   border-top: 1px solid var(--color-divider-tertiary);
 }
 
 .totalRow .colLabel,
-.totalRow .colValue {
+.totalRow .colValue,
+.totalRow .colChange {
   font-weight: var(--font-weight-component-bold);
 }
 
 /* Label column: expandable lines lead with a chevron; plain lines indent to match. */
+.dataRowExpandable {
+  cursor: pointer;
+}
+
+.dataRowExpandable:hover .colLabel,
+.dataRowExpandable:hover .colValue,
+.dataRowExpandable:hover .colChange {
+  background: var(--color-page-background-secondary, #f4f5f8);
+}
+
 .rowToggle {
   padding: 0;
   border: none;
@@ -131,8 +123,10 @@
   cursor: pointer;
 }
 
-.rowToggle:hover {
-  color: var(--color-link-text, #0365ac);
+.rowToggle:focus-visible {
+  outline: 2px solid var(--color-focus-ring, #0077c5);
+  outline-offset: 2px;
+  border-radius: var(--radius-small, 4px);
 }
 
 .rowToggle:focus-visible {

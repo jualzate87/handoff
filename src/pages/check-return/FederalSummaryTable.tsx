@@ -274,16 +274,11 @@ export default function FederalSummaryTable() {
       ),
     [rows],
   )
-  const [expanded, setExpanded] = useState<Set<string>>(new Set())
-  const allExpanded = expandableIds.length > 0 && expandableIds.every(id => expanded.has(id))
+  /** One line opens at a time, so the table stays readable while comparing. */
+  const [expandedId, setExpandedId] = useState<string | null>(null)
 
   const toggleRow = (id: string) => {
-    setExpanded(prev => {
-      const next = new Set(prev)
-      if (next.has(id)) next.delete(id)
-      else next.add(id)
-      return next
-    })
+    setExpandedId(current => (current === id ? null : id))
   }
 
   const formatValue = (value: number, format: 'currency' | 'rate' = 'currency') =>
@@ -291,16 +286,6 @@ export default function FederalSummaryTable() {
 
   return (
     <div className={styles.root}>
-      <div className={styles.toolbar}>
-        <button
-          type="button"
-          className={styles.expandAll}
-          onClick={() => setExpanded(allExpanded ? new Set() : new Set(expandableIds))}
-        >
-          {allExpanded ? 'Collapse all' : 'Expand all'}
-        </button>
-      </div>
-
       <div className={styles.tableScroll}>
         <table className={styles.table}>
           <thead>
@@ -325,7 +310,7 @@ export default function FederalSummaryTable() {
 
               const format = row.format ?? 'currency'
               const canExpand = expandableIds.includes(row.id)
-              const isOpen = canExpand && expanded.has(row.id)
+              const isOpen = canExpand && expandedId === row.id
               const detailId = `fed-summary-${row.id}-detail`
 
               return (
@@ -335,9 +320,14 @@ export default function FederalSummaryTable() {
                       styles.dataRow,
                       row.total ? styles.totalRow : '',
                       isOpen ? styles.dataRowOpen : '',
+                      canExpand ? styles.dataRowExpandable : '',
                     ]
                       .filter(Boolean)
                       .join(' ')}
+                    // The whole row is the target: the label and the chevron sit
+                    // in different cells, so a button around either one alone
+                    // leaves most of the row dead to a click.
+                    onClick={canExpand ? () => toggleRow(row.id) : undefined}
                   >
                     <th className={styles.colLabel} scope="row">
                       {canExpand ? (
@@ -346,7 +336,10 @@ export default function FederalSummaryTable() {
                           className={styles.rowToggle}
                           aria-expanded={isOpen}
                           aria-controls={detailId}
-                          onClick={() => toggleRow(row.id)}
+                          onClick={event => {
+                            event.stopPropagation()
+                            toggleRow(row.id)
+                          }}
                         >
                           {row.label}
                         </button>
