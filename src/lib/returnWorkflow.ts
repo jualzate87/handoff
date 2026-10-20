@@ -200,22 +200,22 @@ export function seedHandoffNoteIfMissing(fromId = 'sarah', toId = 'jake'): void 
 const PREPARER_SEEDED_COMMENTS: { id: string; text: string; context: string }[] = [
   {
     id: 'amanda-seed-wages',
-    text: 'Tech Circle W-2 reissued a corrected copy — Box 1 here matches the corrected version, not the original import.',
+    text: 'Import read $118,940 for Tech Circle Box 1. The W-2 shows $148,940, same as Boxes 3 and 5, so I corrected it. Tina says the jump from last year is a mid-year raise.',
     context: 'Form 1040 · W-2 wages',
   },
   {
     id: 'amanda-seed-interest',
-    text: 'Cascade Federal 1099-INT still outstanding. Taxable interest will move once it lands.',
+    text: 'Cascade Federal 1099-INT is in, but I haven’t checked it against the PDF yet.',
     context: 'Form 1040 · Taxable interest',
   },
   {
     id: 'amanda-seed-divs',
-    text: 'Northmark reports collectibles gain separately — split out of ordinary dividends so Schedule D picks it up.',
+    text: 'Token Financial qualified dividends imported as $331,250. Box 1b on the 1099-DIV is $187,500, so I corrected it. Broker formatting was unusual, worth a second look.',
     context: 'Form 1040 · Ordinary dividends',
   },
   {
     id: 'amanda-seed-ira',
-    text: 'Meridian 1099-R Box 2a is blank. Used Box 1 pending confirmation that no basis applies.',
+    text: 'Import read $100,000 taxable on the Meridian 1099-R. Box 2a is $150,000, so I corrected it. 20% was withheld, so I’ve asked Tina whether any of it was rolled over.',
     context: 'Form 1040 · IRA distributions',
   },
   {
@@ -233,7 +233,12 @@ const PREPARER_SEEDED_COMMENTS: { id: string; text: string; context: string }[] 
 export function seedPreparerHandoffComments(): void {
   try {
     const raw = localStorage.getItem(RETURN_NOTES_KEY)
-    const notes = raw ? (JSON.parse(raw) as { id?: string }[]) : []
+    const stored = raw ? (JSON.parse(raw) as { id?: string; replies?: unknown[] }[]) : []
+    // Seed comments nobody has replied to are refreshed, so copy changes reach
+    // sessions that already have an older seed. Any conversation on one is kept.
+    const notes = stored.filter(
+      note => !(note.id?.startsWith('amanda-seed-') && !note.replies?.length),
+    )
     const existing = new Set(notes.map(note => note.id).filter(Boolean))
 
     const amanda = getTeamMember('sarah')

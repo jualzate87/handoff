@@ -5,7 +5,7 @@ import { checkReturnFormToOutputId } from './outputFormNav'
 import type { ContentView } from './CheckReturnNav'
 import type { OutputFormId } from '../data-review/outputForms'
 import type { Phase2IssueKey } from '../data-review/phase2FlagSync'
-import { FEDERAL_SUMMARY_ROWS } from './checkReturnSummaryData'
+import FederalSummaryTable from './FederalSummaryTable'
 import ReturnReadyMessage from '../../components/ReturnReadyMessage'
 import { CLIENT_ADDRESS } from '../../data/clientAddress'
 import { hasAgentIntelligenceFixes, useSyncedReviewState } from '../../hooks/useSyncedReviewState'
@@ -54,36 +54,7 @@ export default function CheckReturnMainContent({
             Federal Income Tax Summary: {CLIENT_ADDRESS.name}
           </h1>
           {showReadyMessage ? <ReturnReadyMessage /> : null}
-          <div className={styles.tableScroll}>
-            <table className={styles.summaryTable}>
-              <thead>
-                <tr className={styles.tableHeaderRow}>
-                  <th className={styles.colLabel} scope="col" />
-                  <th className={styles.colValue} scope="col">2023</th>
-                  <th className={styles.colValue} scope="col">2024</th>
-                  <th className={styles.colValue} scope="col">DIFF</th>
-                </tr>
-              </thead>
-              <tbody>
-                {FEDERAL_SUMMARY_ROWS.map(row =>
-                  row.type === 'section' ? (
-                    <tr key={row.label} className={styles.sectionRow}>
-                      <th className={styles.sectionCell} colSpan={4} scope="rowgroup">
-                        {row.label}
-                      </th>
-                    </tr>
-                  ) : (
-                    <tr key={row.label} className={styles.dataRow}>
-                      <th className={styles.colLabel} scope="row">{row.label}</th>
-                      <td className={styles.colValue}>{row.v2023}</td>
-                      <td className={styles.colValue}>{row.v2024}</td>
-                      <td className={styles.colValue}>{row.diff}</td>
-                    </tr>
-                  ),
-                )}
-              </tbody>
-            </table>
-          </div>
+          <FederalSummaryTable />
         </div>
       )}
 

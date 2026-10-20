@@ -29,7 +29,7 @@ export const BOOKS_ADJUSTMENT_SECTIONS: BooksAdjustmentSection[] = [
           { account: 'Consulting income', bookAmount: 20000, adjustment: 0 },
         ],
       },
-      { line: '7', label: 'Other income (loss)', account: 'Interest earned', bookAmount: 52000, adjustment: 0 },
+      { line: '7', label: 'Other income (loss)', account: 'Interest earned', bookAmount: 965.18, adjustment: 0 },
       { line: '13', label: 'Rent', account: 'Office lease', bookAmount: 1203.44, adjustment: 0 },
       {
         line: '20',

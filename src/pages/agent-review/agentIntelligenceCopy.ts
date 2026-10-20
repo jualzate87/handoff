@@ -384,12 +384,12 @@ export const CATCH_UP_REASONING_STEPS = [
     body: 'Reading Amanda\'s notes, resolved flags, and what she flagged for the next reviewer.',
   },
   {
-    title: 'Checking documents and calculations',
-    body: 'Confirming imported source documents and that federal and state calculations tie out.',
+    title: 'Reconciling the return to its sources',
+    body: 'Comparing each 1040 line to the source-document boxes behind it, and checking how each diagnostic was cleared.',
   },
   {
     title: 'Drafting your summary',
-    body: 'Organizing open items, reviewer focus areas, and a final sign-off checklist.',
+    body: 'Organizing data entry, reconciliation, return status, and the decisions on this return.',
   },
 ] as const
 
@@ -413,6 +413,7 @@ export type CatchUpDocLink = {
   popoutTab?: string
   popoutSubTab?: string
   divPayer?: string
+  intPayer?: string
   field?: string
   formId?: string
 }
@@ -452,7 +453,7 @@ export function getCatchUpPriorNotes(): string {
 }
 
 export const CATCH_UP_HANDOFF_PARAGRAPH =
-  `${CATCH_UP_PRIOR_PREPARER} completed the initial data entry and ran the AI-assisted review on this return. She resolved all items flagged by Intuit Intelligence before handing off. Employer: Tech Circle Inc. Income includes W-2 wages, 1099-INT, and 1099-DIV.`
+  `${CATCH_UP_PRIOR_PREPARER} completed data entry and ran the AI-assisted review before handing off. Income includes W-2 wages, three 1099-INTs, three 1099-DIVs, a 1099-R, and a 1099-NEC. Below is what was entered, what each line ties to, how each diagnostic was cleared, and the decisions on this return.`
 
 export const CATCH_UP_AI_REVIEW_INTRO =
   `${CATCH_UP_PRIOR_PREPARER} ran the Intuit Intelligence review and resolved every flagged item:`

@@ -5,7 +5,7 @@ import '@ids-ts/badge/dist/main.css'
 import AgentDiagnosticExpandableCard from '../check-return/AgentDiagnosticExpandableCard'
 import AgentReviewSummaryFooter from './AgentReviewSummaryFooter'
 import intuitIntelligenceLogo from '../../assets/icons/intuit-intelligence-logo-small.svg'
-import { SEED_AMOUNTS } from '../../data/liveReturn'
+import { useReviewIssueContext } from './useReviewIssueContext'
 import {
   openDocOrFormLink,
   type DocOrFormLink,
@@ -106,17 +106,19 @@ export default function AgentReviewProcessingPane({
 }: AgentReviewProcessingPaneProps) {
   const [thinkingExpanded, setThinkingExpanded] = useState(false)
 
+  const reviewContext = useReviewIssueContext()
+
   const { issues, issueCount, totalWithholding, live } = useMemo(
-    () => getActiveIntelligenceIssues(),
-    [],
+    () => getActiveIntelligenceIssues(reviewContext),
+    [reviewContext],
   )
 
   const reviewCards = useMemo(
     () =>
       issues.map((issue) =>
-        buildIntelligenceReviewModel(issue, live, SEED_AMOUNTS, totalWithholding),
+        buildIntelligenceReviewModel(issue, live, reviewContext.amounts, totalWithholding),
       ),
-    [issues, live, totalWithholding],
+    [issues, live, reviewContext, totalWithholding],
   )
 
   const {

@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react'
+import { useMemo, useState, type ReactNode } from 'react'
 import { CircleCheck, CircleCheckFill, NewWindow } from '@design-systems/icons'
 import {
   CATCH_UP_FOOTER_QUESTION,
@@ -26,6 +26,15 @@ import {
 import AgentReviewSummaryFooter from './AgentReviewSummaryFooter'
 import { useCatchUpAnimation } from './useCatchUpAnimation'
 import { openDocOrFormLink } from '../../lib/prototypeRoutes'
+import { useSyncedReviewState } from '../../hooks/useSyncedReviewState'
+import { buildReviewerSummary } from './reviewerSummaryData'
+import {
+  DataEntrySection,
+  DecisionsSection,
+  ReconciliationSection,
+  ReturnStatusSection,
+  SummaryOverview,
+} from './ReviewerSummarySections'
 import styles from '../../styles/agent-review/AgentCatchUpPane.module.css'
 
 interface AgentCatchUpPaneProps {
@@ -45,6 +54,7 @@ function openDocLink(link: CatchUpDocLink) {
     tab: link.popoutTab,
     subTab: link.popoutSubTab,
     divPayer: link.divPayer,
+    intPayer: link.intPayer,
     field: link.field,
     formId: link.formId,
   })
@@ -170,6 +180,11 @@ export default function AgentCatchUpPane({
   const [content] = useState(() => getCatchUpContent(getCurrentUser().role))
   const isReviewer = getCurrentUser().role === 'reviewer'
   const [signedOff, setSignedOff] = useState(false)
+  const { amounts, verifiedDocs, verifiedDocsMeta } = useSyncedReviewState()
+  const reviewerSummary = useMemo(
+    () => buildReviewerSummary({ amounts, verifiedDocs, verifiedDocsMeta }),
+    [amounts, verifiedDocs, verifiedDocsMeta],
+  )
 
   const {
     isReasoning,
@@ -233,80 +248,108 @@ export default function AgentCatchUpPane({
                         </blockquote>
                         <p className={styles.bodyText}>{content.handoffParagraph}</p>
                       </div>
+                      {isReviewer ? <SummaryOverview summary={reviewerSummary} /> : null}
                     </section>
                   </RevealBlock>
 
-                  <RevealBlock visible={visibleBlocks >= 3}>
-                    <hr className={styles.divider} aria-hidden />
-                    <section className={styles.section}>
-                      <h2 className={styles.sectionHeading}>{content.workHeading}</h2>
-                      <div className={styles.listGroup}>
-                        <p className={styles.bodyText}>{content.workIntro}</p>
-                        <DetailList items={content.workItems} />
-                        <blockquote className={styles.callout}>{content.workCallout}</blockquote>
-                      </div>
-                    </section>
-                  </RevealBlock>
+                  {isReviewer ? (
+                    <>
+                      <RevealBlock visible={visibleBlocks >= 3}>
+                        <hr className={styles.divider} aria-hidden />
+                        <DataEntrySection summary={reviewerSummary} />
+                      </RevealBlock>
+                      <RevealBlock visible={visibleBlocks >= 4}>
+                        <hr className={styles.divider} aria-hidden />
+                        <ReconciliationSection summary={reviewerSummary} />
+                      </RevealBlock>
+                      <RevealBlock visible={visibleBlocks >= 5}>
+                        <hr className={styles.divider} aria-hidden />
+                        <ReturnStatusSection summary={reviewerSummary} />
+                      </RevealBlock>
+                      <RevealBlock visible={visibleBlocks >= 6}>
+                        <hr className={styles.divider} aria-hidden />
+                        <DecisionsSection summary={reviewerSummary} />
+                      </RevealBlock>
+                    </>
+                  ) : (
+                    <>
+                      <RevealBlock visible={visibleBlocks >= 3}>
+                        <hr className={styles.divider} aria-hidden />
+                        <section className={styles.section}>
+                          <h2 className={styles.sectionHeading}>{content.workHeading}</h2>
+                          <div className={styles.listGroup}>
+                            <p className={styles.bodyText}>{content.workIntro}</p>
+                            <DetailList items={content.workItems} />
+                            <blockquote className={styles.callout}>
+                              {content.workCallout}
+                            </blockquote>
+                          </div>
+                        </section>
+                      </RevealBlock>
 
-                  <RevealBlock visible={visibleBlocks >= 4}>
-                    <hr className={styles.divider} aria-hidden />
-                    <section className={styles.section}>
-                      <h2 className={styles.sectionHeading}>2. Data entry and reconciliation</h2>
-                      <div className={styles.listGroup}>
-                        <p className={styles.subheading}>Documents imported</p>
-                        <p className={styles.bodyText}>{content.documentsIntro}</p>
-                        <SimpleBulletList items={content.documentsBullets} />
-                      </div>
-                      <div className={styles.listGroup}>
-                        <p className={styles.subheading}>Calculations confirmed</p>
-                        <p className={styles.bodyText}>{content.calculationsIntro}</p>
-                        <SimpleBulletList items={content.calculationsBullets} />
-                      </div>
-                    </section>
-                  </RevealBlock>
+                      <RevealBlock visible={visibleBlocks >= 4}>
+                        <hr className={styles.divider} aria-hidden />
+                        <section className={styles.section}>
+                          <h2 className={styles.sectionHeading}>
+                            2. Data entry and reconciliation
+                          </h2>
+                          <div className={styles.listGroup}>
+                            <p className={styles.subheading}>Documents imported</p>
+                            <p className={styles.bodyText}>{content.documentsIntro}</p>
+                            <SimpleBulletList items={content.documentsBullets} />
+                          </div>
+                          <div className={styles.listGroup}>
+                            <p className={styles.subheading}>Calculations confirmed</p>
+                            <p className={styles.bodyText}>{content.calculationsIntro}</p>
+                            <SimpleBulletList items={content.calculationsBullets} />
+                          </div>
+                        </section>
+                      </RevealBlock>
 
-                  <RevealBlock visible={visibleBlocks >= 5}>
-                    <hr className={styles.divider} aria-hidden />
-                    <section className={styles.section}>
-                      <h2 className={styles.sectionHeading}>{content.focusHeading}</h2>
-                      <div className={styles.listGroup}>
-                        <p className={styles.bodyText}>{content.focusIntro}</p>
-                        <ReviewCheckList
-                          items={content.checklist}
-                          checkedIds={checkedIds}
-                          onToggle={toggleCheck}
-                        />
-                      </div>
-                    </section>
-                  </RevealBlock>
+                      <RevealBlock visible={visibleBlocks >= 5}>
+                        <hr className={styles.divider} aria-hidden />
+                        <section className={styles.section}>
+                          <h2 className={styles.sectionHeading}>{content.focusHeading}</h2>
+                          <div className={styles.listGroup}>
+                            <p className={styles.bodyText}>{content.focusIntro}</p>
+                            <ReviewCheckList
+                              items={content.checklist}
+                              checkedIds={checkedIds}
+                              onToggle={toggleCheck}
+                            />
+                          </div>
+                        </section>
+                      </RevealBlock>
 
-                  <RevealBlock visible={visibleBlocks >= 6}>
-                    <hr className={styles.divider} aria-hidden />
-                    <section className={styles.section}>
-                      <h2 className={styles.sectionHeading}>4. Return status</h2>
-                      <div className={styles.listGroup}>
-                        <ul className={styles.statusList}>
-                          {content.statusItems.map((item) => (
-                            <li key={item.text} className={styles.statusItem}>
-                              {item.complete ? (
-                                <CircleCheckFill
-                                  size="small"
-                                  className={styles.statusIconDone}
-                                  aria-hidden
-                                />
-                              ) : (
-                                <span className={styles.statusBullet} aria-hidden />
-                              )}
-                              <span>{item.text}</span>
-                            </li>
-                          ))}
-                        </ul>
-                        <blockquote className={`${styles.callout} ${styles.calloutItalic}`}>
-                          {content.statusCallout}
-                        </blockquote>
-                      </div>
-                    </section>
-                  </RevealBlock>
+                      <RevealBlock visible={visibleBlocks >= 6}>
+                        <hr className={styles.divider} aria-hidden />
+                        <section className={styles.section}>
+                          <h2 className={styles.sectionHeading}>4. Return status</h2>
+                          <div className={styles.listGroup}>
+                            <ul className={styles.statusList}>
+                              {content.statusItems.map((item) => (
+                                <li key={item.text} className={styles.statusItem}>
+                                  {item.complete ? (
+                                    <CircleCheckFill
+                                      size="small"
+                                      className={styles.statusIconDone}
+                                      aria-hidden
+                                    />
+                                  ) : (
+                                    <span className={styles.statusBullet} aria-hidden />
+                                  )}
+                                  <span>{item.text}</span>
+                                </li>
+                              ))}
+                            </ul>
+                            <blockquote className={`${styles.callout} ${styles.calloutItalic}`}>
+                              {content.statusCallout}
+                            </blockquote>
+                          </div>
+                        </section>
+                      </RevealBlock>
+                    </>
+                  )}
 
                   <RevealBlock visible={visibleBlocks >= 7}>
                     <hr className={styles.divider} aria-hidden />

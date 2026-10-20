@@ -751,7 +751,12 @@ const PREPARER_HANDOFF_UNREVIEWED_FLAGS = new Set<string>([
  */
 export function seedPreparerHandoffWork(): SyncedState {
   const raw = readPersistedRaw()
-  const current = raw ? hydrateSyncedState(raw) : createDefaultReviewState()
+  const persisted = raw ? hydrateSyncedState(raw) : createDefaultReviewState()
+  // Amanda's handoff story is that her AI review corrected the import errors.
+  // Apply those corrections so the 1040 the reviewer opens matches the summary.
+  const current = hasAgentIntelligenceFixes(new Map(persisted.reviewedFieldsList))
+    ? persisted
+    : applyAgentIntelligenceFixesToState(persisted)
 
   const seededEntry: ActivityEntry = { by: PREPARER_NAME, at: 'earlier' }
 
@@ -765,6 +770,11 @@ export function seedPreparerHandoffWork(): SyncedState {
   for (const flagKey of PHASE1_FLAG_KEYS) {
     if (PREPARER_HANDOFF_UNREVIEWED_FLAGS.has(flagKey)) continue
     if (!reviewedFields.has(flagKey)) reviewedFields.set(flagKey, seededEntry)
+  }
+  // The NEC diagnostic only clears once reviewed, and Amanda's review added the
+  // income — so a reviewer's fresh AI review mustn't raise it again.
+  if (current.amounts.necOnReturn && !reviewedFields.has('necScheduleC')) {
+    reviewedFields.set('necScheduleC', seededEntry)
   }
 
   const next = sanitizeSyncedState({

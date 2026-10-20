@@ -10,7 +10,7 @@ import {
   intelligenceIntro,
 } from './agentIntelligenceCopy'
 import AgentReviewSuggestionChips, { SuggestionChip } from './AgentReviewSuggestionChips'
-import { SEED_AMOUNTS } from '../../data/liveReturn'
+import { useReviewIssueContext } from './useReviewIssueContext'
 import type { Phase2IssueKey } from '../data-review/phase2FlagSync'
 import styles from '../../styles/agent-review/AgentReviewDiagnosticsPane.module.css'
 
@@ -26,18 +26,19 @@ export default function AgentReviewDiagnosticsPane({
   onFixOneByOne,
 }: AgentReviewDiagnosticsPaneProps) {
   const [expandedId, setExpandedId] = useState<DiagnosticCardId | null>(null)
+  const reviewContext = useReviewIssueContext()
 
   const { issues, issueCount, totalWithholding, live } = useMemo(
-    () => getActiveIntelligenceIssues(),
-    [],
+    () => getActiveIntelligenceIssues(reviewContext),
+    [reviewContext],
   )
 
   const reviewCards = useMemo(
     () =>
       issues.map(issue =>
-        buildIntelligenceReviewModel(issue, live, SEED_AMOUNTS, totalWithholding),
+        buildIntelligenceReviewModel(issue, live, reviewContext.amounts, totalWithholding),
       ),
-    [issues, live, totalWithholding],
+    [issues, live, reviewContext, totalWithholding],
   )
 
   const handleToggle = (issueKey: Phase2IssueKey, nextExpanded: boolean) => {
