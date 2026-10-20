@@ -254,7 +254,7 @@ export default function CheckReturnPage({
           onAiReview={
             embeddedUnderlay
               ? undefined
-              : () => navigate('/ai-review', { state: { layoutMode: 'fullscreen' } })
+              : () => navigate('/ai-review', { state: { layoutMode: 'sidebar' } })
           }
         />
         {!embeddedUnderlay && showReviewerWelcome ? (

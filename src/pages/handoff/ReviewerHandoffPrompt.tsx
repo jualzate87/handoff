@@ -61,13 +61,13 @@ export default function ReviewerHandoffPrompt({
   const openCatchUp = useCallback(() => {
     sessionStorage.setItem(OPEN_CATCH_UP_KEY, '1')
     finish()
-    navigate('/ai-review', { state: { layoutMode: 'fullscreen' } })
+    navigate('/ai-review', { state: { layoutMode: 'sidebar' } })
   }, [finish, navigate])
 
   const openFullReview = useCallback(() => {
     sessionStorage.removeItem(OPEN_CATCH_UP_KEY)
     finish()
-    navigate('/ai-review', { state: { layoutMode: 'fullscreen' } })
+    navigate('/ai-review', { state: { layoutMode: 'sidebar' } })
   }, [finish, navigate])
 
   if (variant === 'toast') {

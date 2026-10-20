@@ -43,5 +43,5 @@ export function resolveInitialLayoutMode(options?: {
     return queryLayout
   }
 
-  return readStoredLayoutMode() ?? 'fullscreen'
+  return readStoredLayoutMode() ?? 'sidebar'
 }
