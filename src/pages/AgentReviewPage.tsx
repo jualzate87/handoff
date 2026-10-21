@@ -74,11 +74,8 @@ export default function AgentReviewPage() {
   const [searchParams] = useSearchParams()
   const [initialSession] = useState(resolveInitialSession)
   const [historyOpen, setHistoryOpen] = useState(false)
-  /**
-   * The reviewer lands here to catch up on work already done, so the history
-   * rail opens expanded for them — the prior reviews are the point.
-   */
-  const [railExpanded, setRailExpanded] = useState(() => currentUser.role === 'reviewer')
+  /** Collapsed by default — the rail is a nav affordance, not the main content. */
+  const [railExpanded, setRailExpanded] = useState(false)
   // Read on open so the list reflects conversations saved during this session.
   const historyEntries = useMemo(
     () => (historyOpen || railExpanded ? loadAgentHistory() : []),

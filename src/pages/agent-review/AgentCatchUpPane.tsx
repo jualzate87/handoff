@@ -24,6 +24,7 @@ import {
   AgentIntelligenceShowThinking,
 } from './AgentIntelligenceReasoning'
 import AgentReviewSummaryFooter from './AgentReviewSummaryFooter'
+import AgentReviewSuggestionChips, { SuggestionChip } from './AgentReviewSuggestionChips'
 import { useCatchUpAnimation } from './useCatchUpAnimation'
 import { openDocOrFormLink } from '../../lib/prototypeRoutes'
 import { useSyncedReviewState } from '../../hooks/useSyncedReviewState'
@@ -394,18 +395,13 @@ export default function AgentCatchUpPane({
                   </div>
                 ) : null}
 
-                {showControls && !signedOff && isReviewer ? (
+                {showControls && !signedOff && isReviewer && onConductAiReview ? (
                   <div className={styles.revealIn}>
-                    <AgentReviewSummaryFooter
-                      showPrompt={false}
-                      onPrimaryAction={() => setSignedOff(true)}
-                      primaryLabel={content.primaryAction}
-                      extraActions={
-                        onConductAiReview
-                          ? [{ label: CTA_CONDUCT_AI_REVIEW, onClick: onConductAiReview }]
-                          : undefined
-                      }
-                    />
+                    <AgentReviewSuggestionChips layout="column">
+                      <SuggestionChip onClick={onConductAiReview}>
+                        {CTA_CONDUCT_AI_REVIEW}
+                      </SuggestionChip>
+                    </AgentReviewSuggestionChips>
                   </div>
                 ) : null}
               </>
