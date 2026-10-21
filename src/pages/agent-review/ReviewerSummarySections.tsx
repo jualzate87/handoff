@@ -100,13 +100,20 @@ function SummaryAccordion({
   description,
   aside,
   children,
+  open: controlledOpen,
+  onToggle,
 }: {
   title: ReactNode
   description?: ReactNode
   aside?: ReactNode
   children: ReactNode
+  /** Controlled by a parent list so only one card in the list opens at a time. */
+  open?: boolean
+  onToggle?: () => void
 }) {
-  const [open, setOpen] = useState(false)
+  const [uncontrolledOpen, setUncontrolledOpen] = useState(false)
+  const open = controlledOpen ?? uncontrolledOpen
+  const toggle = onToggle ?? (() => setUncontrolledOpen(value => !value))
   const bodyId = useId()
   return (
     <div className={`${styles.card} ${open ? styles.cardOpen : ''}`}>
@@ -115,7 +122,7 @@ function SummaryAccordion({
         className={styles.cardHeader}
         aria-expanded={open}
         aria-controls={bodyId}
-        onClick={() => setOpen(value => !value)}
+        onClick={toggle}
       >
         <span className={styles.cardHeaderMain}>
           <span className={styles.cardTitle}>{title}</span>
@@ -135,6 +142,16 @@ function SummaryAccordion({
       ) : null}
     </div>
   )
+}
+
+/**
+ * One id open at a time within a list of accordion cards, so expanding one
+ * closes whichever other card in the same section was open.
+ */
+function useSingleOpenAccordion<Id extends string>() {
+  const [openId, setOpenId] = useState<Id | null>(null)
+  const toggle = (id: Id) => setOpenId(current => (current === id ? null : id))
+  return { openId, toggle }
 }
 
 function SectionHeader({ title, intro }: { title: string; intro: ReactNode }) {
@@ -241,9 +258,19 @@ export function DataEntrySection({ summary }: { summary: ReviewerSummary }) {
 
 /* ── 2. Reconciliation ── */
 
-function ReconciliationCard({ item }: { item: ReconciliationItem }) {
+function ReconciliationCard({
+  item,
+  open,
+  onToggle,
+}: {
+  item: ReconciliationItem
+  open: boolean
+  onToggle: () => void
+}) {
   return (
     <SummaryAccordion
+      open={open}
+      onToggle={onToggle}
       title={
         <>
           <span className={styles.lineRef}>{item.line}</span>
@@ -286,6 +313,7 @@ function ReconciliationCard({ item }: { item: ReconciliationItem }) {
 }
 
 export function ReconciliationSection({ summary }: { summary: ReviewerSummary }) {
+  const { openId, toggle } = useSingleOpenAccordion<string>()
   return (
     <section className={styles.section}>
       <SectionHeader
@@ -299,7 +327,12 @@ export function ReconciliationSection({ summary }: { summary: ReviewerSummary })
       />
       <div className={styles.cardList}>
         {summary.reconciliation.map(item => (
-          <ReconciliationCard key={item.id} item={item} />
+          <ReconciliationCard
+            key={item.id}
+            item={item}
+            open={openId === item.id}
+            onToggle={() => toggle(item.id)}
+          />
         ))}
       </div>
     </section>
@@ -308,9 +341,19 @@ export function ReconciliationSection({ summary }: { summary: ReviewerSummary })
 
 /* ── 3. Return status ── */
 
-function DiagnosticCard({ item }: { item: DiagnosticItem }) {
+function DiagnosticCard({
+  item,
+  open,
+  onToggle,
+}: {
+  item: DiagnosticItem
+  open: boolean
+  onToggle: () => void
+}) {
   return (
     <SummaryAccordion
+      open={open}
+      onToggle={onToggle}
       title={item.title}
       description={item.severity}
       aside={<Tag tag={item.tag} />}
@@ -329,6 +372,7 @@ function DiagnosticCard({ item }: { item: DiagnosticItem }) {
 }
 
 export function ReturnStatusSection({ summary }: { summary: ReviewerSummary }) {
+  const { openId, toggle } = useSingleOpenAccordion<string>()
   const raised = summary.diagnostics.filter(item => item.severity !== 'Informational').length
   return (
     <section className={styles.section}>
@@ -358,7 +402,12 @@ export function ReturnStatusSection({ summary }: { summary: ReviewerSummary }) {
       </p>
       <div className={styles.cardList}>
         {summary.diagnostics.map(item => (
-          <DiagnosticCard key={item.id} item={item} />
+          <DiagnosticCard
+            key={item.id}
+            item={item}
+            open={openId === item.id}
+            onToggle={() => toggle(item.id)}
+          />
         ))}
       </div>
     </section>
@@ -367,9 +416,19 @@ export function ReturnStatusSection({ summary }: { summary: ReviewerSummary }) {
 
 /* ── 4. Decisions to review ── */
 
-function DecisionCard({ item }: { item: DecisionItem }) {
+function DecisionCard({
+  item,
+  open,
+  onToggle,
+}: {
+  item: DecisionItem
+  open: boolean
+  onToggle: () => void
+}) {
   return (
     <SummaryAccordion
+      open={open}
+      onToggle={onToggle}
       title={item.title}
       description={item.summary}
       aside={<span className={styles.effect}>{item.effectLabel}</span>}
@@ -389,6 +448,7 @@ function DecisionCard({ item }: { item: DecisionItem }) {
 }
 
 export function DecisionsSection({ summary }: { summary: ReviewerSummary }) {
+  const { openId, toggle } = useSingleOpenAccordion<string>()
   return (
     <section className={styles.section}>
       <SectionHeader
@@ -403,7 +463,12 @@ export function DecisionsSection({ summary }: { summary: ReviewerSummary }) {
             <h3 className={styles.groupHeading}>{DECISION_GROUP_LABELS[group]}</h3>
             <div className={styles.cardList}>
               {items.map(item => (
-                <DecisionCard key={item.id} item={item} />
+                <DecisionCard
+                  key={item.id}
+                  item={item}
+                  open={openId === item.id}
+                  onToggle={() => toggle(item.id)}
+                />
               ))}
             </div>
           </div>

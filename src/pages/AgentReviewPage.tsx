@@ -43,10 +43,7 @@ import {
 } from './agent-review/agentReviewSession'
 import AgentLoadingPane from './data-review/AgentLoadingPane'
 import ChatInput from './automated/ChatInput'
-import {
-  hasAgentIntelligenceFixes,
-  useSyncedReviewState,
-} from '../hooks/useSyncedReviewState'
+import { useSyncedReviewState } from '../hooks/useSyncedReviewState'
 import styles from '../styles/AgentReviewPage.module.css'
 
 const ASSESSING_MS = 3200
@@ -107,11 +104,9 @@ export default function AgentReviewPage() {
   const assessTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const agentFixesAppliedRef = useRef(false)
-  const { applyAgentIntelligenceFixes, reviewedFields } = useSyncedReviewState()
+  const { applyAgentIntelligenceFixes } = useSyncedReviewState()
 
   const isSidebar = layoutMode === 'sidebar'
-  /** The review is only worth reopening once its fixes have landed on the return. */
-  const hasCompletedAiReview = hasAgentIntelligenceFixes(reviewedFields)
 
   useEffect(() => {
     persistLayoutMode(layoutMode)
@@ -318,9 +313,11 @@ export default function AgentReviewPage() {
         </header>
 
         <div className={styles.body}>
-          {!isSidebar ? (
+          {
             <aside
-              className={`${styles.threadRail} ${railExpanded ? styles.threadRailExpanded : ''}`}
+              className={`${styles.threadRail} ${railExpanded ? styles.threadRailExpanded : ''} ${
+                isSidebar ? styles.threadRailSidebar : ''
+              }`}
               aria-label="Chat navigation"
             >
               <button
@@ -401,7 +398,7 @@ export default function AgentReviewPage() {
                 ) : null}
               </div>
             </aside>
-          ) : null}
+          }
 
           <div className={styles.main}>
             <div className={styles.pane}>
@@ -430,14 +427,6 @@ export default function AgentReviewPage() {
                 <AgentCatchUpPane
                   onApproveReturn={() => openWorkspace()}
                   onClose={handleClose}
-                  onViewAiReview={
-                    hasCompletedAiReview
-                      ? () => {
-                          setResumedStep('processing')
-                          setStep('processing')
-                        }
-                      : undefined
-                  }
                   onConductAiReview={beginDiagnostics}
                   resumed={resumedStep === 'catch-up'}
                 />

@@ -29,7 +29,16 @@ export type ContentView = 'federal-summary' | 'california-summary' | 'form-outpu
 const APPLICABLE_FORMS = [
   {
     jurisdiction: 'US',
-    forms: ['Letter (US Standard)', 'General Info.', '1040', 'Sch 1', 'Sch B', 'Sch D'],
+    forms: [
+      'Letter (US Standard)',
+      'General Info.',
+      '1040',
+      'Sch 1',
+      'Sch B',
+      'Sch D',
+      'Form 8960',
+      'Form 2210',
+    ],
   },
   {
     jurisdiction: 'CA',
@@ -51,6 +60,8 @@ const ALL_FORMS = [
       'Sch D',
       'Sch E',
       'Form 8949',
+      'Form 8960',
+      'Form 2210',
     ],
   },
   {

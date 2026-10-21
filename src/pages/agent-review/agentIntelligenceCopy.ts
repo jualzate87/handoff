@@ -109,7 +109,7 @@ export const CTA_CLOSE_SUMMARY = 'Close'
 /** Follow-up chip shown after the fix run completes. */
 export const CTA_REVIEWER_SUMMARY = 'Get reviewer summary'
 
-/** Opens the finished AI review from the summary. */
+/** Opens the most recent prior AI review for this return from the summary. */
 export const CTA_VIEW_AI_REVIEW = 'See the AI review'
 
 /** Runs a fresh AI review from the summary, to surface anything still open. */

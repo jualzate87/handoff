@@ -95,7 +95,7 @@ function recordHistoryEntry(step: AgentStep): void {
  * over its life, so the history rail shows those prior passes alongside this
  * session's conversations — each one reopens the reviewer summary.
  */
-const PRIOR_REVIEW_ENTRIES: AgentHistoryEntry[] = [
+export const PRIOR_REVIEW_ENTRIES: AgentHistoryEntry[] = [
   { step: 'catch-up', label: 'Return review · after books import', at: 'Mar 8' },
   { step: 'catch-up', label: 'Return review · initial import check', at: 'Mar 5' },
 ]

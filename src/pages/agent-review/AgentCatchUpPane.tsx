@@ -4,7 +4,6 @@ import {
   CATCH_UP_FOOTER_QUESTION,
   CTA_CLOSE_SUMMARY,
   CTA_CONDUCT_AI_REVIEW,
-  CTA_VIEW_AI_REVIEW,
   getCatchUpContent,
   getCatchUpPriorNotes,
   getPriorFieldNotes,
@@ -40,8 +39,6 @@ import styles from '../../styles/agent-review/AgentCatchUpPane.module.css'
 
 interface AgentCatchUpPaneProps {
   onApproveReturn: () => void
-  /** Opens the completed AI review conversation from the summary. */
-  onViewAiReview?: () => void
   /** Runs a fresh AI review from the summary to surface anything still open. */
   onConductAiReview?: () => void
   /** Reopening an existing conversation — show the finished summary without replaying it. */
@@ -170,7 +167,6 @@ function RevealBlock({
 
 export default function AgentCatchUpPane({
   onApproveReturn,
-  onViewAiReview,
   onConductAiReview,
   resumed = false,
   onClose,
@@ -404,8 +400,6 @@ export default function AgentCatchUpPane({
                       showPrompt={false}
                       onPrimaryAction={() => setSignedOff(true)}
                       primaryLabel={content.primaryAction}
-                      secondaryLabel={onViewAiReview ? CTA_VIEW_AI_REVIEW : undefined}
-                      onSecondaryAction={onViewAiReview}
                       extraActions={
                         onConductAiReview
                           ? [{ label: CTA_CONDUCT_AI_REVIEW, onClick: onConductAiReview }]

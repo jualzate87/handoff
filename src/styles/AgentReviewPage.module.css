@@ -176,6 +176,11 @@
   background: var(--color-container-background-primary, #ffffff);
 }
 
+.threadRailSidebar {
+  width: 52px;
+  padding: var(--space-component-inline-padding-xx-large, 16px) var(--space-component-inline-padding-large, 10px);
+}
+
 .railBtn {
   display: flex;
   align-items: center;

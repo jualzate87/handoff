@@ -5,11 +5,9 @@ import type { FieldOriginSource } from '../../data/fieldOrigins'
 import {
   useSyncedReviewState,
   getReviewActor,
-  hasAgentIntelligenceFixes,
   REVIEWER_NAME,
 } from '../../hooks/useSyncedReviewState'
 import { useReturnNotes } from '../../hooks/useReturnNotes'
-import ReturnReadyMessage from '../../components/ReturnReadyMessage'
 import {
   openSourceDocumentById,
 } from '../../lib/sourceDocPopoutNavigation'
@@ -125,12 +123,6 @@ export default function OutputReviewPanel({
           </span>
         </div>
       </header>
-
-      {hasAgentIntelligenceFixes(reviewedFields) ? (
-        <div className={styles.readyMessageHost}>
-          <ReturnReadyMessage />
-        </div>
-      ) : null}
 
       <div className={styles.formHost}>
         <LeftPanel1040

@@ -8,6 +8,8 @@ const CHECK_RETURN_FORM_MAP: Record<string, OutputFormId> = {
   'Sch D': 'schD',
   'Sch A': 'schA',
   'Form 8949': 'schD',
+  'Form 8960': 'f8960',
+  'Form 2210': 'f2210',
 }
 
 export function checkReturnFormToOutputId(formLabel: string): OutputFormId | null {
